@@ -1,0 +1,17 @@
+buildscript {
+    ext {
+        javaJwtVersion = "3.17.0"
+    }
+}
+
+apply plugin: 'java'
+
+archivesBaseName = 'northernlights-api-core'
+
+dependencies {
+    api project(':chat:libs:northernlights-commons')
+
+    implementation "org.springframework.boot:spring-boot-starter-webflux"
+    implementation "org.springframework.boot:spring-boot-starter-security"
+    implementation "com.auth0:java-jwt:${javaJwtVersion}"
+}

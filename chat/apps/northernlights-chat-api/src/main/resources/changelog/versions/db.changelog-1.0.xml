@@ -1,0 +1,11 @@
+<databaseChangeLog
+        logicalFilePath="db.changelog-1.0.xml"
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+    <!-- list DB models managed by this application -->
+    <!-- related folders are duplicated by gradle during build -->
+    <includeAll path="../features/custom-products" relativeToChangelogFile="true"  errorIfMissingOrEmpty="true"/>
+    <includeAll path="../features/product-index" relativeToChangelogFile="true"  errorIfMissingOrEmpty="true"/>
+</databaseChangeLog>

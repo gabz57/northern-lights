@@ -1,0 +1,19 @@
+buildscript {
+    ext {
+        commonsIOVersion = "2.8.0"
+    }
+}
+
+apply plugin: 'java'
+
+archivesBaseName = 'northernlights-commons'
+
+dependencies {
+    implementation "org.springframework.boot:spring-boot-starter"
+//    implementation "commons-io:commons-io:${commonsIOVersion}"
+
+    testFixturesApi "org.springframework.boot:spring-boot-starter"
+    testFixturesApi "commons-io:commons-io:${commonsIOVersion}"
+//    testFixturesImplementation "org.springframework.boot:spring-boot-starter"
+//    testFixturesImplementation "commons-io:commons-io:${commonsIOVersion}"
+}

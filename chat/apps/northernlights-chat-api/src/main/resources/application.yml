@@ -1,0 +1,82 @@
+server.error.whitelabel.enabled: false
+
+springdoc:
+  api-docs:
+    # /api-docs endpoint custom path
+    path: /api-docs
+    # Disabling the /v3/api-docs enpoint
+    #enabled: false
+  swagger-ui:
+    # swagger-ui custom path
+    path: /swagger-ui.html
+    # Disabling the swagger-ui
+    #enabled: false
+  show-login-endpoint: false
+
+spring:
+  liquibase:
+    enabled: true
+    #    url: ${PRODUCTS_SQL_DATABASE_URL:jdbc:mysql://${MYSQL_HOST:localhost}:3306/db_example}
+    #    user: ${PRODUCTS_SQL_DATABASE_USERNAME:sa}
+    #    password: ${PRODUCTS_SQL_DATABASE_PASSWORD:sa}
+    change-log: classpath:db/changelog/db.changelog-master.xml
+#    default-schema: ""
+#    liquibase-tablespace: ""
+
+logging:
+  level:
+    org:
+      springframework:
+        data:
+          r2dbc: DEBUG
+
+
+product-api:
+  store:
+    r2dbc:
+      url: r2dbc:tc:mysql:///databasename?TC_IMAGE_TAG=5.6.23
+#    custom-product:
+#      r2dbc:
+#        url: r2dbc:tc:mysql:///databasename?TC_IMAGE_TAG=5.6.23
+#    product-index:
+#      r2dbc:
+#        url: r2dbc:tc:mysql:///databasename?TC_IMAGE_TAG=5.6.23
+
+## MySQL
+#  spring.r2dbc.url=r2dbc:pool:mysql://127.0.0.1:3306/demo
+#  spring.r2dbc.username=user
+#  spring.r2dbc.password=password
+#  spring.r2dbc.pool.initial-size=100
+#  spring.r2dbc.pool.max-size=500
+#  spring.r2dbc.pool.max-idle-time=30m
+#  spring.r2dbc.pool.validation-query=SELECT 1
+
+
+### PostgreSQL
+#spring.r2dbc:
+#  url: r2dbc:postgresql://172.17.0.2:5432/postgres?schema=techwriting
+#  username: <username>
+#  password: <password>
+
+#  spring.r2dbc
+#    url: r2dbc:postgresql://localhost/test
+#    username: user
+#    password: password
+#    initialization-mode: always
+#spring.r2dbc.url: r2dbc:tc:mysql:///databasename?TC_IMAGE_TAG=8
+#
+#postgres.host: ${POSTGRES_HOST:127.0.0.1}
+#postgres.port: ${POSTGRES_PORT:5432}
+#postgres.db: ${POSTGRES_DB:postgres}
+#postgres.user: ${POSTGRES_USER:postgres}
+#postgres.password: ${POSTGRES_PASSWORD:postgres}
+#
+#spring.r2dbc.url: r2dbc:postgresql://${postgres.host}:${postgres.port}/${postgres.db}
+#spring.r2dbc.username: ${postgres.user}
+#spring.r2dbc.password: ${postgres.password}
+#spring.r2dbc.initialization-mode: always
+#spring.r2dbc.data: classpath:/db/data.sql
+#spring.r2dbc.schema: classpath:/db/schema.sql
+#spring.r2dbc.pool.max-idle-time: 1m
+#spring.r2dbc.pool.validation-query: select 1;
+#

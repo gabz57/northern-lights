@@ -1,0 +1,27 @@
+pluginManagement {
+    repositories {
+        maven { url 'https://repo.spring.io/snapshot' }
+        maven { url 'https://repo.spring.io/milestone' }
+        mavenCentral()
+        gradlePluginPortal()
+    }
+    resolutionStrategy {
+        eachPlugin {
+            if (requested.id.id == 'org.springframework.boot') {
+                useModule("org.springframework.boot:spring-boot-gradle-plugin:${requested.version}")
+            }
+        }
+    }
+}
+rootProject.name = 'northern-lights'
+
+// LIBS
+include 'chat:libs:northernlights-commons'
+include 'chat:libs:northernlights-chat-core'
+include 'chat:libs:northernlights-api-core'
+include 'chat:libs:northernlights-chat-store'
+include 'chat:libs:northernlights-chat-store-chatter'
+include 'chat:libs:northernlights-chat-store-conversation'
+
+// APPS
+include 'chat:apps:northernlights-chat-api'

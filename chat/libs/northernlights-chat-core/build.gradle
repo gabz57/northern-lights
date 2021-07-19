@@ -1,0 +1,21 @@
+apply plugin: 'java'
+
+archivesBaseName = 'northernlights-chat-core'
+
+dependencies {
+    api project(':chat:libs:northernlights-commons')
+
+//    // @Nullable annotation
+//    implementation "org.springframework.boot:spring-boot-starter"
+////    implementation "commons-io:commons-io:${commonsIOVersion}"
+//    api "javax.json:javax.json-api"
+//    api "org.apache.johnzon:johnzon-core:1.2.8"
+//
+////    testFixturesApi testFixtures(project(':chat:libs:northernlights-commons'))
+////    testFixturesImplementation testFixtures(project(':chat:libs:northernlights-commons'))
+//    testFixturesApi "org.springframework.security:spring-security-test"
+////    testFixturesImplementation "org.springframework.security:spring-security-test"
+//
+////    testFixturesImplementation "org.springframework.boot:spring-boot-starter"
+////    testFixturesImplementation "commons-io:commons-io:${commonsIOVersion}"
+}

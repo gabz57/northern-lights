@@ -1,0 +1,34 @@
+.gradle
+!gradle/wrapper/gradle-wrapper.jar
+/**/build
+env.sh
+/**/application-local.yml
+
+### STS ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
+/**/out
+
+### NetBeans ###
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+
+### VS Code ###
+.vscode/
+
+### Copy from libs to apps (split & avoid duplication) ###
+/apps/northernlights-chat-api/src/main/resources/db/changelog/features/
