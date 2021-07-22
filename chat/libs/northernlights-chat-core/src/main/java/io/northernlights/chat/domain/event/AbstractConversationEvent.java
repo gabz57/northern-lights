@@ -1,16 +1,19 @@
-package io.northernlights.chat.domain.model.conversation.event;
+package io.northernlights.chat.domain.event;
 
 import io.northernlights.chat.domain.model.conversation.ConversationId;
 import io.northernlights.chat.domain.model.conversation.data.ConversationDataId;
+import io.northernlights.chat.domain.event.ConversationEvent.ConversationEventType;
 import lombok.Getter;
 
 @Getter
 public abstract class AbstractConversationEvent {
     private final ConversationId conversationId;
     private final ConversationDataId conversationDataId;
+    private final ConversationEventType conversationEventType;
 
-    protected AbstractConversationEvent(ConversationId conversationId, ConversationDataId conversationDataId) {
+    protected AbstractConversationEvent(ConversationEventType conversationEventType, ConversationId conversationId, ConversationDataId conversationDataId) {
         this.conversationId = conversationId;
         this.conversationDataId = conversationDataId;
+        this.conversationEventType = conversationEventType;
     }
 }

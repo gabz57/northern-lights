@@ -1,46 +1,65 @@
 package io.northernlights.chat.api.infrastructure.conversation.http;
 
 import io.northernlights.chat.api.application.conversation.ChatCommands;
+import io.northernlights.chat.api.infrastructure.conversation.http.model.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
+import org.springframework.http.ReactiveHttpOutputMessage;
+import org.springframework.web.reactive.function.BodyInserter;
+import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
 import reactor.core.publisher.Mono;
+
+import java.util.function.Function;
 
 import static org.springframework.web.reactive.function.server.ServerResponse.ok;
 
 @RequiredArgsConstructor
 public class ChatHandler {
-    private final ChatCommands chatCommands;
-    //    @Operation(
-//        summary = "Count custom products of a cooperative",
-//        tags = {"Custom products"},
-//        parameters = {
-//            @Parameter(in = PATH, name = PARTNER_ID, description = "Cooperative ID")
-//        },
-//        responses = {
-//            @ApiResponse(responseCode = "200", description = "successful operation",
-//                content = @Content(schema = @Schema(implementation = Long.class)))
-//        },
-//        security = @SecurityRequirement(name = OAUTH_2_KEY, scopes = {PRODUCTS_READ_COOPERATIVE_VALUE})
-//    )
-    public Mono<ServerResponse> countChat(ServerRequest request) {
 
-        return ok().bodyValue("");
-//        return toCountChatInput(request)
-//            .flatMap(this.chatQueryFactory.countChatQuery()::execute)
-//            .map(toCountChatResponse())
-//            .flatMap(response -> ok().contentType(MediaType.APPLICATION_JSON).bodyValue(response));
+    private final ChatCommands chatCommands;
+    private final ChatApiAdapter chatApiAdapter;
+
+    public Mono<ServerResponse> authenticateChatter(ServerRequest serverRequest) {
+        return serverRequest.principal()
+            .flatMap(principal -> serverRequest.bodyToMono(ChatAuthenticationRequest.class)
+                .map(request -> chatApiAdapter.adapt(request, principal.getName()))
+                .flatMap(chatCommands.authenticate()::execute)
+                .map(chatApiAdapter::adapt)
+                .flatMap(withJsonResponseBody(ok(), ChatAuthenticationResponse.class)));
     }
 
     public Mono<ServerResponse> createConversation(ServerRequest serverRequest) {
-        return null;
-    }
-
-    public Mono<ServerResponse> markAsRead(ServerRequest serverRequest) {
-        return null;
+        return serverRequest.principal()
+            .flatMap(principal -> serverRequest.bodyToMono(CreateConversationRequest.class)
+                .map(request -> chatApiAdapter.adapt(request, principal.getName()))
+                .flatMap(chatCommands.createConversation()::execute)
+                .map(chatApiAdapter::adapt)
+                .flatMap(withJsonResponseBody(ok(), CreateConversationResponse.class)));
     }
 
     public Mono<ServerResponse> sendMessage(ServerRequest serverRequest) {
-        return null;
+        return serverRequest.principal()
+            .flatMap(principal -> serverRequest.bodyToMono(SendMessageRequest.class)
+                .map(request -> chatApiAdapter.adapt(request, principal.getName()))
+                .flatMap(chatCommands.sendMessage()::execute)
+                .map(chatApiAdapter::adapt)
+                .flatMap(withJsonResponseBody(ok(), SendMessageResponse.class)));
+    }
+
+    public Mono<ServerResponse> markAsRead(ServerRequest serverRequest) {
+        return serverRequest.principal()
+            .flatMap(principal -> serverRequest.bodyToMono(MarkAsReadRequest.class)
+                .map(request -> chatApiAdapter.adapt(request, principal.getName()))
+                .flatMap(chatCommands.markAsRead()::execute)
+                .map(chatApiAdapter::adapt)
+                .flatMap(withJsonResponseBody(ok(), MarkAsReadResponse.class)));
+    }
+
+    private <T> Function<T, Mono<ServerResponse>> withJsonResponseBody(ServerResponse.BodyBuilder responseBuilder, Class<T> elementClass) {
+        return response -> responseBuilder
+            .contentType(MediaType.APPLICATION_JSON)
+            .bodyValue(response);
     }
 }

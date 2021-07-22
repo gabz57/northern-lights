@@ -1,20 +1,49 @@
 package io.northernlights.chat.api.infrastructure.client.http;
 
-import lombok.Builder;
-import lombok.Data;
+import lombok.*;
 
-import java.time.Duration;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Data
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class SseChatPayload {
-    private final String id;
+    private String id;
+    private SseChatConversation conversation;
+    private SseChatChatter chatter;
 
-    private final String event;
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class SseChatConversation {
+        private String name;
+        private String from;
+        private String to;
+        private List<String> participants;
+        private List<SseChatConversationData> data;
+        // ChatterId.id <> ConversationDataId.id
+        private Map<String, String> markedAsRead;
+    }
 
-    private final Duration retry;
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class SseChatConversationData {
+        private String id;
+        private String author;
+        private String message;
+    }
 
-    private final String comment;
-
-    private final Object data;
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class SseChatChatter {
+        private String name;
+    }
 }

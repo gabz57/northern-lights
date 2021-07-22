@@ -1,4 +1,4 @@
-package io.northernlights.chat.domain.model.conversation.event;
+package io.northernlights.chat.domain.event;
 
 import io.northernlights.chat.domain.model.chatter.ChatterId;
 import io.northernlights.chat.domain.model.conversation.ConversationId;
@@ -12,7 +12,7 @@ public class ConversationMessageSentEvent extends AbstractConversationEvent impl
     private final ChatterId author;
 
     public ConversationMessageSentEvent(ConversationId conversationId, ConversationDataId conversationDataId, Message message, ChatterId author) {
-        super(conversationId, conversationDataId);
+        super(ConversationEventType.CONVERSATION_MESSAGE, conversationId, conversationDataId);
         this.message = message;
         this.author = author;
     }

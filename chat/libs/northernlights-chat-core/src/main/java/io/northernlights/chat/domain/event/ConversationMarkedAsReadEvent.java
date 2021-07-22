@@ -1,4 +1,4 @@
-package io.northernlights.chat.domain.model.conversation.event;
+package io.northernlights.chat.domain.event;
 
 import io.northernlights.chat.domain.model.chatter.ChatterId;
 import io.northernlights.chat.domain.model.conversation.ConversationId;
@@ -11,7 +11,7 @@ public class ConversationMarkedAsReadEvent extends AbstractConversationEvent imp
     private final ChatterId markedBy;
 
     public ConversationMarkedAsReadEvent(ConversationId conversationId, ConversationDataId conversationDataId, ConversationDataId markedConversationDataId, ChatterId markedBy) {
-        super(conversationId, conversationDataId);
+        super(ConversationEventType.CONVERSATION_MARKED_AS_READ, conversationId, conversationDataId);
         this.markedConversationDataId = markedConversationDataId;
         this.markedBy = markedBy;
     }

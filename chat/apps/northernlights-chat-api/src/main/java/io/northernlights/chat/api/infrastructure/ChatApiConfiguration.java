@@ -1,25 +1,31 @@
 package io.northernlights.chat.api.infrastructure;
 
 import io.northernlights.api.core.infrastructure.security.NorthernLightsPrincipal;
+import io.northernlights.api.core.infrastructure.security.config.SecurityConfiguration;
 import io.northernlights.commons.TimeService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.core.io.Resource;
 import org.springframework.data.domain.ReactiveAuditorAware;
 import org.springframework.http.CacheControl;
 import org.springframework.http.MediaType;
 import org.springframework.http.codec.ServerCodecConfigurer;
+import org.springframework.http.codec.json.Jackson2JsonEncoder;
+import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.web.reactive.config.EnableWebFlux;
 import org.springframework.web.reactive.config.ResourceHandlerRegistry;
+import org.springframework.web.reactive.config.ViewResolverRegistry;
 import org.springframework.web.reactive.config.WebFluxConfigurer;
 import org.springframework.web.reactive.function.server.RequestPredicates;
 import org.springframework.web.reactive.function.server.RouterFunction;
 import org.springframework.web.reactive.function.server.ServerResponse;
+import org.springframework.web.reactive.result.view.HttpMessageWriterView;
 
 import javax.annotation.PostConstruct;
 import java.time.Clock;
@@ -33,6 +39,7 @@ import static java.util.TimeZone.setDefault;
 import static org.springframework.web.reactive.function.server.RouterFunctions.route;
 import static org.springframework.web.reactive.function.server.ServerResponse.ok;
 
+@Import(SecurityConfiguration.class)
 @Configuration
 @EnableWebFlux
 public class ChatApiConfiguration implements WebFluxConfigurer {
@@ -51,6 +58,11 @@ public class ChatApiConfiguration implements WebFluxConfigurer {
     }
 
     @Bean
+    public LocalConversationEventFlow localConversationEventFlow() {
+        return new LocalConversationEventFlow();
+    }
+
+    @Bean
     @ConfigurationProperties("chat-api")
     public ChatApiProperties chatApiProperties() {
         return new ChatApiProperties();
@@ -66,6 +78,12 @@ public class ChatApiConfiguration implements WebFluxConfigurer {
         registry.addResourceHandler("/favicon.ico")
             .addResourceLocations("/public", "classpath:/static/")
             .setCacheControl(CacheControl.maxAge(365, TimeUnit.DAYS));
+    }
+
+    @Override
+    public void configureViewResolvers(ViewResolverRegistry registry) {
+        Jackson2JsonEncoder encoder = new Jackson2JsonEncoder();
+        registry.defaultViews(new HttpMessageWriterView(encoder));
     }
 //    @Bean
 //    public Jackson2ObjectMapperBuilderCustomizer jackson2ObjectMapperBuilderCustomizer() {

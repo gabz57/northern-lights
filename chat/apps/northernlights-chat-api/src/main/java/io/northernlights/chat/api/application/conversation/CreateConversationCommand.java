@@ -1,11 +1,12 @@
 package io.northernlights.chat.api.application.conversation;
 
 import io.northernlights.chat.api.application.UseCase;
-import io.northernlights.chat.domain.ConversationEventPublisher;
+import io.northernlights.chat.api.domain.conversation.ConversationEventPublisher;
 import io.northernlights.chat.domain.model.chatter.ChatterId;
-import io.northernlights.chat.domain.model.conversation.event.ConversationCreatedEvent;
+import io.northernlights.chat.domain.event.ConversationCreatedEvent;
 import io.northernlights.chat.store.chatter.domain.ChatterStore;
 import io.northernlights.chat.store.conversation.domain.ConversationStore;
+import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 import lombok.Value;
 import reactor.core.publisher.Mono;
@@ -30,6 +31,7 @@ public class CreateConversationCommand implements UseCase<CreateConversationComm
     }
 
     @Value
+    @Builder
     @RequiredArgsConstructor
     public static class CreateConversationCommandInput {
         String conversationName;

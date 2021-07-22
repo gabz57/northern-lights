@@ -32,7 +32,7 @@ public class SecurityContextRepository implements ServerSecurityContextRepositor
             .map(headers -> headers.getFirst(HttpHeaders.AUTHORIZATION))
             .filter(authHeader -> authHeader.startsWith(TOKEN_PREFIX))
             .map(authHeader -> authHeader.replace(TOKEN_PREFIX, ""))
-            .map(authToken -> new UsernamePasswordAuthenticationToken(authToken, authToken)) // used with InvivoAuthenticationManager
+            .map(authToken -> new UsernamePasswordAuthenticationToken(authToken, authToken)) // used with NorthernLightsAuthenticationManager
             .map(authentication -> this.authenticationManager.authenticate(authentication)
                 .map(SecurityContextImpl::new)
                 .cast(SecurityContext.class))

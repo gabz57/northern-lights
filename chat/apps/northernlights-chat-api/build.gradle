@@ -7,8 +7,8 @@ buildscript {
 
 apply plugin: 'java'
 apply plugin: 'org.springframework.boot'
-apply plugin: 'org.springframework.experimental.aot'
-apply plugin: 'org.graalvm.buildtools.native'
+//apply plugin: 'org.springframework.experimental.aot'
+//apply plugin: 'org.graalvm.buildtools.native'
 apply plugin: 'org.springdoc.openapi-gradle-plugin'
 
 configurations {
@@ -27,14 +27,14 @@ dependencies {
     implementation "com.auth0:java-jwt:${javaJwtVersion}"
 
     // SQL
-    implementation "org.springframework.boot:spring-boot-starter-data-r2dbc"
-    implementation 'dev.miku:r2dbc-mysql:0.8.2.RELEASE'
+//    implementation "org.springframework.boot:spring-boot-starter-data-r2dbc"
+//    implementation 'dev.miku:r2dbc-mysql:0.8.2.RELEASE'
     // runtimeOnly "io.r2dbc:r2dbc-h2"
 
     // spring-jdbc for sql migration
-    implementation "org.springframework.boot:spring-boot-starter-jdbc"
-    implementation "org.liquibase:liquibase-core"
-    implementation "mysql:mysql-connector-java:8.0.22"
+//    implementation "org.springframework.boot:spring-boot-starter-jdbc"
+//    implementation "org.liquibase:liquibase-core"
+//    implementation "mysql:mysql-connector-java:8.0.22"
 
     implementation project(':chat:libs:northernlights-chat-core')
     implementation project(':chat:libs:northernlights-api-core')
@@ -57,15 +57,16 @@ dependencies {
     testFixturesImplementation "org.apache.commons:commons-lang3"
 
     // Testing
+    testImplementation "net.javacrumbs.json-unit:json-unit-assertj:2.27.0"
     testImplementation "io.projectreactor:reactor-test"
 //    testImplementation testFixtures(project(':chat:libs:northernlights-commons'))
     testImplementation testFixtures(project(':chat:libs:northernlights-chat-core'))
-    integrationTestImplementation "io.r2dbc:r2dbc-h2"
-    integrationTestImplementation "com.h2database:h2"
-
-    e2eTestImplementation "org.testcontainers:mysql:1.15.3"
-    e2eTestImplementation "org.testcontainers:r2dbc:1.15.3"
-    e2eTestImplementation "org.testcontainers:junit-jupiter:1.15.3"
+//    integrationTestImplementation "io.r2dbc:r2dbc-h2"
+//    integrationTestImplementation "com.h2database:h2"
+//
+//    e2eTestImplementation "org.testcontainers:mysql:1.15.3"
+//    e2eTestImplementation "org.testcontainers:r2dbc:1.15.3"
+//    e2eTestImplementation "org.testcontainers:junit-jupiter:1.15.3"
 }
 
 openApi {
@@ -77,7 +78,7 @@ openApi {
 //    forkProperties = System.properties
 }
 
-bootBuildImage {
-    builder = 'paketobuildpacks/builder:tiny'
-    environment = ['BP_NATIVE_IMAGE': 'true']
-}
+//bootBuildImage {
+//    builder = 'paketobuildpacks/builder:tiny'
+//    environment = ['BP_NATIVE_IMAGE': 'true']
+//}

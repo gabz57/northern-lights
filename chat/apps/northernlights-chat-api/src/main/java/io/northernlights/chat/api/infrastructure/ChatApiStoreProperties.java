@@ -10,7 +10,9 @@ import org.springframework.boot.context.properties.NestedConfigurationProperty;
 public class ChatApiStoreProperties extends StoreProperties {
 
     @NestedConfigurationProperty
-    private StoreProperties chat;
+    private StoreProperties conversation;
     @NestedConfigurationProperty
     private StoreProperties chatter;
+//    @NestedConfigurationProperty
+//    private StoreProperties client;
 }

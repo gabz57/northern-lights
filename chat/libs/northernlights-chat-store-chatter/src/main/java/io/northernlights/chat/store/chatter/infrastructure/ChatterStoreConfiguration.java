@@ -8,6 +8,6 @@ import org.springframework.context.annotation.Configuration;
 public class ChatterStoreConfiguration {
     @Bean
     public ChatterStore chatterStore() {
-        return null;
+        return new InMemoryChatterStore();
     }
 }

@@ -5,4 +5,5 @@ import lombok.Value;
 @Value
 public class Chatter {
     ChatterId chatterID;
+    String name;
 }

@@ -111,6 +111,10 @@ allprojects { project ->
             testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine"
             testImplementation "org.mockito:mockito-junit-jupiter"
 
+            testCompileOnly "org.projectlombok:lombok"
+            testAnnotationProcessor "org.projectlombok:lombok"
+//            testImplementation "org.slf4j:slf4j-api"
+
             // no value, only to avoid a specific warning logs during build
             implementation 'com.google.code.findbugs:annotations:3.0.1u2'
         }
@@ -242,6 +246,8 @@ allprojects { project ->
         configurations {
             e2eTestImplementation.extendsFrom testImplementation
             e2eTestRuntimeOnly.extendsFrom testRuntimeOnly
+            e2eTestCompileOnly.extendsFrom testCompileOnly
+            e2eTestAnnotationProcessor.extendsFrom testAnnotationProcessor
             runtimeClasspath {
                 extendsFrom developmentOnly
             }

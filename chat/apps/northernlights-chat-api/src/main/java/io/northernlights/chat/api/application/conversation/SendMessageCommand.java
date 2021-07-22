@@ -1,13 +1,14 @@
 package io.northernlights.chat.api.application.conversation;
 
 import io.northernlights.chat.api.application.UseCase;
-import io.northernlights.chat.domain.ConversationEventPublisher;
+import io.northernlights.chat.api.domain.conversation.ConversationEventPublisher;
 import io.northernlights.chat.domain.model.chatter.ChatterId;
 import io.northernlights.chat.domain.model.conversation.ConversationId;
 import io.northernlights.chat.domain.model.conversation.Message;
-import io.northernlights.chat.domain.model.conversation.event.ConversationMessageSentEvent;
+import io.northernlights.chat.domain.event.ConversationMessageSentEvent;
 import io.northernlights.chat.store.chatter.domain.ChatterStore;
 import io.northernlights.chat.store.conversation.domain.ConversationStore;
+import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 import lombok.Value;
 import reactor.core.publisher.Mono;
@@ -24,14 +25,15 @@ public class SendMessageCommand implements UseCase<SendMessageCommandInput, Send
 
     public Mono<SendMessageCommandResult> execute(SendMessageCommandInput input) {
         return conversationStore.appendMessage(input.conversationID, input.chatterID, input.message)
-            .doOnNext(conversationUpdatedEvent ->
-                conversationStore.participants(input.conversationID)
-                    .subscribe(participants -> chatterStore.writeConversationUpdate(conversationUpdatedEvent, participants)))
-            .doOnNext(conversationEventPublisher::publish)
+//            .zipWhen(conversationUpdatedEvent ->
+//                conversationStore.participants(input.conversationID)
+//                    .map(participants -> chatterStore.writeConversationUpdate(conversationUpdatedEvent, participants)), (t1, t2) -> t1)
+            .zipWhen(conversationEventPublisher::publish, (t1, t2) -> t1)
             .map(SendMessageCommandResult::new);
     }
 
     @Value
+    @Builder
     @RequiredArgsConstructor
     public static class SendMessageCommandInput {
         ConversationId conversationID;
@@ -40,6 +42,7 @@ public class SendMessageCommand implements UseCase<SendMessageCommandInput, Send
     }
 
     @Value
+    @Builder
     @RequiredArgsConstructor
     public static class SendMessageCommandResult {
         ConversationMessageSentEvent conversationMessageSentEvent;
