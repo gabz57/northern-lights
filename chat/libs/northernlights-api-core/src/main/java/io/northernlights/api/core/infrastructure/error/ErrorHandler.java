@@ -19,6 +19,12 @@ public class ErrorHandler implements HandlerFilterFunction<ServerResponse, Serve
             .onErrorMap(IllegalArgumentException.class, BadRequestException::new)
             .onErrorMap(UnauthorizedActionException.class, ForbiddenException::new)
             .onErrorMap(ResourceNotFoundException.class, NotFoundException::new)
-            .onErrorMap(ForbiddenStateException.class, ConflictException::new);
+            .onErrorMap(ForbiddenStateException.class, ConflictException::new)
+            .onErrorMap(e -> !(
+                e instanceof BadRequestException ||
+                    e instanceof ForbiddenException ||
+                    e instanceof NotFoundException ||
+                    e instanceof ConflictException
+            ), InternalServerErrorException::new);
     }
 }

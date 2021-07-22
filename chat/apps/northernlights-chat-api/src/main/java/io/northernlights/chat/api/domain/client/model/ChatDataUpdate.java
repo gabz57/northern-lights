@@ -7,8 +7,6 @@ import io.northernlights.chat.domain.model.conversation.data.ConversationDataId;
 import lombok.Builder;
 import lombok.Value;
 
-import java.util.List;
-
 @Value
 @Builder
 public class ChatDataUpdate implements ChatData {

@@ -8,14 +8,14 @@ import org.springframework.boot.autoconfigure.web.servlet.error.ErrorMvcAutoConf
 import org.springframework.boot.builder.SpringApplicationBuilder;
 
 @SpringBootApplication(
-        exclude = {WebMvcAutoConfiguration.class, ErrorMvcAutoConfiguration.class, SecurityAutoConfiguration.class},
-        scanBasePackageClasses = ChatApiApplication.class
+    exclude = {WebMvcAutoConfiguration.class, ErrorMvcAutoConfiguration.class, SecurityAutoConfiguration.class},
+    scanBasePackageClasses = ChatApiApplication.class
 )
 public class ChatApiApplication {
 
     public static void main(String[] args) {
         new SpringApplicationBuilder(ChatApiApplication.class)
-                .web(WebApplicationType.REACTIVE)
-                .run(args);
+            .web(WebApplicationType.REACTIVE)
+            .run(args);
     }
 }

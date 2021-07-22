@@ -60,6 +60,10 @@ public class InMemoryConversationStore implements ConversationStore {
             : Mono.just(new Conversation(conversations.get(conversationId)));
     }
 
+    public Mono<String> conversationName(ConversationId conversationId) {
+        return Mono.just(((ConversationCreation) conversations.get(conversationId).get(0)).getName());
+    }
+
     public Mono<Map<ChatterId, ConversationDataId>> readMarkers(ConversationId conversationId) {
         return Mono.just(conversationsReadStatus.get(conversationId));
     }

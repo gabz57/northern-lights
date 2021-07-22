@@ -38,7 +38,7 @@ public class ChatApiAdapter {
     public SendMessageCommandInput adapt(SendMessageRequest request, String issuer) {
         return SendMessageCommandInput.builder()
             .chatterID(new ChatterId(issuer))
-            .conversationID(new ConversationId(request.getConversationID()))
+            .conversationID(new ConversationId(request.getConversationId()))
             .message(new Message(request.getMessage()))
             .build();
     }
@@ -69,7 +69,7 @@ public class ChatApiAdapter {
         return ChatAuthenticationCommandInput.builder()
             .chatterId(new ChatterId(issuer))
             .conversationStatus(request.getConversationStatuses().entrySet().stream()
-                .collect(toMap(e -> new ConversationId(e.getKey()) , e -> new ConversationDataId(e.getValue()))))
+                .collect(toMap(e -> new ConversationId(e.getKey()), e -> new ConversationDataId(e.getValue()))))
             .build();
     }
 

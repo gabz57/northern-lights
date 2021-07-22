@@ -1,17 +1,18 @@
 package io.northernlights.chat.store.chatter.infrastructure;
 
+import io.northernlights.chat.domain.event.ConversationCreatedEvent;
 import io.northernlights.chat.domain.model.chatter.Chatter;
 import io.northernlights.chat.domain.model.chatter.ChatterId;
 import io.northernlights.chat.domain.model.conversation.ConversationId;
 import io.northernlights.chat.domain.model.conversation.data.ConversationDataId;
-import io.northernlights.chat.domain.event.ConversationCreatedEvent;
 import io.northernlights.chat.store.chatter.domain.ChatterStore;
-import reactor.core.publisher.Flux;
+import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
+@Slf4j
 public class InMemoryChatterStore implements ChatterStore {
 
     // COLD
@@ -73,6 +74,7 @@ public class InMemoryChatterStore implements ChatterStore {
     }
 
     public Mono<ChatterId> findChatterIdBySseChatKey(String sseChatKey) {
+        log.info("findChatterIdBySseChatKey > {}", sseChatKey);
         return Mono.just(chatterIdBySseChatKey.get(sseChatKey));
     }
 

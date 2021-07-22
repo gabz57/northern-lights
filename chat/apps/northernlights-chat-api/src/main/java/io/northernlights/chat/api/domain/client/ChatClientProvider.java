@@ -3,11 +3,13 @@ package io.northernlights.chat.api.domain.client;
 import io.northernlights.chat.api.domain.client.model.ChatClient;
 import io.northernlights.chat.api.domain.client.model.ChatClientID;
 import io.northernlights.chat.domain.model.chatter.ChatterId;
+import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+@Slf4j
 public class ChatClientProvider {
 
     private final Map<ChatClientID, ChatClient> chatClientsById = new ConcurrentHashMap<>();
@@ -25,13 +27,10 @@ public class ChatClientProvider {
             this::createClient);
     }
 
-    public void stopClient(ChatClientID chatClientID) {
+    public void stopClient(ChatClientID chatClientID, String sseChatKey) {
+        log.info("Stopping client {}", chatClientID);
         chatClientsById.remove(chatClientID)
             .stop();
-    }
-
-    public void stopClientAndRevokeKey(ChatClientID chatClientID, String sseChatKey) {
-        stopClient(chatClientID);
         chatClientStore.revoke(sseChatKey);
     }
 

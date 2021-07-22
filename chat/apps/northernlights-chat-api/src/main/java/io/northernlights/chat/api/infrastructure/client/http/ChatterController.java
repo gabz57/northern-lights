@@ -8,15 +8,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.http.codec.ServerSentEvent;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.context.request.async.AsyncRequestTimeoutException;
 import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
-import java.time.Duration;
+import static java.time.Duration.ofSeconds;
 
 @Slf4j
 @Controller
@@ -25,7 +22,7 @@ public class ChatterController {
 
     private static final long KEEP_ALIVE_DELAY_IN_SECONDS = 15;
     private static final Flux<ServerSentEvent<SseChatPayload>> KEEP_ALIVE_FLUX = Flux
-        .interval(Duration.ofSeconds(KEEP_ALIVE_DELAY_IN_SECONDS))
+        .interval(ofSeconds(KEEP_ALIVE_DELAY_IN_SECONDS))
         .map(delay -> ServerSentEvent.<SseChatPayload>builder().comment("keep alive").build());
 
     private final ChatClientProvider chatClientProvider;
@@ -34,13 +31,12 @@ public class ChatterController {
     /**
      * example to test:
      * <PRE>
-     * curl -X GET -H 'Content-Type: text/event-stream' http://localhost:8081/v1/chat/api/sse --data-binary '{"msg":"Hello", "onBehalfOf":"me"}'
+     * curl -X GET -H 'Content-Type: text/event-stream' -H 'sse-chat-key: 927dc5d2-fa27-4929-82e0-e64f863f7b18' http://localhost:8080/v1/chat/api/sse
      * </PRE>
      */
     @ResponseBody
     @GetMapping(path = "/v1/chat/api/sse", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public Flux<ServerSentEvent<SseChatPayload>> sseChatDataFlow(
-//        @RequestHeader(name = "last-event-id", required = false) String lastEventId,
         @RequestHeader(name = "sse-chat-key") String sseChatKey
     ) {
         return chatClientProvider.authenticate(sseChatKey)
@@ -48,20 +44,16 @@ public class ChatterController {
             .flatMapMany(chatClientId -> subscribeChatterFlowSince(chatClientId, sseChatKey)
                 .flatMap(this::chatDataToServerSentEvent)
                 .mergeWith(KEEP_ALIVE_FLUX)
-                // when client leaves
-                .doOnCancel(() -> chatClientProvider.stopClientAndRevokeKey(chatClientId, sseChatKey))
-                // when container stops
-                .doOnTerminate(() -> chatClientProvider.stopClient(chatClientId)));
-//            .doOnNext(s -> log.info("SSE NEXT: {}", s));
+                .doOnCancel(() -> chatClientProvider.stopClient(chatClientId, sseChatKey)));
 //            .onErrorResume(e -> Mono.just(throwableToSse(e)));
     }
 
-    private ServerSentEvent<SseChatPayload> throwableToSse(Throwable throwable) {
-        return ServerSentEvent.<SseChatPayload>builder()
-            .event("ERROR")
-            .comment(throwable.getMessage())
-            .build();
-    }
+//    private ServerSentEvent<SseChatPayload> throwableToSse(Throwable throwable) {
+//        return ServerSentEvent.<SseChatPayload>builder()
+//            .event("ERROR")
+//            .comment(throwable.getMessage())
+//            .build();
+//    }
 
     private Flux<ChatData> subscribeChatterFlowSince(ChatClientID chatClientID, String sseChatKey) {
         return chatClientProvider.getOrCreateClient(chatClientID)
@@ -77,9 +69,8 @@ public class ChatterController {
                 .build());
     }
 
-    @ExceptionHandler(value = AsyncRequestTimeoutException.class)
-    public String asyncTimeout(AsyncRequestTimeoutException e) {
-        return null; // "SSE timeout..OK";
-    }
-
+//    @ExceptionHandler(value = AsyncRequestTimeoutException.class)
+//    public String asyncTimeout(AsyncRequestTimeoutException e) {
+//        return null; // "SSE timeout..OK";
+//    }
 }

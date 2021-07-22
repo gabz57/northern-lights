@@ -26,11 +26,13 @@ public class ChatDataAdapter {
 
     public ChatData adaptColdData(
         ConversationId conversationId,
+        String conversationName,
         List<Chatter> chatters,
         Conversation conversation,
         Map<ChatterId, ConversationDataId> readMarkerByChatterId
     ) {
         return ChatDataConversationInstall.builder()
+            .name(conversationName)
             .conversationId(conversationId)
             .chatters(chatters)
             .conversationData(conversation)

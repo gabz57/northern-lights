@@ -1,8 +1,8 @@
 package io.northernlights.chat.domain.event;
 
+import io.northernlights.chat.domain.event.ConversationEvent.ConversationEventType;
 import io.northernlights.chat.domain.model.conversation.ConversationId;
 import io.northernlights.chat.domain.model.conversation.data.ConversationDataId;
-import io.northernlights.chat.domain.event.ConversationEvent.ConversationEventType;
 import lombok.Getter;
 
 @Getter

@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 
 public class SseChatDataAdapter {
 
-    private static final String CONVERSATION_INSTALL =        "CONVERS:INSTALL";
+    private static final String CONVERSATION_INSTALL = "CONVERS:INSTALL";
     private static final String CONVERSATION_UPDATE_MESSAGE = "CONVERS:UPDATE:MESSAGE";
     private static final String CONVERSATION_UPDATE_READ_MARKER = "CONVERS:UPDATE:READ_MARKER";
     private static final String CHATTER_INSTALL = "CHATTER:INSTALL";
@@ -41,43 +41,46 @@ public class SseChatDataAdapter {
             case UPDATE -> {
                 ChatDataUpdate chatDataUpdate = (ChatDataUpdate) chatData;
                 if (chatDataUpdate.getMessage() != null) {
-                    final ChatDataUpdate.MessageValue messageValue = chatDataUpdate.getMessage();
-
-                    yield Flux.just(SseChatData.builder()
-                        // .id()
-                        .event(CONVERSATION_UPDATE_MESSAGE)
-                        .payload(SseChatPayload.builder()
-                            .id(chatDataUpdate.getConversationId().getId())
-                            .conversation(SseChatConversation.builder()
-                                .data(List.of(
-                                    SseChatPayload.SseChatConversationData.builder()
-                                        .id(messageValue.getConversationDataId().getId())
-                                        .message(messageValue.getMessage().getContent())
-                                        .author(messageValue.getAuthor().getId())
-                                        .build()
-                                ))
-                                .build())
-                            .build())
-                        .build());
+                    yield updateConversationMessage(chatDataUpdate, chatDataUpdate.getMessage());
                 } else if (chatDataUpdate.getMarkedAsRead() != null) {
-                    final ChatDataUpdate.MarkedAsReadValue markedAsReadValue = chatDataUpdate.getMarkedAsRead();
-
-                    yield Flux.just(SseChatData.builder()
-                        // .id()
-                        .event(CONVERSATION_UPDATE_READ_MARKER)
-                        .payload(SseChatPayload.builder()
-                            .id(chatDataUpdate.getConversationId().getId())
-                            .conversation(SseChatConversation.builder()
-                                .markedAsRead(Map.of(markedAsReadValue.getBy().getId(), markedAsReadValue.getAt().getId()))
-                                .build())
-                            .build())
-                        .build());
-
+                    yield updateConversationReadMarker(chatDataUpdate, chatDataUpdate.getMarkedAsRead());
                 } else {
                     yield Flux.empty();
                 }
             }
         };
+    }
+
+    private Flux<SseChatData> updateConversationMessage(ChatDataUpdate chatDataUpdate, ChatDataUpdate.MessageValue messageValue) {
+        return Flux.just(SseChatData.builder()
+            // .id()
+            .event(CONVERSATION_UPDATE_MESSAGE)
+            .payload(SseChatPayload.builder()
+                .id(chatDataUpdate.getConversationId().getId())
+                .conversation(SseChatConversation.builder()
+                    .data(List.of(
+                        SseChatPayload.SseChatConversationData.builder()
+                            .id(messageValue.getConversationDataId().getId())
+                            .message(messageValue.getMessage().getContent())
+                            .author(messageValue.getAuthor().getId())
+                            .build()
+                    ))
+                    .build())
+                .build())
+            .build());
+    }
+
+    private Flux<SseChatData> updateConversationReadMarker(ChatDataUpdate chatDataUpdate, ChatDataUpdate.MarkedAsReadValue markedAsReadValue) {
+        return Flux.just(SseChatData.builder()
+            // .id()
+            .event(CONVERSATION_UPDATE_READ_MARKER)
+            .payload(SseChatPayload.builder()
+                .id(chatDataUpdate.getConversationId().getId())
+                .conversation(SseChatConversation.builder()
+                    .markedAsRead(Map.of(markedAsReadValue.getBy().getId(), markedAsReadValue.getAt().getId()))
+                    .build())
+                .build())
+            .build());
     }
 
     private Flux<SseChatData> installConversation(ChatDataConversationInstall chatDataConversationInstall) {
@@ -128,5 +131,4 @@ public class SseChatDataAdapter {
                     .build();
         };
     }
-
 }

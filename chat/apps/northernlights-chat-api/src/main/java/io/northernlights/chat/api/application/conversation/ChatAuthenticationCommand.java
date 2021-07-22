@@ -5,7 +5,6 @@ import io.northernlights.chat.domain.model.chatter.ChatterId;
 import io.northernlights.chat.domain.model.conversation.ConversationId;
 import io.northernlights.chat.domain.model.conversation.data.ConversationDataId;
 import io.northernlights.chat.store.chatter.domain.ChatterStore;
-import io.northernlights.chat.store.conversation.domain.ConversationStore;
 import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 import lombok.Value;
@@ -13,7 +12,8 @@ import reactor.core.publisher.Mono;
 
 import java.util.Map;
 
-import static io.northernlights.chat.api.application.conversation.ChatAuthenticationCommand.*;
+import static io.northernlights.chat.api.application.conversation.ChatAuthenticationCommand.ChatAuthenticationCommandInput;
+import static io.northernlights.chat.api.application.conversation.ChatAuthenticationCommand.ChatAuthenticationCommandResult;
 
 @RequiredArgsConstructor
 public class ChatAuthenticationCommand implements UseCase<ChatAuthenticationCommandInput, ChatAuthenticationCommandResult> {

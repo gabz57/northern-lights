@@ -44,13 +44,10 @@ public class SecurityConfiguration {
 //        .and()
 
             .authorizeExchange()
-//            .pathMatchers("/favicon.ico", "/css/**", "/webjars/**", "/webjars/swagger-ui/**", "/api-docs/**", "/swagger-ui.html").permitAll()
+            .pathMatchers("/", "/favicon.ico", "/index.html", "/eventsource.js", "/css/**", "/webjars/**", "/webjars/swagger-ui/**", "/api-docs/**", "/swagger-ui.html").permitAll()
 //
-//            .pathMatchers(POST, CHAT_CONVERSATION + "/auth").authenticated()
             .pathMatchers(GET, CHAT_CONVERSATION + "/sse").permitAll()
-//            .pathMatchers(POST, CHAT_CONVERSATION + "/open").access(NorthernLightsPrincipal::canCreateConversation)
-//            .pathMatchers(POST, CHAT_CONVERSATION + "/message").access(NorthernLightsPrincipal::canSendMessage)
-//            .pathMatchers(POST, CHAT_CONVERSATION + "/mark-as-read").access(NorthernLightsPrincipal::canMarkAsRead)
+            .pathMatchers(CHAT_CONVERSATION + "/**").authenticated()
             .anyExchange().authenticated().and().build();
 
     }

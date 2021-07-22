@@ -14,14 +14,10 @@ import org.springframework.http.CacheControl;
 import org.springframework.http.MediaType;
 import org.springframework.http.codec.ServerCodecConfigurer;
 import org.springframework.http.codec.json.Jackson2JsonEncoder;
-import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.security.core.context.SecurityContext;
-import org.springframework.web.reactive.config.EnableWebFlux;
-import org.springframework.web.reactive.config.ResourceHandlerRegistry;
-import org.springframework.web.reactive.config.ViewResolverRegistry;
-import org.springframework.web.reactive.config.WebFluxConfigurer;
+import org.springframework.web.reactive.config.*;
 import org.springframework.web.reactive.function.server.RequestPredicates;
 import org.springframework.web.reactive.function.server.RouterFunction;
 import org.springframework.web.reactive.function.server.ServerResponse;
@@ -105,5 +101,19 @@ public class ChatApiConfiguration implements WebFluxConfigurer {
         // Serve static index.html at root, for convenient message publishing.
         return route(RequestPredicates.GET("/"),
             request -> ok().contentType(MediaType.TEXT_HTML).bodyValue(indexHtml));
+    }
+
+    @Bean
+    public RouterFunction<ServerResponse> eventSourcePolyfillRouter(@Value("classpath:/static/eventsource.js") final Resource eventSourceJs) {
+        // Serve static index.html at root, for convenient message publishing.
+        return route(RequestPredicates.GET("/eventsource.js"),
+            request -> ok().contentType(MediaType.valueOf("text/javascript")).bodyValue(eventSourceJs));
+    }
+
+    @Override
+    public void addCorsMappings(CorsRegistry corsRegistry) {
+        corsRegistry.addMapping("/**")
+            .allowedMethods("*")
+            .maxAge(3600);
     }
 }

@@ -1,11 +1,10 @@
 package io.northernlights.chat.store.chatter.domain;
 
+import io.northernlights.chat.domain.event.ConversationCreatedEvent;
 import io.northernlights.chat.domain.model.chatter.Chatter;
 import io.northernlights.chat.domain.model.chatter.ChatterId;
 import io.northernlights.chat.domain.model.conversation.ConversationId;
 import io.northernlights.chat.domain.model.conversation.data.ConversationDataId;
-import io.northernlights.chat.domain.event.ConversationCreatedEvent;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.List;

@@ -50,15 +50,17 @@ public class ChatClientStoreImpl implements ChatClientStore {
         return conversationStore.participants(conversationId)
             .flatMap(chatterIds -> Mono
                 .zip(
+                    conversationStore.conversationName(conversationId),
                     chatterStore.listChatters(chatterIds),
                     conversationStore.conversation(conversationId, null),
                     conversationStore.readMarkers(conversationId))
                 .map(tuple -> chatDataAdapter.adaptColdData(
-                    conversationId, tuple.getT1(), tuple.getT2(), tuple.getT3()))
+                    conversationId, tuple.getT1(), tuple.getT2(), tuple.getT3(), tuple.getT4()))
                 .onErrorContinue((e, o) -> log.error("Failed to load chat install data content with object : "
                     + ofNullable(o).map(Object::toString).orElse(""), e))
             );
     }
+
     private Flux<ChatData> getPartialDatas(List<ConversationId> conversationIds, Map<ConversationId, ConversationDataId> conversationStatuses) {
         return Flux.fromStream(conversationIds.stream()).flatMap((ConversationId conversationId) -> getPartialData(conversationId, conversationStatuses));
     }
@@ -68,11 +70,12 @@ public class ChatClientStoreImpl implements ChatClientStore {
         return conversationStore.participants(conversationId)
             .flatMap(chatterIds -> Mono
                 .zip(
+                    conversationStore.conversationName(conversationId),
                     chatterStore.listChatters(chatterIds),
                     conversationStore.conversation(conversationId, conversationStatuses.get(conversationId)),
                     conversationStore.readMarkers(conversationId))
                 .map(tuple -> chatDataAdapter.adaptColdData(
-                    conversationId, tuple.getT1(), tuple.getT2(), tuple.getT3()))
+                    conversationId, tuple.getT1(), tuple.getT2(), tuple.getT3(), tuple.getT4()))
                 .onErrorContinue((e, o) -> log.error("Failed to load chat install data content with object : "
                     + ofNullable(o).map(Object::toString).orElse(""), e))
             );
@@ -87,6 +90,7 @@ public class ChatClientStoreImpl implements ChatClientStore {
     }
 
     public void revoke(String sseChatKey) {
+        log.info("Revoking sseChatKey {}", sseChatKey);
         chatterStore.revoke(sseChatKey);
     }
 }

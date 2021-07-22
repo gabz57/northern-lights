@@ -1,7 +1,6 @@
 package io.northernlights.chat.api.domain.client.model;
 
 import io.northernlights.chat.domain.model.chatter.ChatterId;
-import lombok.Builder;
 import lombok.Data;
 
 @Data

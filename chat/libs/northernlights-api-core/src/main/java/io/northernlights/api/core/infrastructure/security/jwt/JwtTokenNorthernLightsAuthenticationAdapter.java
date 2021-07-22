@@ -2,7 +2,6 @@ package io.northernlights.api.core.infrastructure.security.jwt;
 
 
 import io.northernlights.api.core.infrastructure.security.NorthernLightsPrincipal;
-import io.northernlights.api.core.infrastructure.security.NorthernLightsRoles;
 
 import java.util.Arrays;
 import java.util.List;

@@ -2,10 +2,11 @@ package io.northernlights.chat.api.domain.client;
 
 import io.northernlights.chat.api.domain.client.model.ChatClientID;
 import io.northernlights.chat.api.domain.client.model.ChatData;
-import io.northernlights.chat.domain.model.chatter.ChatterId;
-import io.northernlights.chat.domain.model.conversation.ConversationId;
 import io.northernlights.chat.domain.event.ConversationCreatedEvent;
 import io.northernlights.chat.domain.event.ConversationEvent;
+import io.northernlights.chat.domain.model.chatter.ChatterId;
+import io.northernlights.chat.domain.model.conversation.ConversationId;
+import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 
 import java.util.*;
@@ -15,6 +16,7 @@ import java.util.stream.Collectors;
 import static io.northernlights.chat.domain.event.ConversationEvent.ConversationEventType.CONVERSATION_CREATED;
 import static java.util.Optional.ofNullable;
 
+@Slf4j
 public class ChatDataDispatcher implements ChatDataProvider {
 
     private final Map<ChatterId, List<ConversationId>> followedConversationsByChatterId = new ConcurrentHashMap<>();
@@ -64,10 +66,14 @@ public class ChatDataDispatcher implements ChatDataProvider {
 
     private void updateFollowedConversationsOnCreation(ConversationEvent conversationEvent) {
         if (conversationEvent.getConversationEventType().equals(CONVERSATION_CREATED)) {
+            log.info("updateFollowedConversationsOnCreation");
             ConversationCreatedEvent conversationCreatedEvent = (ConversationCreatedEvent) conversationEvent;
             conversationCreatedEvent.getParticipants()
                 .forEach(chatterId -> ofNullable(followedConversationsByChatterId.get(chatterId))
-                    .ifPresent(lst -> lst.add(conversationCreatedEvent.getConversationId())));
+                    .ifPresent(lst -> {
+                        lst.add(conversationCreatedEvent.getConversationId());
+                        followedConversations.add(conversationCreatedEvent.getConversationId());
+                    }));
         }
     }
 }

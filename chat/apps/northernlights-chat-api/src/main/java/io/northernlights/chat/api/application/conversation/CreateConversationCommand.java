@@ -2,8 +2,8 @@ package io.northernlights.chat.api.application.conversation;
 
 import io.northernlights.chat.api.application.UseCase;
 import io.northernlights.chat.api.domain.conversation.ConversationEventPublisher;
-import io.northernlights.chat.domain.model.chatter.ChatterId;
 import io.northernlights.chat.domain.event.ConversationCreatedEvent;
+import io.northernlights.chat.domain.model.chatter.ChatterId;
 import io.northernlights.chat.store.chatter.domain.ChatterStore;
 import io.northernlights.chat.store.conversation.domain.ConversationStore;
 import lombok.Builder;

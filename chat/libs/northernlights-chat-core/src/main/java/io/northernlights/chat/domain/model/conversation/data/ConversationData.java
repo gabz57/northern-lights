@@ -6,9 +6,18 @@ import lombok.Getter;
 
 public interface ConversationData {
     ConversationDataType getConversationDataType();
+
     ConversationId getConversationId();
+
     ConversationDataId getConversationDataId();
+
     ChatterId getChatterId();
+
+    enum ConversationDataType {
+        CREATION,
+        MESSAGE,
+        READ_MARKER
+    }
 
     @Getter
     abstract class AbstractConversationData {
@@ -23,11 +32,5 @@ public interface ConversationData {
             this.conversationDataId = conversationDataId;
             this.chatterId = chatterId;
         }
-    }
-
-    enum ConversationDataType {
-        CREATION,
-        MESSAGE,
-        READ_MARKER
     }
 }

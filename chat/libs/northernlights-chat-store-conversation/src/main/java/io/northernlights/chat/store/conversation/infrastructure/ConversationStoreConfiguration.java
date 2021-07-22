@@ -21,7 +21,7 @@ public class ConversationStoreConfiguration {
 
     @Bean
     public ConversationDataIdGenerator conversationDataIdGenerator(TimeService timeService) {
-        return () -> new ConversationDataId(timeService.now().toInstant().toEpochMilli() + UUID.randomUUID().toString());
+        return () -> new ConversationDataId(timeService.now().toInstant().toEpochMilli() + "-" + UUID.randomUUID());
     }
 
     @Bean
