@@ -8,19 +8,20 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.data.domain.ReactiveAuditorAware;
-import org.springframework.http.CacheControl;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.codec.ServerCodecConfigurer;
 import org.springframework.http.codec.json.Jackson2JsonEncoder;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.security.core.context.SecurityContext;
+import org.springframework.util.AntPathMatcher;
 import org.springframework.web.reactive.config.*;
-import org.springframework.web.reactive.function.server.RequestPredicates;
-import org.springframework.web.reactive.function.server.RouterFunction;
-import org.springframework.web.reactive.function.server.ServerResponse;
+import org.springframework.web.reactive.function.server.*;
+import org.springframework.web.reactive.resource.WebJarsResourceResolver;
 import org.springframework.web.reactive.result.view.HttpMessageWriterView;
 
 import javax.annotation.PostConstruct;
@@ -28,11 +29,12 @@ import java.time.Clock;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
-import java.util.concurrent.TimeUnit;
 
 import static java.util.TimeZone.getTimeZone;
 import static java.util.TimeZone.setDefault;
-import static org.springframework.web.reactive.function.server.RouterFunctions.route;
+import static org.springdoc.core.Constants.CLASSPATH_RESOURCE_LOCATION;
+import static org.springdoc.core.Constants.DEFAULT_WEB_JARS_PREFIX_URL;
+import static org.springframework.util.AntPathMatcher.DEFAULT_PATH_SEPARATOR;
 import static org.springframework.web.reactive.function.server.ServerResponse.ok;
 
 @Import(SecurityConfiguration.class)
@@ -70,22 +72,15 @@ public class ChatApiConfiguration implements WebFluxConfigurer {
     }
 
     @Override
-    public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        registry.addResourceHandler("/favicon.ico")
-            .addResourceLocations("/public", "classpath:/static/")
-            .setCacheControl(CacheControl.maxAge(365, TimeUnit.DAYS));
-    }
-
-    @Override
     public void configureViewResolvers(ViewResolverRegistry registry) {
         Jackson2JsonEncoder encoder = new Jackson2JsonEncoder();
         registry.defaultViews(new HttpMessageWriterView(encoder));
     }
+
 //    @Bean
 //    public Jackson2ObjectMapperBuilderCustomizer jackson2ObjectMapperBuilderCustomizer() {
 //        return jacksonObjectMapperBuilder -> jacksonObjectMapperBuilder.featuresToEnable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
 //    }
-
     @Bean
     public ReactiveAuditorAware<String> auditorAware() {
         return () -> ReactiveSecurityContextHolder.getContext()
@@ -97,16 +92,45 @@ public class ChatApiConfiguration implements WebFluxConfigurer {
     }
 
     @Bean
-    public RouterFunction<ServerResponse> indexRouter(@Value("classpath:/static/index.html") final Resource indexHtml) {
-        // Serve static index.html at root, for convenient message publishing.
-        return route(RequestPredicates.GET("/"),
-            request -> ok().contentType(MediaType.TEXT_HTML).bodyValue(indexHtml));
+    public RouterFunction<ServerResponse> indexRouter(
+        @Value("classpath:/static/index.html")
+            Resource indexHtml
+    ) {
+        IndexPageRequestPredicate predicate = new IndexPageRequestPredicate();
+        HandlerFunction<ServerResponse> indexHtmlResponse =
+            request -> ok()
+                .contentType(MediaType.TEXT_HTML)
+                .bodyValue(indexHtml);
+        return RouterFunctions.route(predicate, indexHtmlResponse);
+    }
+
+    @Bean
+    public RouterFunction<ServerResponse> staticResourcesRouter() {
+        return RouterFunctions.resources("/**", new ClassPathResource("static/"));
+    }
+
+    private static class IndexPageRequestPredicate implements RequestPredicate {
+        private final AntPathMatcher antPathMatcher = new AntPathMatcher();
+
+        @Override
+        public boolean test(ServerRequest request) {
+            String path = request.path();
+            return request.method() == HttpMethod.GET
+                && (path.equals("/") || (pathIsNotAFile(path) && pathIsNotApi(path)));
+        }
+
+        private boolean pathIsNotAFile(String path) {
+            return antPathMatcher.match("/**/{path:[^\\.]*}", path);
+        }
+
+        private boolean pathIsNotApi(String path) {
+            return !antPathMatcher.match("/v1/chat/api/**", path);
+        }
     }
 
     @Bean
     public RouterFunction<ServerResponse> eventSourcePolyfillRouter(@Value("classpath:/static/eventsource.js") final Resource eventSourceJs) {
-        // Serve static index.html at root, for convenient message publishing.
-        return route(RequestPredicates.GET("/eventsource.js"),
+        return RouterFunctions.route(RequestPredicates.GET("/eventsource.js"),
             request -> ok().contentType(MediaType.valueOf("text/javascript")).bodyValue(eventSourceJs));
     }
 

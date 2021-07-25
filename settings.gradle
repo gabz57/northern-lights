@@ -24,4 +24,5 @@ include 'chat:libs:northernlights-chat-store-chatter'
 include 'chat:libs:northernlights-chat-store-conversation'
 
 // APPS
+include 'chat:apps:northernlights-chat-ui'
 include 'chat:apps:northernlights-chat-api'

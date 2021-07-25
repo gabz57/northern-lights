@@ -48,7 +48,7 @@ public class SecurityConfiguration {
 //
             .pathMatchers(GET, CHAT_CONVERSATION + "/sse").permitAll()
             .pathMatchers(CHAT_CONVERSATION + "/**").authenticated()
-            .anyExchange().authenticated().and().build();
+            .anyExchange().permitAll().and().build();
 
     }
 
