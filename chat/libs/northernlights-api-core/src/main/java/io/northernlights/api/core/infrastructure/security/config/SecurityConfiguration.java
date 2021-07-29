@@ -9,8 +9,15 @@ import org.springframework.security.config.annotation.web.reactive.EnableWebFlux
 import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.web.server.context.ServerSecurityContextRepository;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.reactive.CorsWebFilter;
+import org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource;
+import org.springframework.web.server.ServerWebExchange;
+import org.springframework.web.server.WebFilter;
+import org.springframework.web.server.WebFilterChain;
 
 import static org.springframework.http.HttpMethod.GET;
+import static org.springframework.http.HttpMethod.OPTIONS;
 
 @EnableWebFluxSecurity
 @Configuration
@@ -45,11 +52,10 @@ public class SecurityConfiguration {
 
             .authorizeExchange()
             .pathMatchers("/", "/favicon.ico", "/index.html", "/eventsource.js", "/css/**", "/webjars/**", "/webjars/swagger-ui/**", "/api-docs/**", "/swagger-ui.html").permitAll()
-//
+            .pathMatchers(OPTIONS).permitAll()
             .pathMatchers(GET, CHAT_CONVERSATION + "/sse").permitAll()
             .pathMatchers(CHAT_CONVERSATION + "/**").authenticated()
             .anyExchange().permitAll().and().build();
-
     }
 
     @Bean
@@ -59,4 +65,21 @@ public class SecurityConfiguration {
         ReactiveAuthenticationManager authenticationManager = new DummyNorthernLightsAuthenticationManager();
         return new SecurityContextRepository(authenticationManager);
     }
+
+    @Bean
+    public WebFilter corsResponseHeadersWebFilter() {
+        return (ServerWebExchange exchange, WebFilterChain chain) -> {
+            exchange.getResponse()
+                .getHeaders()
+                .add("Access-Control-Allow-Headers", "*");
+            return chain.filter(exchange);
+        };
+    }
+//
+//    public CorsWebFilter corsWebFilter() {
+//        CorsConfiguration corsConfig = new CorsConfiguration();
+//        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+//        source.registerCorsConfiguration("/**", corsConfig);
+//        return new CorsWebFilter(source);
+//    }
 }

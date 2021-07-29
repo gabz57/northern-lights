@@ -59,11 +59,11 @@ public class InMemoryChatterStore implements ChatterStore {
     }
 
     public Mono<List<ConversationId>> listConversationIds(ChatterId chatterId) {
-        return Mono.just(new ArrayList<>(conversationsIdByChatterId.get(chatterId)));
+        return Mono.just(new ArrayList<>(conversationsIdByChatterId.getOrDefault(chatterId, Collections.emptySet())));
     }
 
     public Mono<List<Chatter>> listChatters(List<ChatterId> chatterIds) {
-        return Mono.just(chatterIds.stream().map(chattersByChatterId::get).collect(Collectors.toList()));
+        return Mono.just(chatterIds.stream().map(chattersByChatterId::get).filter(Objects::nonNull).collect(Collectors.toList()));
     }
 
     public Mono<String> storeStatusAndGenerateSseChatKey(ChatterId chatterId, Map<ConversationId, ConversationDataId> conversationStatus) {

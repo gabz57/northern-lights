@@ -15,7 +15,6 @@ import java.util.Map;
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class SseChatPayload {
-    private String id;
     private SseChatConversation conversation;
     private SseChatChatter chatter;
 
@@ -23,7 +22,9 @@ public class SseChatPayload {
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
     public static class SseChatConversation {
+        private String id;
         private String name;
         private String from;
         private String to;
@@ -48,6 +49,7 @@ public class SseChatPayload {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class SseChatChatter {
+        private String id;
         private String name;
     }
 }

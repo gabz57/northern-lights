@@ -1,59 +1,87 @@
+/* eslint-disable no-debugger */
+
 import {Store} from "@/store";
-// import {MutationType} from "@/store/mutations";
 import {EventSourcePolyfill} from "event-source-polyfill";
+import {ActionTypes} from "@/store/actions";
+import {ChatterId, Conversation, ConversationDataId, MarkedAsRead} from "@/store/state";
 
-class SseChatService {
+export default class SseChatService {
 
-    async authent(userId: string): Promise<string> {
-        const myHeaders = new Headers();
-        myHeaders.append("Authorization", 'Bearer ' + userId);
-        myHeaders.append("Accept", "application/json");
-        myHeaders.append("Content-Type", "application/json");
-        const response = await fetch("http://localhost:8080/v1/chat/api/auth", {
-            method: 'POST',
-            body: JSON.stringify({
-                'conversationStatuses': {}
-            }), // string or object
-            headers: myHeaders
-        });
-        return (await response.json()).sseChatKey;
+    private static toReadMarkers = (markedAsRead: MarkedAsRead | undefined): Map<ChatterId, ConversationDataId> => {
+        const readMarkers = new Map<ChatterId, ConversationDataId>();
+        if (markedAsRead) {
+            markedAsRead.forEach((conversationDataId, chatterId) => readMarkers.set(chatterId, conversationDataId))
+        }
+        return readMarkers;
     }
 
-    openSse(sseChatKey: string): EventSource {
+    private static toConv = (conv: Partial<Conversation>): Conversation => {
+        return {
+            id: conv.id || "",
+            name: conv.name || "",
+            data: conv.data || [],
+            markedAsRead: SseChatService.toReadMarkers(conv.markedAsRead),
+        }
+    }
+
+    static openSse(sseChatKey: string, onOpen: () => void, onReconnection: () => void, onConnectionClosed: () => void): EventSource {
         const eventSource = new EventSourcePolyfill("http://localhost:8080/v1/chat/api/sse", {
             headers: {
                 "sse-chat-key": sseChatKey
             }
         });
-        eventSource.onmessage = (e: any) => console.log('message', JSON.parse(e.data));
+        eventSource.onopen = (e: Event) => {
+            console.log('SSE is OPEN');
+            onOpen()
+        };
+        eventSource.onmessage = (e: MessageEvent) => console.log('SSE message', JSON.parse(e.data));
+        eventSource.onerror = (e: any) => {
+            console.log('SSE error', e)
+            switch (e.target.readyState) {
+
+                case EventSource.CONNECTING:
+                    console.log('Reconnecting...');
+                    onReconnection()
+                    break;
+
+                case EventSource.CLOSED:
+                    console.log('Connection failed, will not reconnect');
+                    onConnectionClosed()
+                    break;
+
+            }
+        };
         return eventSource;
     }
 
-    listen(eventSource: EventSource, store: Store) {
+    static bind(eventSource: EventSource, store: Store) {
 
-        eventSource.addEventListener('CHATTER:INSTALL', function (e: any) {
-            console.log('CHATTER:INSTALL', e.data);
-            // store.commit(MutationType.InstallChatter, chatter);
+        eventSource.addEventListener('CHATTER:INSTALL', (e: any) => {
+            const parse = JSON.parse(e.data);
+            store.dispatch(ActionTypes.InstallChatter, parse.chatter);
         }, false);
 
-        eventSource.addEventListener('CONVERS:INSTALL', function (e: any) {
-            console.log('CONVERS:INSTALL', e.data);
-            // store.commit(MutationType.InstallConversation, conversation);
+        eventSource.addEventListener('CONVERS:INSTALL', (e: any) => {
+            const parse = JSON.parse(e.data);
+            const conv: Partial<Conversation> = parse.conversation;
+            store.dispatch(ActionTypes.InstallConversation, SseChatService.toConv(conv));
         }, false);
 
-        eventSource.addEventListener('CONVERS:UPDATE:MESSAGE', function (e: any) {
-            console.log('CONVERS:UPDATE:MESSAGE', e.data);
-            // store.commit(MutationType.UpdateConversationAddMessage, {conversationId, conversationData});
+        eventSource.addEventListener('CONVERS:UPDATE:MESSAGE', (e: any) => {
+            const parse = JSON.parse(e.data);
+            store.dispatch(ActionTypes.UpdateConversationAddMessage, {
+                conversationId: parse.conversation.id,
+                conversationData: parse.conversation.data
+            });
         }, false);
 
-        eventSource.addEventListener('CONVERS:UPDATE:READ_MARKER', function (e: any) {
-            console.log('CONVERS:UPDATE:READ_MARKER', e.data);
-            // store.commit(MutationType.UpdateConversationMarkerAsRead, {conversationId, chatterId, conversationDataId});
+        eventSource.addEventListener('CONVERS:UPDATE:READ_MARKER', (e: any) => {
+            const parse = JSON.parse(e.data);
+            store.dispatch(ActionTypes.UpdateConversationMarkAsRead, {
+                conversationId: parse.conversation.id,
+                readMarkers: parse.conversation.markedAsRead
+            });
         }, false);
 
     }
 }
-
-const sseChatService = new SseChatService();
-
-export {sseChatService};

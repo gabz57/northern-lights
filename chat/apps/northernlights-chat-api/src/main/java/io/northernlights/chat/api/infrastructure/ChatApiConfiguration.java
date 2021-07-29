@@ -128,11 +128,11 @@ public class ChatApiConfiguration implements WebFluxConfigurer {
         }
     }
 
-    @Bean
-    public RouterFunction<ServerResponse> eventSourcePolyfillRouter(@Value("classpath:/static/eventsource.js") final Resource eventSourceJs) {
-        return RouterFunctions.route(RequestPredicates.GET("/eventsource.js"),
-            request -> ok().contentType(MediaType.valueOf("text/javascript")).bodyValue(eventSourceJs));
-    }
+//    @Bean
+//    public RouterFunction<ServerResponse> eventSourcePolyfillRouter(@Value("classpath:/static/eventsource.js") final Resource eventSourceJs) {
+//        return RouterFunctions.route(RequestPredicates.GET("/eventsource.js"),
+//            request -> ok().contentType(MediaType.valueOf("text/javascript")).bodyValue(eventSourceJs));
+//    }
 
     @Override
     public void addCorsMappings(CorsRegistry corsRegistry) {

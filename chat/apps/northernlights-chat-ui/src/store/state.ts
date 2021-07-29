@@ -1,3 +1,11 @@
+/** Sse */
+export type Sse = {
+    eventSource?: EventSource
+    sseOpen: boolean
+    sseWanted: boolean
+    sseAutoConnect: boolean
+}
+
 /** Chatter */
 export type ChatterId = string
 
@@ -6,9 +14,7 @@ export type Chatter = {
     name: string
 }
 
-export type Chatters = {
-    [type: string]: Chatter
-}
+export type Chatters = Map<ChatterId, Chatter>;
 
 /** Conversations */
 export type ConversationId = string
@@ -16,27 +22,26 @@ export type ConversationDataId = string
 
 export type ConversationData = {
     id: ConversationDataId
+    author: ChatterId
+    message: string
     // others
 } & Record<any, any>
 
-export type MarkedAsRead = {
-    [type: string]: ConversationDataId
-}
+export type MarkedAsRead = Map<ChatterId, ConversationDataId>;
 
 export type Conversation = {
     id: ConversationId,
     name: string,
-    events: [ConversationData],
+    data: ConversationData[],
     markedAsRead: MarkedAsRead
 }
 
-export type Conversations = {
-    [type: string]: Conversation
-}
+export type Conversations = Map<ConversationId, Conversation>;
 
 /** State */
 export type State = {
-    chatterId: ChatterId,
+    sse: Sse,
+    chatterId?: ChatterId,
     chatters: Chatters,
     conversations: Conversations,
 }

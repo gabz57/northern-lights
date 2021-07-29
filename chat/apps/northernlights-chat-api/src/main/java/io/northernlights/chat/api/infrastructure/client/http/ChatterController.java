@@ -5,8 +5,10 @@ import io.northernlights.chat.api.domain.client.model.ChatClientID;
 import io.northernlights.chat.api.domain.client.model.ChatData;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.codec.ServerSentEvent;
+import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -37,8 +39,10 @@ public class ChatterController {
     @ResponseBody
     @GetMapping(path = "/v1/chat/api/sse", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public Flux<ServerSentEvent<SseChatPayload>> sseChatDataFlow(
-        @RequestHeader(name = "sse-chat-key") String sseChatKey
+        @RequestHeader(name = "sse-chat-key") String sseChatKey,
+        ServerHttpResponse response
     ) {
+        response.getHeaders().add(HttpHeaders.CONNECTION, "keep-alive");
         return chatClientProvider.authenticate(sseChatKey)
             .map(chatterId -> new ChatClientID(chatterId, "laptop"))
             .flatMapMany(chatClientId -> subscribeChatterFlowSince(chatClientId, sseChatKey)
