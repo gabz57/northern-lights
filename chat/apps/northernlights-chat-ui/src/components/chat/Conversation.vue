@@ -1,11 +1,14 @@
 <template>
-  <div>
-    <div >
-      <ConversationMessage v-for="message in messages" :key="message.id" :message="message" />
+  <div class="conversation">
+    <div class="conversation__messages">
+      <ConversationMessages :messages="messages"/>
+      <div>
+        <input v-model="messageToSend" @keydown.enter="sendMessage()"/>
+        <button @click="sendMessage()">SEND</button>
+      </div>
     </div>
-    <div>
-      <input v-model="messageToSend"/>
-      <button @click="sendMessage()">SEND</button>
+    <div class="conversation__details">
+      <ConversationDetails :details="details" />
     </div>
   </div>
 </template>
@@ -13,11 +16,13 @@
 <script lang="ts">
 import useConversation from "@/composables/use-conversation";
 import {defineComponent, ref, toRefs} from "vue";
-import ConversationMessage from "@/components/chat/ConversationMessage.vue";
+import ConversationMessages from "@/components/chat/ConversationMessages.vue";
+import ConversationDetails from "@/components/chat/ConversationDetails.vue";
+import {ConversationDataId} from "@/store/state";
 
 export default defineComponent({
   name: "Conversation",
-  components: {ConversationMessage},
+  components: {ConversationDetails, ConversationMessages},
   props: {
     conversationId: {
       type: String,
@@ -26,15 +31,21 @@ export default defineComponent({
   },
   setup(props) {
     const {conversationId} = toRefs(props)
-    const {messages, sendMessage, markAsRead} = useConversation(conversationId)
+    const {details, messages, sendMessage, markAsRead} = useConversation(conversationId)
 
     const messageToSend = ref("")
 
     return {
+      details,
       messages,
       messageToSend,
-      sendMessage: () => sendMessage(messageToSend.value),
-      markAsRead
+      sendMessage: () => {
+        sendMessage(messageToSend.value);
+        messageToSend.value = ""
+      },
+      markAsRead: (conversationDataId: ConversationDataId) => {
+        markAsRead(conversationDataId)
+      }
     }
   }
 
@@ -43,4 +54,19 @@ export default defineComponent({
 </script>
 
 <style scoped lang="scss">
+.conversation {
+  display: flex;
+  flex-direction: row;
+
+  &__messages {
+    flex-shrink: 0;
+    flex-grow: 1;
+  }
+
+  &__details {
+    width: 200px;
+    flex-shrink: 0;
+    flex-grow: 0;
+  }
+}
 </style>

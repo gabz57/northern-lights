@@ -1,9 +1,6 @@
 package io.northernlights.chat.api.infrastructure.client.http;
 
-import io.northernlights.chat.api.domain.client.model.ChatData;
-import io.northernlights.chat.api.domain.client.model.ChatDataConversationInstall;
-import io.northernlights.chat.api.domain.client.model.ChatDataHello;
-import io.northernlights.chat.api.domain.client.model.ChatDataUpdate;
+import io.northernlights.chat.api.domain.client.model.*;
 import io.northernlights.chat.api.infrastructure.client.http.SseChatPayload.SseChatConversation;
 import io.northernlights.chat.domain.model.chatter.Chatter;
 import io.northernlights.chat.domain.model.chatter.ChatterId;
@@ -19,6 +16,7 @@ import java.util.stream.Collectors;
 public class SseChatDataAdapter {
 
     private static final String CONVERSATION_INSTALL = "CONVERS:INSTALL";
+    private static final String CONVERSATION_PARTIAL = "CONVERS:PARTIAL";
     private static final String CONVERSATION_UPDATE_MESSAGE = "CONVERS:UPDATE:MESSAGE";
     private static final String CONVERSATION_UPDATE_READ_MARKER = "CONVERS:UPDATE:READ_MARKER";
     private static final String CHATTER_INSTALL = "CHATTER:INSTALL";
@@ -34,8 +32,15 @@ public class SseChatDataAdapter {
             case INSTALL -> {
                 ChatDataConversationInstall chatDataConversationInstall = (ChatDataConversationInstall) chatData;
                 yield Flux.concat(
-                    installChatters(chatDataConversationInstall),
+                    installChatters(chatDataConversationInstall.getChatters()),
                     installConversation(chatDataConversationInstall)
+                );
+            }
+            case PARTIAL -> {
+                ChatDataConversationPartial chatDataConversationPartial = (ChatDataConversationPartial) chatData;
+                yield Flux.concat(
+                    installChatters(chatDataConversationPartial.getChatters()),
+                    partialConversation(chatDataConversationPartial)
                 );
             }
             case UPDATE -> {
@@ -62,6 +67,7 @@ public class SseChatDataAdapter {
                         SseChatPayload.SseChatConversationData.builder()
                             .id(messageValue.getConversationDataId().getId())
                             .message(messageValue.getMessage().getContent())
+                            .dateTime(messageValue.getDateTime().toEpochSecond())
                             .author(messageValue.getAuthor().getId())
                             .build()
                     ))
@@ -77,7 +83,7 @@ public class SseChatDataAdapter {
             .payload(SseChatPayload.builder()
                 .conversation(SseChatConversation.builder()
                     .id(chatDataUpdate.getConversationId().getId())
-                    .markedAsRead(Map.of(markedAsReadValue.getBy().getId(), markedAsReadValue.getAt().getId()))
+                    .readMarkers(Map.of(markedAsReadValue.getBy().getId(), markedAsReadValue.getAt().getId()))
                     .build())
                 .build())
             .build());
@@ -90,6 +96,8 @@ public class SseChatDataAdapter {
             .payload(SseChatPayload.builder()
                 .conversation(SseChatConversation.builder()
                     .id(chatDataConversationInstall.getConversationId().getId())
+                    .creator(chatDataConversationInstall.getCreatedBy().getId())
+                    .createdAt(chatDataConversationInstall.getCreatedAt().toEpochSecond())
                     .name(chatDataConversationInstall.getName())
 //                                .from(conversationData.get(0).getConversationDataId())
 //                                .to(conversationData.get(conversationData.size() - 1).getConversationDataId())
@@ -98,14 +106,33 @@ public class SseChatDataAdapter {
                         .map(this::toSseChatConversationData)
                         .filter(Objects::nonNull)
                         .collect(Collectors.toList()))
-                    .markedAsRead(chatDataConversationInstall.getReadMarkers().entrySet().stream().collect(Collectors.toMap(e -> e.getKey().getId(), e -> e.getValue().getId())))
+                    .readMarkers(chatDataConversationInstall.getReadMarkers().entrySet().stream().collect(Collectors.toMap(e -> e.getKey().getId(), e -> e.getValue().getId())))
                     .build())
                 .build())
             .build());
     }
 
-    private Flux<SseChatData> installChatters(ChatDataConversationInstall chatDataConversationInstall) {
-        return Flux.fromStream(chatDataConversationInstall.getChatters().stream())
+    private Flux<SseChatData> partialConversation(ChatDataConversationPartial chatDataConversationPartial) {
+        return Flux.just(SseChatData.builder()
+            // .id()
+            .event(CONVERSATION_PARTIAL)
+            .payload(SseChatPayload.builder()
+                .conversation(SseChatConversation.builder()
+                    .id(chatDataConversationPartial.getConversationId().getId())
+//                                .from(conversationData.get(0).getConversationDataId())
+//                                .to(conversationData.get(conversationData.size() - 1).getConversationDataId())
+                    .participants(chatDataConversationPartial.getChatters().stream().map(Chatter::getChatterID).map(ChatterId::getId).collect(Collectors.toList()))
+                    .data(chatDataConversationPartial.getConversationData().stream()
+                        .map(this::toSseChatConversationData)
+                        .filter(Objects::nonNull)
+                        .collect(Collectors.toList()))
+                    .readMarkers(chatDataConversationPartial.getReadMarkers().entrySet().stream().collect(Collectors.toMap(e -> e.getKey().getId(), e -> e.getValue().getId())))
+                    .build())
+                .build())
+            .build());
+    }
+    private Flux<SseChatData> installChatters(List<Chatter> chatters) {
+        return Flux.fromIterable(chatters)
             .map(chatter -> SseChatData.builder()
                 // .id()
                 .event(CHATTER_INSTALL)
@@ -128,6 +155,7 @@ public class SseChatDataAdapter {
                     .id(conversationMessage.getConversationDataId().getId())
                     .author(conversationMessage.getChatterId().getId())
                     .message(conversationMessage.getMessage().getContent())
+                    .dateTime(conversationMessage.getDateTime().toEpochSecond())
                     .build();
         };
     }

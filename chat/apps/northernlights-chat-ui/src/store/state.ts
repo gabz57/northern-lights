@@ -24,16 +24,25 @@ export type ConversationData = {
     id: ConversationDataId
     author: ChatterId
     message: string
+    dateTime: number
     // others
 } & Record<any, any>
 
-export type MarkedAsRead = Map<ChatterId, ConversationDataId>;
+export type ReadMarkers = Map<ChatterId, ConversationDataId>;
 
 export type Conversation = {
     id: ConversationId,
-    name: string,
     data: ConversationData[],
-    markedAsRead: MarkedAsRead
+    readMarkers: ReadMarkers
+    creator: ChatterId,
+    name: string,
+    createdAt: number
+}
+
+export type ConversationPart = {
+    id: ConversationId,
+    data: ConversationData[],
+    readMarkers: ReadMarkers
 }
 
 export type Conversations = Map<ConversationId, Conversation>;

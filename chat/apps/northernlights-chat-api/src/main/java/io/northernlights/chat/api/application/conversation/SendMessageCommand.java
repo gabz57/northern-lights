@@ -8,6 +8,7 @@ import io.northernlights.chat.domain.model.conversation.ConversationId;
 import io.northernlights.chat.domain.model.conversation.Message;
 import io.northernlights.chat.store.chatter.domain.ChatterStore;
 import io.northernlights.chat.store.conversation.domain.ConversationStore;
+import io.northernlights.commons.TimeService;
 import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 import lombok.Value;
@@ -19,16 +20,21 @@ import static io.northernlights.chat.api.application.conversation.SendMessageCom
 @RequiredArgsConstructor
 public class SendMessageCommand implements UseCase<SendMessageCommandInput, SendMessageCommandResult> {
 
+    private final TimeService timeService;
     private final ConversationStore conversationStore;
     private final ChatterStore chatterStore;
     private final ConversationEventPublisher conversationEventPublisher;
 
     public Mono<SendMessageCommandResult> execute(SendMessageCommandInput input) {
-        return conversationStore.appendMessage(input.conversationID, input.chatterID, input.message)
+        return conversationStore.appendMessage(timeService.now().toOffsetDateTime(), input.conversationID, input.chatterID, input.message)
 //            .doOnNext(conversationUpdatedEvent ->
 //                conversationStore.participants(input.conversationID)
 //                    .map(participants -> chatterStore.writeConversationUpdate(conversationUpdatedEvent, participants)))
             .doOnNext(conversationEventPublisher::publish)
+            .flatMap(conversationUpdatedEvent -> conversationStore.markEventAsRead(timeService.now().toOffsetDateTime(), input.conversationID, input.chatterID, conversationUpdatedEvent.getConversationDataId())
+                .doOnNext(conversationEventPublisher::publish)
+                .thenReturn(conversationUpdatedEvent)
+            )
             .map(SendMessageCommandResult::new);
     }
 

@@ -13,6 +13,7 @@ import io.northernlights.chat.store.conversation.domain.ConversationStore;
 import reactor.core.publisher.Mono;
 import reactor.util.annotation.Nullable;
 
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -37,17 +38,17 @@ public class InMemoryConversationStore implements ConversationStore {
         final ChatterId chatterId4 = new ChatterId("4");
         final ChatterId chatterId5 = new ChatterId("5");
         final ChatterId chatterId6 = new ChatterId("6");
-        createConversation("1", "Conversation 1", chatterId1, List.of(chatterId1, chatterId2));
-        createConversation("2", "Conversation 2", chatterId1, List.of(chatterId1, chatterId3, chatterId4, chatterId5, chatterId6));
-        createConversation("3", "Conversation 3", chatterId2, List.of(chatterId2, chatterId3));
-        createConversation("4", "Conversation 4", chatterId2, List.of(chatterId2, chatterId4));
+        createConversation(OffsetDateTime.now(), "1", "Conversation 1", chatterId1, List.of(chatterId1, chatterId2));
+        createConversation(OffsetDateTime.now(), "2", "Conversation 2", chatterId1, List.of(chatterId1, chatterId3, chatterId4, chatterId5, chatterId6));
+        createConversation(OffsetDateTime.now(), "3", "Conversation 3", chatterId2, List.of(chatterId2, chatterId3));
+        createConversation(OffsetDateTime.now(), "4", "Conversation 4", chatterId2, List.of(chatterId2, chatterId4));
     }
 
-    private void createConversation(String conversationIdValue, String conversationName, ChatterId author, List<ChatterId> allParticipants) {
+    private void createConversation(OffsetDateTime dateTime, String conversationIdValue, String conversationName, ChatterId author, List<ChatterId> allParticipants) {
         ConversationId conversationId = new ConversationId(conversationIdValue);
         Conversation conversationDataList = new Conversation();
         ConversationDataId conversationDataId = conversationDataIdGenerator.generate();
-        conversationDataList.add(new ConversationCreation(conversationId, conversationDataId, author, conversationName, allParticipants));
+        conversationDataList.add(new ConversationCreation(conversationId, conversationDataId, author, conversationName, allParticipants, dateTime));
         conversations.put(conversationId, conversationDataList);
         conversationsReadStatus.put(conversationId, new HashMap<>());
     }
@@ -60,24 +61,24 @@ public class InMemoryConversationStore implements ConversationStore {
             : Mono.just(new Conversation(conversations.get(conversationId)));
     }
 
-    public Mono<String> conversationName(ConversationId conversationId) {
-        return Mono.just(((ConversationCreation) conversations.get(conversationId).get(0)).getName());
+    public Mono<ConversationCreation> conversationCreationData(ConversationId conversationId) {
+        return Mono.just((ConversationCreation) conversations.get(conversationId).get(0));
     }
 
     public Mono<Map<ChatterId, ConversationDataId>> readMarkers(ConversationId conversationId) {
         return Mono.just(conversationsReadStatus.get(conversationId));
     }
 
-    public Mono<ConversationCreatedEvent> create(ChatterId author, String conversationName, List<ChatterId> participants) {
+    public Mono<ConversationCreatedEvent> create(OffsetDateTime dateTime, ChatterId author, String conversationName, List<ChatterId> participants) {
         List<ChatterId> allParticipants = uniqueChatterIdsWithAuthor(author, participants);
         ConversationId conversationId = conversationIdGenerator.generate();
         Conversation conversationDataList = new Conversation();
         ConversationDataId conversationDataId = conversationDataIdGenerator.generate();
-        conversationDataList.add(new ConversationCreation(conversationId, conversationDataId, author, conversationName, allParticipants));
+        conversationDataList.add(new ConversationCreation(conversationId, conversationDataId, author, conversationName, allParticipants, dateTime));
         conversations.put(conversationId, conversationDataList);
         conversationsReadStatus.put(conversationId, new HashMap<>());
 
-        return Mono.just(new ConversationCreatedEvent(conversationId, conversationDataId, author, conversationName, allParticipants));
+        return Mono.just(new ConversationCreatedEvent(conversationId, conversationDataId, author, conversationName, allParticipants, dateTime));
     }
 
     private List<ChatterId> uniqueChatterIdsWithAuthor(ChatterId author, List<ChatterId> participants) {
@@ -88,21 +89,21 @@ public class InMemoryConversationStore implements ConversationStore {
         return allParticipants;
     }
 
-    public Mono<ConversationMessageSentEvent> appendMessage(ConversationId conversationId, ChatterId author, Message message) {
+    public Mono<ConversationMessageSentEvent> appendMessage(OffsetDateTime dateTime, ConversationId conversationId, ChatterId author, Message message) {
         ConversationDataId conversationDataId = conversationDataIdGenerator.generate();
-        ConversationMessage conversationMessage = new ConversationMessage(conversationId, conversationDataId, author, message);
+        ConversationMessage conversationMessage = new ConversationMessage(conversationId, conversationDataId, author, message, dateTime);
         conversations.get(conversationId).add(conversationMessage);
 
-        return Mono.just(new ConversationMessageSentEvent(conversationId, conversationDataId, message, author));
+        return Mono.just(new ConversationMessageSentEvent(conversationId, conversationDataId, message, author, dateTime));
     }
 
-    public Mono<ConversationMarkedAsReadEvent> markEventAsRead(ConversationId conversationId, ChatterId markedBy, ConversationDataId markedConversationDataId) {
+    public Mono<ConversationMarkedAsReadEvent> markEventAsRead(OffsetDateTime dateTime, ConversationId conversationId, ChatterId markedBy, ConversationDataId markedConversationDataId) {
         ConversationDataId conversationDataId = conversationDataIdGenerator.generate();
-        ConversationReadMarker conversationReadMarker = new ConversationReadMarker(conversationId, conversationDataId, markedBy, markedConversationDataId);
+        ConversationReadMarker conversationReadMarker = new ConversationReadMarker(conversationId, conversationDataId, markedBy, markedConversationDataId, dateTime);
         conversations.get(conversationId).add(conversationReadMarker);
         conversationsReadStatus.get(conversationId).put(markedBy, markedConversationDataId);
 
-        return Mono.just(new ConversationMarkedAsReadEvent(conversationId, conversationDataId, markedConversationDataId, markedBy));
+        return Mono.just(new ConversationMarkedAsReadEvent(conversationId, conversationDataId, markedConversationDataId, markedBy, dateTime));
     }
 
     public Mono<List<ChatterId>> participants(ConversationId conversationId) {

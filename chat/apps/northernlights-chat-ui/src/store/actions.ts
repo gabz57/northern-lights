@@ -6,11 +6,11 @@ import {
     Conversation,
     ConversationData,
     ConversationDataId,
-    ConversationId,
-    MarkedAsRead,
+    ConversationId, ConversationPart,
+    ReadMarkers,
     State
 } from './state'
-import {chatApiClient} from "@/ChatApiClient";
+import {chatApiClient} from "@/services/ChatApiClient";
 
 export enum ActionTypes {
     // SSE Mngt
@@ -24,6 +24,7 @@ export enum ActionTypes {
     // SSE
     InstallChatter = 'INSTALL_CHATTER',
     InstallConversation = 'INSTALL_CONVERSATION',
+    InstallConversationPart = 'INSTALL_CONVERSATION_PART',
     UpdateConversationAddMessage = 'UPDATE_CONVERSATION_ADD_EVENT',
     UpdateConversationMarkAsRead = 'UPDATE_CONVERSATION_MARKER_AS_READ',
     // USER
@@ -51,8 +52,9 @@ export type Actions = {
     // SSE
     [ActionTypes.InstallChatter](context: ActionAugments, chatter: Chatter): void
     [ActionTypes.InstallConversation](context: ActionAugments, conversation: Conversation): void
+    [ActionTypes.InstallConversationPart](context: ActionAugments, conversation: ConversationPart): void
     [ActionTypes.UpdateConversationAddMessage](context: ActionAugments, value: { conversationId: ConversationId, conversationData: ConversationData[] }): void
-    [ActionTypes.UpdateConversationMarkAsRead](context: ActionAugments, value: { conversationId: ConversationId, readMarkers: MarkedAsRead }): void
+    [ActionTypes.UpdateConversationMarkAsRead](context: ActionAugments, value: { conversationId: ConversationId, readMarkers: ReadMarkers }): void
     // USER
     [ActionTypes.SetChatterId](context: ActionAugments, value: { chatterId: ChatterId }): void
     [ActionTypes.SendMessage](context: ActionAugments, value: { chatterId: ChatterId, conversationId: ConversationId, message: string }): void
@@ -88,35 +90,12 @@ export const actions: ActionTree<State, State> & Actions = {
     },
     async [ActionTypes.InstallChatter]({commit}, chatter) {
         commit(MutationType.InstallChatter, chatter)
-        // await sleep(1000)
-        // commit(MutationType.SetLoading, false)
-        // commit(MutationType.SetTasks, [
-        //     {
-        //         id: 1,
-        //         title: 'Create a new programming language',
-        //         description: "The programing language should have full typescript support ",
-        //         createdBy: "Emmanuel John",
-        //         assignedTo: "Saviour Peter",
-        //         completed: false,
-        //         editing: false
-        //     }
-        // ])
     },
     async [ActionTypes.InstallConversation]({commit}, conversation) {
         commit(MutationType.InstallConversation, conversation)
-        // await sleep(1000)
-        // commit(MutationType.SetLoading, false)
-        // commit(MutationType.SetTasks, [
-        //     {
-        //         id: 1,
-        //         title: 'Create a new programming language',
-        //         description: "The programing language should have full typescript support ",
-        //         createdBy: "Emmanuel John",
-        //         assignedTo: "Saviour Peter",
-        //         completed: false,
-        //         editing: false
-        //     }
-        // ])
+    },
+    async [ActionTypes.InstallConversationPart]({commit}, conversation) {
+        commit(MutationType.InstallConversationPart, conversation)
     },
     async [ActionTypes.UpdateConversationAddMessage]({commit}, {conversationId, conversationData}) {
         commit(MutationType.UpdateConversationAddMessage, {

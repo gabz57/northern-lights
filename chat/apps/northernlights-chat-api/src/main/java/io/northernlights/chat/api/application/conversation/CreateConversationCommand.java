@@ -6,6 +6,7 @@ import io.northernlights.chat.domain.event.ConversationCreatedEvent;
 import io.northernlights.chat.domain.model.chatter.ChatterId;
 import io.northernlights.chat.store.chatter.domain.ChatterStore;
 import io.northernlights.chat.store.conversation.domain.ConversationStore;
+import io.northernlights.commons.TimeService;
 import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 import lombok.Value;
@@ -19,12 +20,13 @@ import static io.northernlights.chat.api.application.conversation.CreateConversa
 @RequiredArgsConstructor
 public class CreateConversationCommand implements UseCase<CreateConversationCommandInput, CreateConversationCommandResult> {
 
+    private final TimeService timeService;
     private final ChatterStore chatterStore;
     private final ConversationStore conversationStore;
     private final ConversationEventPublisher conversationEventPublisher;
 
     public Mono<CreateConversationCommandResult> execute(CreateConversationCommandInput input) {
-        return conversationStore.create(input.creator, input.conversationName, input.participants)
+        return conversationStore.create(timeService.now().toOffsetDateTime(), input.creator, input.conversationName, input.participants)
             .doOnNext(chatterStore::writeConversationCreated)
             .doOnNext(conversationEventPublisher::publish)
             .map(CreateConversationCommandResult::new);

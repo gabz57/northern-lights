@@ -10,6 +10,7 @@ import io.northernlights.chat.store.chatter.domain.ChatterStore;
 import io.northernlights.chat.store.chatter.infrastructure.ChatterStoreConfiguration;
 import io.northernlights.chat.store.conversation.domain.ConversationStore;
 import io.northernlights.chat.store.conversation.infrastructure.ConversationStoreConfiguration;
+import io.northernlights.commons.TimeService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -59,10 +60,11 @@ public class ConversationConfiguration {
     }
 
     @Bean
-    public ChatCommands chatCommands(ChatterStore chatterStore,
+    public ChatCommands chatCommands(TimeService timeService,
+                                     ChatterStore chatterStore,
                                      ConversationStore conversationStore,
                                      ConversationEventPublisher conversationEventPublisher) {
-        return new ChatCommands(chatterStore, conversationStore, conversationEventPublisher);
+        return new ChatCommands(timeService, chatterStore, conversationStore, conversationEventPublisher);
     }
 
     @Bean

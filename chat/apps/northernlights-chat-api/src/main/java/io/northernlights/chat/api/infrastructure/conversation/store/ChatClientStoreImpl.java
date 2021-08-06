@@ -50,11 +50,11 @@ public class ChatClientStoreImpl implements ChatClientStore {
         return conversationStore.participants(conversationId)
             .flatMap(chatterIds -> Mono
                 .zip(
-                    conversationStore.conversationName(conversationId),
+                    conversationStore.conversationCreationData(conversationId),
                     chatterStore.listChatters(chatterIds),
                     conversationStore.conversation(conversationId, null),
                     conversationStore.readMarkers(conversationId))
-                .map(tuple -> chatDataAdapter.adaptColdData(
+                .map(tuple -> chatDataAdapter.adaptFullColdData(
                     conversationId, tuple.getT1(), tuple.getT2(), tuple.getT3(), tuple.getT4()))
                 .onErrorContinue((e, o) -> log.error("Failed to load chat install data content with object : "
                     + ofNullable(o).map(Object::toString).orElse(""), e))
@@ -62,7 +62,8 @@ public class ChatClientStoreImpl implements ChatClientStore {
     }
 
     private Flux<ChatData> getPartialDatas(List<ConversationId> conversationIds, Map<ConversationId, ConversationDataId> conversationStatuses) {
-        return Flux.fromStream(conversationIds.stream()).flatMap((ConversationId conversationId) -> getPartialData(conversationId, conversationStatuses));
+        return Flux.fromStream(conversationIds.stream())
+            .flatMap(conversationId -> getPartialData(conversationId, conversationStatuses));
     }
 
     private Mono<ChatData> getPartialData(ConversationId conversationId, Map<ConversationId, ConversationDataId> conversationStatuses) {
@@ -70,12 +71,11 @@ public class ChatClientStoreImpl implements ChatClientStore {
         return conversationStore.participants(conversationId)
             .flatMap(chatterIds -> Mono
                 .zip(
-                    conversationStore.conversationName(conversationId),
                     chatterStore.listChatters(chatterIds),
                     conversationStore.conversation(conversationId, conversationStatuses.get(conversationId)),
                     conversationStore.readMarkers(conversationId))
-                .map(tuple -> chatDataAdapter.adaptColdData(
-                    conversationId, tuple.getT1(), tuple.getT2(), tuple.getT3(), tuple.getT4()))
+                .map(tuple -> chatDataAdapter.adaptPartialColdData(
+                    conversationId, tuple.getT1(), tuple.getT2(), tuple.getT3()))
                 .onErrorContinue((e, o) -> log.error("Failed to load chat install data content with object : "
                     + ofNullable(o).map(Object::toString).orElse(""), e))
             );

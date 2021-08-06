@@ -26,12 +26,13 @@ public class SseChatPayload {
     public static class SseChatConversation {
         private String id;
         private String name;
+        private String creator;
+        private Long createdAt;
         private String from;
         private String to;
         private List<String> participants;
         private List<SseChatConversationData> data;
-        // ChatterId.id <> ConversationDataId.id
-        private Map<String, String> markedAsRead;
+        private Map<String, String> readMarkers;// ChatterId.id <> ConversationDataId.id
     }
 
     @Data
@@ -42,6 +43,7 @@ public class SseChatPayload {
         private String id;
         private String author;
         private String message;
+        private Long dateTime;
     }
 
     @Data

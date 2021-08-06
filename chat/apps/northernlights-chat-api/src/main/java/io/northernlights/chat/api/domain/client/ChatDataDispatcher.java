@@ -30,6 +30,7 @@ public class ChatDataDispatcher implements ChatDataProvider {
             .doOnNext(this::updateFollowedConversationsOnCreation)
             .filter(this::followedConversations)
             .share();
+        allConversationEventsFlux.subscribe(e -> log.info("Dispatching {}", e.getConversationEventType()));
     }
 
     private boolean followedConversations(ConversationEvent conversationEvent) {

@@ -7,6 +7,8 @@ import io.northernlights.chat.domain.model.conversation.data.ConversationDataId;
 import lombok.Builder;
 import lombok.Value;
 
+import java.time.OffsetDateTime;
+
 @Value
 @Builder
 public class ChatDataUpdate implements ChatData {
@@ -33,6 +35,7 @@ public class ChatDataUpdate implements ChatData {
         ConversationDataId conversationDataId;
         ChatterId author;
         Message message;
+        OffsetDateTime dateTime;
     }
 //
 //    @Value

@@ -20,6 +20,7 @@
         <h1>Conversation {{ selectedConversationId }}</h1>
         <Conversation :conversation-id="selectedConversationId"/>
       </div>
+      <div v-else>Select a conversation in the menu</div>
     </div>
   </div>
 </template>
@@ -33,6 +34,7 @@ import ChatterList from "@/components/chat/ChatterList.vue";
 import {ConversationId} from "@/store/state";
 import {ActionTypes} from "@/store/actions";
 import useSse from "@/composables/use-sse";
+import useConversationDetails from "@/composables/use-conversation-details";
 
 export default defineComponent({
   name: "Chat",
@@ -47,12 +49,12 @@ export default defineComponent({
     const chatters = computed(() => Array.from(store.state.chatters.values()))
     const conversations = computed(() => Array.from(store.state.conversations.values()))
 
-    const selectConversation = (conversationId: ConversationId): void => {
-      selectedConversationId.value = conversationId
-    }
     const setChatterId = () => {
       selectedConversationId.value = undefined
       store.dispatch(ActionTypes.SetChatterId, {chatterId: userId.value});
+    }
+    const selectConversation = (conversationId: ConversationId): void => {
+      selectedConversationId.value = conversationId
     }
     return {
       sseState: state,
@@ -71,7 +73,7 @@ export default defineComponent({
 .chat {
   display: flex;
   flex-direction: column;
-
+  width: 100%;
   &__header {
     flex-shrink: 0;
     flex-grow: 0;
@@ -82,6 +84,8 @@ export default defineComponent({
     flex-direction: row;
     flex-shrink: 0;
     flex-grow: 1;
+    width: 80%;
+    margin: 0 auto;
 
     &-menu {
       width: 300px;

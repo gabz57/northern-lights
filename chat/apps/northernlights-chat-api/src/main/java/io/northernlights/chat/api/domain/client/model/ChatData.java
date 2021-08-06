@@ -7,6 +7,7 @@ public interface ChatData {
     enum ChatDataType {
         HELLO,
         INSTALL,
+        PARTIAL,
         UPDATE
     }
 

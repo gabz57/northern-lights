@@ -12,7 +12,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @Slf4j
 public class ChatClientProvider {
 
-    private final Map<ChatClientID, ChatClient> chatClientsById = new ConcurrentHashMap<>();
+    private final Map<String, ChatClient> chatClientsById = new ConcurrentHashMap<>();
     private final ChatDataProvider chatDataProvider;
     private final ChatClientStore chatClientStore;
 
@@ -21,15 +21,15 @@ public class ChatClientProvider {
         this.chatClientStore = chatClientStore;
     }
 
-    public ChatClient getOrCreateClient(ChatClientID chatClientID) {
+    public ChatClient getOrCreateClient(String sseChatKey, ChatClientID chatClientID) {
         return chatClientsById.computeIfAbsent(
-            chatClientID,
-            this::createClient);
+            sseChatKey,
+            key -> createClient(chatClientID));
     }
 
     public void stopClient(ChatClientID chatClientID, String sseChatKey) {
         log.info("Stopping client {}", chatClientID);
-        chatClientsById.remove(chatClientID)
+        chatClientsById.remove(sseChatKey)
             .stop();
         chatClientStore.revoke(sseChatKey);
     }

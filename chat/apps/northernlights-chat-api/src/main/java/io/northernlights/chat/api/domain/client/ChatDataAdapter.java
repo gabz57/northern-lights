@@ -2,6 +2,7 @@ package io.northernlights.chat.api.domain.client;
 
 import io.northernlights.chat.api.domain.client.model.ChatData;
 import io.northernlights.chat.api.domain.client.model.ChatDataConversationInstall;
+import io.northernlights.chat.api.domain.client.model.ChatDataConversationPartial;
 import io.northernlights.chat.api.domain.client.model.ChatDataUpdate;
 import io.northernlights.chat.domain.event.ConversationCreatedEvent;
 import io.northernlights.chat.domain.event.ConversationEvent;
@@ -11,6 +12,7 @@ import io.northernlights.chat.domain.model.chatter.Chatter;
 import io.northernlights.chat.domain.model.chatter.ChatterId;
 import io.northernlights.chat.domain.model.conversation.Conversation;
 import io.northernlights.chat.domain.model.conversation.ConversationId;
+import io.northernlights.chat.domain.model.conversation.data.ConversationCreation;
 import io.northernlights.chat.domain.model.conversation.data.ConversationDataId;
 import io.northernlights.chat.store.chatter.domain.ChatterStore;
 import lombok.RequiredArgsConstructor;
@@ -24,15 +26,31 @@ import java.util.Map;
 public class ChatDataAdapter {
     private final ChatterStore chatterStore;
 
-    public ChatData adaptColdData(
+    public ChatData adaptFullColdData(
         ConversationId conversationId,
-        String conversationName,
+        ConversationCreation conversationCreation,
         List<Chatter> chatters,
         Conversation conversation,
         Map<ChatterId, ConversationDataId> readMarkerByChatterId
     ) {
         return ChatDataConversationInstall.builder()
-            .name(conversationName)
+            .name(conversationCreation.getName())
+            .createdBy(conversationCreation.getChatterId())
+            .createdAt(conversationCreation.getDateTime())
+            .conversationId(conversationId)
+            .chatters(chatters)
+            .conversationData(conversation)
+            .readMarkers(readMarkerByChatterId)
+            .build();
+    }
+
+    public ChatData adaptPartialColdData(
+        ConversationId conversationId,
+        List<Chatter> chatters,
+        Conversation conversation,
+        Map<ChatterId, ConversationDataId> readMarkerByChatterId
+    ) {
+        return ChatDataConversationPartial.builder()
             .conversationId(conversationId)
             .chatters(chatters)
             .conversationData(conversation)
@@ -52,6 +70,8 @@ public class ChatDataAdapter {
         return chatterStore.listChatters(conversationEvent.getParticipants())
             .map(chatters -> ChatDataConversationInstall.builder()
                 .name(conversationEvent.getName())
+                .createdBy(conversationEvent.getCreatedBy())
+                .createdAt(conversationEvent.getDateTime())
                 .conversationId(conversationEvent.getConversationId())
                 .chatters(chatters)
                 .conversationData(new Conversation())
@@ -65,6 +85,7 @@ public class ChatDataAdapter {
             .message(ChatDataUpdate.MessageValue.builder()
                 .conversationDataId(conversationEvent.getConversationDataId())
                 .author(conversationEvent.getAuthor())
+                .dateTime(conversationEvent.getDateTime())
                 .message(conversationEvent.getMessage())
                 .build())
             .build());

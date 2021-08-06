@@ -60,7 +60,7 @@ public class ChatterController {
 //    }
 
     private Flux<ChatData> subscribeChatterFlowSince(ChatClientID chatClientID, String sseChatKey) {
-        return chatClientProvider.getOrCreateClient(chatClientID)
+        return chatClientProvider.getOrCreateClient(sseChatKey, chatClientID)
             .connect(sseChatKey);
     }
 

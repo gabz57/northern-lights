@@ -8,6 +8,7 @@ import io.northernlights.chat.domain.model.conversation.ConversationId;
 import io.northernlights.chat.domain.model.conversation.data.ConversationDataId;
 import io.northernlights.chat.store.chatter.domain.ChatterStore;
 import io.northernlights.chat.store.conversation.domain.ConversationStore;
+import io.northernlights.commons.TimeService;
 import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 import lombok.Value;
@@ -19,12 +20,13 @@ import static io.northernlights.chat.api.application.conversation.MarkConversati
 @RequiredArgsConstructor
 public class MarkConversationAsReadCommand implements UseCase<MarkConversationAsReadCommandInput, MarkConversationAsReadCommandResult> {
 
+    private final TimeService timeService;
     private final ConversationStore conversationStore;
     private final ChatterStore chatterStore;
     private final ConversationEventPublisher conversationEventPublisher;
 
     public Mono<MarkConversationAsReadCommandResult> execute(MarkConversationAsReadCommandInput input) {
-        return conversationStore.markEventAsRead(input.conversationId, input.chatterId, input.conversationDataId)
+        return conversationStore.markEventAsRead(timeService.now().toOffsetDateTime(), input.conversationId, input.chatterId, input.conversationDataId)
 //            .doOnNext(conversationUpdatedEvent -> conversationStore.participants(input.conversationID)
 //                    .map(participants -> chatterStore.writeConversationUpdate(conversationUpdatedEvent, participants)))
             .doOnNext(conversationEventPublisher::publish)

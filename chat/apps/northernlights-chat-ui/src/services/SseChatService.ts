@@ -3,14 +3,17 @@
 import {Store} from "@/store";
 import {EventSourcePolyfill} from "event-source-polyfill";
 import {ActionTypes} from "@/store/actions";
-import {ChatterId, Conversation, ConversationDataId, MarkedAsRead} from "@/store/state";
+import {ChatterId, Conversation, ConversationDataId, ConversationPart, ReadMarkers} from "@/store/state";
 
 export default class SseChatService {
 
-    private static toReadMarkers = (markedAsRead: MarkedAsRead | undefined): Map<ChatterId, ConversationDataId> => {
+    private static toReadMarkers = (markedAsRead: ReadMarkers | undefined): Map<ChatterId, ConversationDataId> => {
         const readMarkers = new Map<ChatterId, ConversationDataId>();
         if (markedAsRead) {
-            markedAsRead.forEach((conversationDataId, chatterId) => readMarkers.set(chatterId, conversationDataId))
+            for (const [chatterId, conversationDataId] of Object.entries(markedAsRead)) {
+                console.log("chatter ", chatterId, " has seen " , conversationDataId)
+                readMarkers.set(chatterId, conversationDataId)
+            }
         }
         return readMarkers;
     }
@@ -18,9 +21,18 @@ export default class SseChatService {
     private static toConv = (conv: Partial<Conversation>): Conversation => {
         return {
             id: conv.id || "",
+            creator: conv.creator || "",
+            createdAt: conv.createdAt || 0,
             name: conv.name || "",
             data: conv.data || [],
-            markedAsRead: SseChatService.toReadMarkers(conv.markedAsRead),
+            readMarkers: SseChatService.toReadMarkers(conv.readMarkers),
+        }
+    }
+    private static toConvPart = (conv: Partial<Conversation>): ConversationPart => {
+        return {
+            id: conv.id || "",
+            data: conv.data || [],
+            readMarkers: SseChatService.toReadMarkers(conv.readMarkers),
         }
     }
 
@@ -30,7 +42,7 @@ export default class SseChatService {
                 "sse-chat-key": sseChatKey
             }
         });
-        eventSource.onopen = (e: Event) => {
+        eventSource.onopen = (/*e: Event*/) => {
             console.log('SSE is OPEN');
             onOpen()
         };
@@ -67,7 +79,14 @@ export default class SseChatService {
             store.dispatch(ActionTypes.InstallConversation, SseChatService.toConv(conv));
         }, false);
 
+        eventSource.addEventListener('CONVERS:PARTIAL', (e: any) => {
+            const parse = JSON.parse(e.data);
+            const conv: Partial<Conversation> = parse.conversation;
+            store.dispatch(ActionTypes.InstallConversationPart, SseChatService.toConvPart(conv));
+        }, false);
+
         eventSource.addEventListener('CONVERS:UPDATE:MESSAGE', (e: any) => {
+            console.log('CONVERS:UPDATE:MESSAGE', e.data)
             const parse = JSON.parse(e.data);
             store.dispatch(ActionTypes.UpdateConversationAddMessage, {
                 conversationId: parse.conversation.id,
@@ -76,10 +95,11 @@ export default class SseChatService {
         }, false);
 
         eventSource.addEventListener('CONVERS:UPDATE:READ_MARKER', (e: any) => {
+            console.log('CONVERS:UPDATE:READ_MARKER')
             const parse = JSON.parse(e.data);
             store.dispatch(ActionTypes.UpdateConversationMarkAsRead, {
                 conversationId: parse.conversation.id,
-                readMarkers: parse.conversation.markedAsRead
+                readMarkers: SseChatService.toReadMarkers(parse.conversation.readMarkers)
             });
         }, false);
 

@@ -1,6 +1,6 @@
 <template>
   <ul>
-    <li v-for="(chatter) in chatters" :key="chatter.id">
+    <li v-for="(chatter) in chatters" :key="chatter.id" style="text-align: left;">
       {{ "Chatter: " + chatter.id + " : " + chatter.name }}
     </li>
   </ul>

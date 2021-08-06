@@ -1,8 +1,8 @@
 import {computed, reactive, watch} from "vue";
 import {ChatterId} from "@/store/state";
 import {useStore} from "@/store";
-import {chatApiClient} from "@/ChatApiClient";
-import SseChatService from "@/SseChatService";
+import {chatApiClient} from "@/services/ChatApiClient";
+import SseChatService from "@/services/SseChatService";
 import {ActionTypes} from "@/store/actions";
 
 type SseStatus = {

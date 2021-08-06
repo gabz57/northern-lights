@@ -8,22 +8,18 @@ import io.northernlights.chat.domain.model.conversation.data.ConversationDataId;
 import lombok.Builder;
 import lombok.Value;
 
-import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Map;
 
 @Value
 @Builder
-public class ChatDataConversationInstall implements ChatData {
-    String name;
-    ChatterId createdBy;
-    OffsetDateTime createdAt;
+public class ChatDataConversationPartial implements ChatData {
     ConversationId conversationId;
     Conversation conversationData;
     List<Chatter> chatters;
     Map<ChatterId, ConversationDataId> readMarkers;
 
     public ChatDataType getChatDataType() {
-        return ChatDataType.INSTALL;
+        return ChatDataType.PARTIAL;
     }
 }
