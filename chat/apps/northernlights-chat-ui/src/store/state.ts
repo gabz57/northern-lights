@@ -1,6 +1,9 @@
 /** UI */
 export type Ui = {
     visible: boolean
+    selectedConversationId?: ConversationId
+    creatingConversation: boolean
+    editingProfile: boolean
 }
 
 /** Sse */

@@ -20,6 +20,9 @@ export enum MutationType {
     SetSseAutoConnect = 'SET_SSE_AUTO_CONNECT',
     ClearChatterState = 'CLEAR_CHATTER_STATE',
     SetChatterId = 'SET_CHATTER_ID',
+    SetSelectedConversationId = 'SET_SELECTED_CONVERSATION_ID',
+    SetEditingProfile = 'SET_EDITING_PROFILE',
+    SetCreatingConversation = 'SET_CREATING_CONVERSATION',
     InstallChatter = 'INSTALL_CHATTER',
     InstallConversation = 'INSTALL_CONVERSATION',
     InstallConversationPart = 'INSTALL_CONVERSATION_PART',
@@ -35,6 +38,9 @@ export type Mutations = {
     [MutationType.SetSseAutoConnect](state: State, enabled: boolean): void
     [MutationType.ClearChatterState](state: State): void
     [MutationType.SetChatterId](state: State, chatterId: ChatterId): void
+    [MutationType.SetSelectedConversationId](state: State, conversationID: ConversationId): void
+    [MutationType.SetEditingProfile](state: State, enabled: boolean): void
+    [MutationType.SetCreatingConversation](state: State, enabled: boolean): void
     [MutationType.InstallChatter](state: State, chatter: Chatter): void
     [MutationType.InstallConversation](state: State, conversation: Conversation): void
     [MutationType.InstallConversationPart](state: State, conversation: ConversationPart): void
@@ -70,6 +76,15 @@ export const mutations: MutationTree<State> & Mutations = {
     },
     [MutationType.SetChatterId](state, chatterId) {
         state.chatterId = chatterId
+    },
+    [MutationType.SetSelectedConversationId](state, conversationId) {
+        state.ui.selectedConversationId = conversationId
+    },
+    [MutationType.SetEditingProfile](state, enabled) {
+        state.ui.editingProfile = enabled
+    },
+    [MutationType.SetCreatingConversation](state, enabled) {
+        state.ui.creatingConversation = enabled
     },
     [MutationType.InstallChatter](state, chatter) {
         state.chatters.set(chatter.id, chatter)

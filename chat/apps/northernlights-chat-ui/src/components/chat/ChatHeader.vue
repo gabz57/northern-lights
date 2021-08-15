@@ -1,21 +1,24 @@
 <template>
   <div class="chat-header">
-    <input v-model="userId" @keydown.enter="setChatterId()"/>
-    <button @click="setChatterId()">CONNECT</button>
-    <div class="chat-header__status">
-      &nbsp;{{ sseState.sseOpen ? "\uD83D\uDFE2" : "\u26AA" }}
-      <div class="chat-header__status-tooltip">
-        <div>Sse AutoConnect : {{ sseState.sseAutoConnect }}</div>
-        <div>Sse Wanted : {{ sseState.sseWanted }}</div>
-        <div>Sse Open : {{ sseState.sseOpen }}</div>
+    <div class="chat-header__connect" style="margin: auto;">
+      <input v-model="userId" @keydown.enter="setChatterId()"/>
+      <button @click="setChatterId()">CONNECT</button>
+      <div class="chat-header__connect-status">
+        &nbsp;{{ sseState.sseOpen ? "\uD83D\uDFE2" : "\u26AA" }}
+        <div class="chat-header__connect-status-tooltip">
+          <div>Sse AutoConnect : {{ sseState.sseAutoConnect }}</div>
+          <div>Sse Wanted : {{ sseState.sseWanted }}</div>
+          <div>Sse Open : {{ sseState.sseOpen }}</div>
+        </div>
       </div>
+      <span v-if="sseState.sseOpen" @click="toggleEditingProfile">{{"\uD83D\uDC64"}}</span>
     </div>
   </div>
 </template>
 
 <script lang="ts">
 
-import {defineComponent, ref} from "vue";
+import {computed, defineComponent, ref} from "vue";
 import {useStore} from "@/store";
 import {ActionTypes} from "@/store/actions";
 import useSseState from "@/composables/use-sse-state";
@@ -30,11 +33,17 @@ export default defineComponent({
     const setChatterId = () => {
       store.dispatch(ActionTypes.SetChatterId, {chatterId: userId.value});
     }
+    const editingProfile = computed(() => store.state.ui.editingProfile)
+
+    const toggleEditingProfile = () => {
+      store.dispatch(ActionTypes.SetEditingProfile, !editingProfile.value);
+    }
 
     return {
       sseState,
       userId,
       setChatterId,
+      toggleEditingProfile,
     }
   }
 })
@@ -42,24 +51,30 @@ export default defineComponent({
 
 <style scoped lang="scss">
 .chat-header {
-  &__status {
-    position: relative;
-    display: inline-block;
+  display: flex;
 
-    &-tooltip {
-      visibility: hidden;
-      width: max-content;
-      background-color: black;
-      color: #fff;
-      text-align: center;
-      padding: 5px;
-      border-radius: 6px;
-      position: absolute;
-      z-index: 1;
-    }
-    &:hover & {
+  &__connect {
+    &-status {
+      margin: auto;
+      position: relative;
+      display: inline-block;
+
       &-tooltip {
-        visibility: visible;
+        visibility: hidden;
+        width: max-content;
+        background-color: black;
+        color: #fff;
+        text-align: center;
+        padding: 5px;
+        border-radius: 6px;
+        position: absolute;
+        z-index: 1;
+      }
+
+      &:hover & {
+        &-tooltip {
+          visibility: visible;
+        }
       }
     }
   }

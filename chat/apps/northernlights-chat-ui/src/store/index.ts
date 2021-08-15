@@ -8,6 +8,9 @@ import {Getters, getters} from "@/store/getters";
 const initialState: State = {
     ui: {
         visible: true,
+        selectedConversationId: undefined,
+        editingProfile: false,
+        creatingConversation: false,
     },
     sse: {
        eventSource: undefined,

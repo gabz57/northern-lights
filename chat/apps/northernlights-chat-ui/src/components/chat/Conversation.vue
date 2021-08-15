@@ -54,6 +54,10 @@ export default defineComponent({
   display: flex;
   flex-direction: row;
   flex-grow: 1;
+  height: inherit;
+  min-height: inherit;
+  max-height: inherit;
+
   &__separator {
     margin: 8rem 0 6rem;
     width: 1px;

@@ -15,6 +15,9 @@ import {chatApiClient} from "@/services/ChatApiClient";
 export enum ActionTypes {
     // UI status
     UpdateChatVisibility = "UPDATE_CHAT_VISIBILITY",
+    SetSelectedConversationId = 'SET_SELECTED_CONVERSATION_ID',
+    SetEditingProfile = 'SET_EDITING_PROFILE',
+    SetCreatingConversation = 'SET_CREATING_CONVERSATION',
     // SSE Mngt
     StoreSseOpenStatus = "STORE_SSE_OPEN_STATUS",
     StoreEventSource = "STORE_EVENT_SOURCE",
@@ -44,6 +47,9 @@ type ActionAugments = Omit<ActionContext<State, State>, 'commit'> & {
 }
 export type Actions = {
     [ActionTypes.UpdateChatVisibility](context: ActionAugments, isVisible: boolean): void
+    [ActionTypes.SetSelectedConversationId](context: ActionAugments, conversationId: ConversationId): void
+    [ActionTypes.SetEditingProfile](context: ActionAugments, enabled: boolean): void
+    [ActionTypes.SetCreatingConversation](context: ActionAugments, enabled: boolean): void
     // SSE Mngt
     [ActionTypes.StoreSseOpenStatus](context: ActionAugments, isOpen: boolean): void
     [ActionTypes.StoreEventSource](context: ActionAugments, eventSource: EventSource): void
@@ -70,6 +76,15 @@ export type Actions = {
 export const actions: ActionTree<State, State> & Actions = {
     async [ActionTypes.UpdateChatVisibility]({commit}, isVisible: boolean) {
         commit(MutationType.UpdateChatVisibility, isVisible)
+    },
+    async [ActionTypes.SetSelectedConversationId]({commit}, conversationId: ConversationId) {
+        commit(MutationType.SetSelectedConversationId, conversationId)
+    },
+    async [ActionTypes.SetEditingProfile]({commit}, enabled: boolean) {
+        commit(MutationType.SetEditingProfile, enabled)
+    },
+    async [ActionTypes.SetCreatingConversation]({commit}, enabled: boolean) {
+        commit(MutationType.SetCreatingConversation, enabled)
     },
     async [ActionTypes.StoreSseOpenStatus]({commit}, isOpen: boolean) {
         console.log("ActionTypes.StoreSseOpenStatus")

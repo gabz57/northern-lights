@@ -84,6 +84,7 @@ export default defineComponent({
 <style scoped lang="scss">
 .conversation-creation {
   margin: auto;
+  width: 100%;
   border: 1px solid black;
 }
 </style>
