@@ -1,3 +1,8 @@
+/** UI */
+export type Ui = {
+    visible: boolean
+}
+
 /** Sse */
 export type Sse = {
     eventSource?: EventSource
@@ -32,11 +37,12 @@ export type ReadMarkers = Map<ChatterId, ConversationDataId>;
 
 export type Conversation = {
     id: ConversationId,
+    name: string,
+    creator: ChatterId,
+    createdAt: number,
+    participants: ChatterId[],
     data: ConversationData[],
     readMarkers: ReadMarkers
-    creator: ChatterId,
-    name: string,
-    createdAt: number
 }
 
 export type ConversationPart = {
@@ -49,6 +55,7 @@ export type Conversations = Map<ConversationId, Conversation>;
 
 /** State */
 export type State = {
+    ui: Ui,
     sse: Sse,
     chatterId?: ChatterId,
     chatters: Chatters,

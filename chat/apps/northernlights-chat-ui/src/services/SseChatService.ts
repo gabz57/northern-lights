@@ -11,7 +11,6 @@ export default class SseChatService {
         const readMarkers = new Map<ChatterId, ConversationDataId>();
         if (markedAsRead) {
             for (const [chatterId, conversationDataId] of Object.entries(markedAsRead)) {
-                console.log("chatter ", chatterId, " has seen " , conversationDataId)
                 readMarkers.set(chatterId, conversationDataId)
             }
         }
@@ -26,6 +25,7 @@ export default class SseChatService {
             name: conv.name || "",
             data: conv.data || [],
             readMarkers: SseChatService.toReadMarkers(conv.readMarkers),
+            participants: conv.participants || []
         }
     }
     private static toConvPart = (conv: Partial<Conversation>): ConversationPart => {

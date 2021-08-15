@@ -6,6 +6,9 @@ import {Actions, actions} from "@/store/actions";
 import {Getters, getters} from "@/store/getters";
 
 const initialState: State = {
+    ui: {
+        visible: true,
+    },
     sse: {
        eventSource: undefined,
        sseAutoConnect: false,

@@ -1,19 +1,15 @@
-import {computed, reactive, watch} from "vue";
-import {ChatterId} from "@/store/state";
+import {computed, watch} from "vue";
+import {ChatterId, Conversation, ConversationDataId, ConversationId} from "@/store/state";
 import {useStore} from "@/store";
 import {chatApiClient} from "@/services/ChatApiClient";
 import SseChatService from "@/services/SseChatService";
 import {ActionTypes} from "@/store/actions";
-
-type SseStatus = {
-    sseAutoConnect: boolean,
-    sseWanted: boolean,
-    sseOpen: boolean,
-}
+import useSseState from "@/composables/use-sse-state";
 
 export default function useSse() {
 
     const store = useStore()
+    const { state } = useSseState()
     const chatterIdRef = computed(() => store.state.chatterId)
     const enableSseWanted = () => store.dispatch(ActionTypes.EnableSseWanted)
     const disableSseWanted = () => store.dispatch(ActionTypes.DisableSseWanted)
@@ -49,7 +45,6 @@ export default function useSse() {
             enableSseWanted()
         }
     }
-    const sseAutoConnectRef = computed(() => store.state.sse.sseAutoConnect)
 
     const doConnect = async (chatterId: ChatterId) => {
         const onOpen = async () => store.dispatch(ActionTypes.StoreSseOpenStatus, true)
@@ -63,7 +58,16 @@ export default function useSse() {
             store.dispatch(ActionTypes.DisableSseWanted);
             store.dispatch(ActionTypes.StoreSseOpenStatus, false);
         }
-        const sseChatKey = await chatApiClient.authent(chatterId);
+        const conversationStatuses: () => Map<ConversationId, ConversationDataId> = () => {
+            const statuses = new Map<ConversationId, ConversationDataId>()
+            store.state.conversations.forEach((conversation: Conversation, conversationId: ConversationId) => {
+                if (conversation.data.length > 0) {
+                    statuses.set(conversationId, conversation.data[conversation.data.length - 1].id)
+                }
+            })
+            return statuses
+        }
+        const sseChatKey = await chatApiClient.authent(chatterId, conversationStatuses);
         const sseEventSource = SseChatService.openSse(sseChatKey, onOpen, onReconnection, onConnectionClosed);
         store.dispatch(ActionTypes.StoreEventSource, sseEventSource);
         SseChatService.bind(sseEventSource, store);
@@ -73,7 +77,6 @@ export default function useSse() {
         store.dispatch(ActionTypes.StoreEventSource, undefined);
     }
 
-    const sseWantedRef = computed(() => store.state.sse.sseWanted)
     const sseWantedWatcher = async (sseWanted: boolean, prevSseWanted: boolean) => {
         console.log("sseWantedWatcher", prevSseWanted, " -> " , sseWanted)
         if (sseWanted !== prevSseWanted) {
@@ -88,22 +91,16 @@ export default function useSse() {
             }
         }
     }
-    watch(sseWantedRef, sseWantedWatcher)
+    watch(() => state.sseWanted, sseWantedWatcher)
 
-    const sseOpenRef = computed(() => store.state.sse.sseOpen)
+    const sseWantedRef = computed(() => state.sseWanted)
     const sseOpenWatcher = async (sseOpen: boolean, prevSseOpen: boolean) => {
         console.log("sseOpenWatcher", prevSseOpen, " -> " , sseOpen)
         if (prevSseOpen && !sseOpen && sseWantedRef.value && chatterIdRef.value) {
             await doConnect(chatterIdRef.value)
         }
     }
-    watch(sseOpenRef, sseOpenWatcher)
-
-    const state: SseStatus = reactive({
-        sseAutoConnect: sseAutoConnectRef,
-        sseWanted: sseWantedRef,
-        sseOpen: sseOpenRef,
-    })
+    watch(() => state.sseOpen, sseOpenWatcher)
 
     return {
         state,

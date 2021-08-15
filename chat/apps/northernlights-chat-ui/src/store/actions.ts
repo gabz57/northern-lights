@@ -13,6 +13,8 @@ import {
 import {chatApiClient} from "@/services/ChatApiClient";
 
 export enum ActionTypes {
+    // UI status
+    UpdateChatVisibility = "UPDATE_CHAT_VISIBILITY",
     // SSE Mngt
     StoreSseOpenStatus = "STORE_SSE_OPEN_STATUS",
     StoreEventSource = "STORE_EVENT_SOURCE",
@@ -30,7 +32,8 @@ export enum ActionTypes {
     // USER
     SetChatterId = 'SET_CHATTER_ID',
     SendMessage = 'SEND_MESSAGE',
-    MarkAsRead = 'MARK_AS_READ'
+    MarkAsRead = 'MARK_AS_READ',
+    CreateConversation = 'CREATE_CONVERSATION',
 }
 
 type ActionAugments = Omit<ActionContext<State, State>, 'commit'> & {
@@ -40,6 +43,7 @@ type ActionAugments = Omit<ActionContext<State, State>, 'commit'> & {
     ): ReturnType<Mutations[K]>
 }
 export type Actions = {
+    [ActionTypes.UpdateChatVisibility](context: ActionAugments, isVisible: boolean): void
     // SSE Mngt
     [ActionTypes.StoreSseOpenStatus](context: ActionAugments, isOpen: boolean): void
     [ActionTypes.StoreEventSource](context: ActionAugments, eventSource: EventSource): void
@@ -59,10 +63,14 @@ export type Actions = {
     [ActionTypes.SetChatterId](context: ActionAugments, value: { chatterId: ChatterId }): void
     [ActionTypes.SendMessage](context: ActionAugments, value: { chatterId: ChatterId, conversationId: ConversationId, message: string }): void
     [ActionTypes.MarkAsRead](context: ActionAugments, value: { chatterId: ChatterId, conversationId: ConversationId, conversationDataId: ConversationDataId }): void
+    [ActionTypes.CreateConversation](context: ActionAugments, value: { chatterId: ChatterId, name: string, participants: ChatterId[] }): void
 }
 
 // const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
 export const actions: ActionTree<State, State> & Actions = {
+    async [ActionTypes.UpdateChatVisibility]({commit}, isVisible: boolean) {
+        commit(MutationType.UpdateChatVisibility, isVisible)
+    },
     async [ActionTypes.StoreSseOpenStatus]({commit}, isOpen: boolean) {
         console.log("ActionTypes.StoreSseOpenStatus")
         commit(MutationType.UpdateSseOpenStatus, isOpen)
@@ -114,5 +122,8 @@ export const actions: ActionTree<State, State> & Actions = {
     },
     async [ActionTypes.MarkAsRead](context, {chatterId, conversationId, conversationDataId}) {
         await chatApiClient.markAsRead(chatterId, conversationId, conversationDataId)
+    },
+    async [ActionTypes.CreateConversation](context, {chatterId, name, participants}) {
+        await chatApiClient.createConversation(chatterId, name, participants)
     },
 }

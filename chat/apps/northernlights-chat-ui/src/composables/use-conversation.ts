@@ -2,7 +2,8 @@
 
 import {computed, onMounted, Ref, ref, watch} from 'vue';
 import {
-    ChatterId, Conversation,
+    ChatterId,
+    Conversation,
     ConversationData,
     ConversationDataId,
     ConversationId,
@@ -10,14 +11,7 @@ import {
 } from "@/store/state";
 import {useStore} from "@/store";
 import {ActionTypes} from "@/store/actions";
-import useConversationDetails from "@/composables/use-conversation-details";
-
-export type ConversationDetails = {
-    name?: string,
-    createdBy?: ChatterId,
-    createdAt?: number,
-    nbUnreadMessages: number,
-}
+import useConversationDetails, {ConversationDetails} from "@/composables/use-conversation-details";
 
 export type ReadMarkersReversed = Map<ConversationDataId, ChatterId[]>;
 
@@ -35,7 +29,7 @@ export default function useConversation(conversationIdRef: Ref<ConversationId>):
 } {
     const store = useStore()
 
-    const conversationRef= ref<Conversation>()
+    const conversationRef = ref<Conversation>()
 
     const reverse = (readMarkers: ReadMarkers): ReadMarkersReversed => {
         const reversed = new Map<ConversationDataId, ChatterId[]>()
@@ -58,7 +52,7 @@ export default function useConversation(conversationIdRef: Ref<ConversationId>):
                 readBy: reversed.get(conversationData.id) || [],
                 watchVisible: watchVisible,
                 onVisible: () => {
-                    markAsRead(conversationData.id)
+                    watchVisible && markAsRead(conversationData.id)
                 },
             }
         })
@@ -82,11 +76,13 @@ export default function useConversation(conversationIdRef: Ref<ConversationId>):
         })
     }
     const markAsRead = (conversationDataId: ConversationDataId) => {
-        store.dispatch(ActionTypes.MarkAsRead, {
-            chatterId: store.state.chatterId || "",
-            conversationId: conversationIdRef.value,
-            conversationDataId
-        })
+        if (store.state.ui.visible) {
+            store.dispatch(ActionTypes.MarkAsRead, {
+                chatterId: store.state.chatterId || "",
+                conversationId: conversationIdRef.value,
+                conversationDataId
+            })
+        }
     }
 
     const messages = computed<ConversationDataWithMarkers[]>(() =>

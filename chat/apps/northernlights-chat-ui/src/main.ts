@@ -23,6 +23,10 @@ app.config.globalProperties.$filters = {
     time(value: number | undefined) {
         if (value === undefined) return undefined
         return moment(value).format('HH:mm:ss')
+    },
+    timeToMinutes(value: number | undefined) {
+        if (value === undefined) return undefined
+        return moment(value).format('HH:mm')
     }
 }
 app.mount('#app');

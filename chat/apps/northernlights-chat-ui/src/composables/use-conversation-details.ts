@@ -10,6 +10,7 @@ export type ConversationDetails = {
     createdBy?: ChatterId,
     createdAt?: number,
     nbUnreadMessages: number,
+    participants: ChatterId[]
 }
 
 export default function useConversationDetails(conversationIdRef: Ref<ConversationId>): {
@@ -51,6 +52,7 @@ export default function useConversationDetails(conversationIdRef: Ref<Conversati
             }
             return unreadCount
         }),
+        participants: computed(() => conversationRef.value?.participants || []),
     })
 
     return {

@@ -13,6 +13,7 @@ import {
 } from './state'
 
 export enum MutationType {
+    UpdateChatVisibility = 'UPDATE_CHAT_VISIBILITY',
     UpdateSseOpenStatus = 'UPDATE_SSE_OPEN_STATUS',
     UpdateEventSource = 'UPDATE_EVENT_SOURCE',
     SetSseWanted = 'SET_SSE_WANTED',
@@ -27,6 +28,7 @@ export enum MutationType {
 }
 
 export type Mutations = {
+    [MutationType.UpdateChatVisibility](state: State, isVisible: boolean): void
     [MutationType.UpdateSseOpenStatus](state: State, isOpen: boolean): void
     [MutationType.UpdateEventSource](state: State, eventSource: EventSource): void
     [MutationType.SetSseWanted](state: State, enabled: boolean): void
@@ -47,6 +49,9 @@ export type Mutations = {
 }
 
 export const mutations: MutationTree<State> & Mutations = {
+    [MutationType.UpdateChatVisibility](state: State, isVisible: boolean) {
+        state.ui.visible = isVisible
+    },
     [MutationType.UpdateSseOpenStatus](state: State, isOpen: boolean) {
         state.sse.sseOpen = isOpen
     },

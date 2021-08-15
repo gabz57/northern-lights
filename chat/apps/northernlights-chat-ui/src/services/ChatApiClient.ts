@@ -1,66 +1,46 @@
 /* eslint-disable no-debugger */
 
+import {ConversationDataId, ConversationId} from "@/store/state";
+
 class ChatApiClient {
 
-    async authent(userId: string): Promise<string> {
-        const myHeaders = new Headers();
-        myHeaders.append("Authorization", 'Bearer ' + userId);
-        myHeaders.append("Accept", "application/json");
-        myHeaders.append("Content-Type", "application/json");
-        const response = await fetch("http://localhost:8080/v1/chat/api/auth", {
-            method: 'POST',
-            body: JSON.stringify({
-                'conversationStatuses': {}
-            }), // string or object
-            headers: myHeaders
-        });
-        return (await response.json()).sseChatKey;
+    async authent(userId: string, conversationStatuses: () => Map<ConversationId, ConversationDataId>): Promise<string> {
+        return (await (await ChatApiClient.fetch(userId, "auth", {
+            conversationStatuses: conversationStatuses()
+        })).json()).sseChatKey
     }
 
     async createConversation(userId: string, name: string, participants: string[]): Promise<void> {
-        const myHeaders = new Headers();
-        myHeaders.append("Authorization", 'Bearer ' + userId);
-        myHeaders.append("Accept", "application/json");
-        myHeaders.append("Content-Type", "application/json");
-        await fetch("http://localhost:8080/v1/chat/api/open", {
-            method: 'POST',
-            body: JSON.stringify({
-                name,
-                participants
-            }), // string or object
-            headers: myHeaders
-        });
-
+        await ChatApiClient.fetch(userId, "open", {
+            name,
+            participants
+        })
     }
 
     async sendMessage(userId: string, conversationId: string, message: string): Promise<void> {
-        const myHeaders = new Headers();
-        myHeaders.append("Authorization", 'Bearer ' + userId);
-        myHeaders.append("Accept", "application/json");
-        myHeaders.append("Content-Type", "application/json");
-        await fetch("http://localhost:8080/v1/chat/api/message", {
-            method: 'POST',
-            body: JSON.stringify({
-                conversationId,
-                message
-            }), // string or object
-            headers: myHeaders
-        });
+        await ChatApiClient.fetch(userId, "message", {
+            conversationId,
+            message
+        })
     }
 
     async markAsRead(userId: string, conversationId: string, conversationDataId: string): Promise<void> {
-        const myHeaders = new Headers();
-        myHeaders.append("Authorization", 'Bearer ' + userId);
-        myHeaders.append("Accept", "application/json");
-        myHeaders.append("Content-Type", "application/json");
-        await fetch("http://localhost:8080/v1/chat/api/mark-as-read", {
+        await ChatApiClient.fetch(userId, "mark-as-read", {
+            conversationId,
+            conversationDataId
+        })
+    }
+
+    private static async fetch(userId: string, endpoint: string, payload: unknown): Promise<Response> {
+        return fetch("http://localhost:8080/v1/chat/api/" + endpoint, {
             method: 'POST',
-            body: JSON.stringify({
-                conversationId,
-                conversationDataId
-            }), // string or object
-            headers: myHeaders
-        });
+            body: JSON.stringify(payload), // string or object
+            headers: new Headers({
+                "Authorization": 'Bearer ' + userId,
+                "Accept": "application/json",
+                "Content-Type": "application/json",
+            })
+        })
     }
 
 }

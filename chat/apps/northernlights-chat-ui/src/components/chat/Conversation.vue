@@ -1,28 +1,27 @@
 <template>
   <div class="conversation">
+    <div class="conversation__separator"/>
     <div class="conversation__messages">
-      <ConversationMessages :messages="messages"/>
-      <div>
-        <input v-model="messageToSend" @keydown.enter="sendMessage()"/>
-        <button @click="sendMessage()">SEND</button>
-      </div>
+      <h1 class="conversation__messages-header">{{ details.name }}</h1>
+      <ConversationMessages class="conversation__messages-messages" :conversationId="conversationId" :messages="messages"/>
+      <ConversationInput class="conversation__messages-input" @sendMessage="(message) => sendMessage(message)"/>
     </div>
-    <div class="conversation__details">
-      <ConversationDetails :details="details" />
-    </div>
+    <div class="conversation__separator"/>
+    <ConversationDetails class="conversation__details" :details="details" />
   </div>
 </template>
 
 <script lang="ts">
 import useConversation from "@/composables/use-conversation";
-import {defineComponent, ref, toRefs} from "vue";
+import {defineComponent, toRefs} from "vue";
 import ConversationMessages from "@/components/chat/ConversationMessages.vue";
 import ConversationDetails from "@/components/chat/ConversationDetails.vue";
 import {ConversationDataId} from "@/store/state";
+import ConversationInput from "@/components/chat/ConversationInput.vue";
 
 export default defineComponent({
   name: "Conversation",
-  components: {ConversationDetails, ConversationMessages},
+  components: {ConversationInput, ConversationDetails, ConversationMessages},
   props: {
     conversationId: {
       type: String,
@@ -33,15 +32,11 @@ export default defineComponent({
     const {conversationId} = toRefs(props)
     const {details, messages, sendMessage, markAsRead} = useConversation(conversationId)
 
-    const messageToSend = ref("")
-
     return {
       details,
       messages,
-      messageToSend,
-      sendMessage: () => {
-        sendMessage(messageToSend.value);
-        messageToSend.value = ""
+      sendMessage: (message: string) => {
+        sendMessage(message);
       },
       markAsRead: (conversationDataId: ConversationDataId) => {
         markAsRead(conversationDataId)
@@ -50,21 +45,45 @@ export default defineComponent({
   }
 
 });
-
 </script>
 
 <style scoped lang="scss">
+@import "/src/variables.scss";
+
 .conversation {
   display: flex;
   flex-direction: row;
-
+  flex-grow: 1;
+  &__separator {
+    margin: 8rem 0 6rem;
+    width: 1px;
+    background-color: #8599ad;
+  }
   &__messages {
     flex-shrink: 0;
     flex-grow: 1;
-  }
 
+    display: flex;
+    flex-direction: column;
+    min-height: calc(100vh - #{$header-height} - #{$conversation-input-height} - #{$conversation-messages-header-height});
+    max-height: calc(100vh - #{$header-height} - #{$conversation-input-height} - #{$conversation-messages-header-height});
+
+    &-header {
+      height: $conversation-messages-header-height;
+      line-height: $conversation-messages-header-height;
+      margin: 0;
+    }
+    &-messages {
+      flex-grow: 1;
+      flex-shrink: 1;
+    }
+    &-input {
+      flex-grow: 0;
+      flex-shrink: 0;
+    }
+  }
   &__details {
-    width: 200px;
+    width: 220px;
     flex-shrink: 0;
     flex-grow: 0;
   }

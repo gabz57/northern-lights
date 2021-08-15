@@ -1,45 +1,44 @@
 <template>
   <div class="conversation-messages">
-    <div class="conversation-messages--per-day" v-for="(dailyMessagePacksOfDay, index) in dailyMessagePacksPerDay"
-         :key="index">
+    <div v-if="!shouldStickToBottom" class="conversation-messages__arrow" :class="{'conversation-messages__arrow--with-new-message': hasNewMessage}" >
+      <button @click="scrollToBottom">⬇</button>
+    </div>
+    <div class="conversation-messages__wrapper" ref="messagesContainer" @scroll.passive="handleScroll">
+      <div class="conversation-messages__per-day" v-for="(dailyMessagePacksOfDay, index) in dailyMessagePacksPerDay"
+           :key="index">
 
-      <div class="separator">{{ $filters.date(dailyMessagePacksOfDay[0][0].dateTime * 1000) }}</div>
+        <div class="separator">{{ $filters.date(dailyMessagePacksOfDay[0][0].dateTime * 1000) }}</div>
 
-      <div class="conversation-messages--per-day-packs" v-for="(dailyMessagePack, index2) in dailyMessagePacksOfDay"
-           :key="index2">
-        <div class="conversation-messages--per-day-packs-author"
-             :class="{'conversation-messages--per-day-packs-author--with-new-message': dailyMessagePack[dailyMessagePack.length - 1].watchVisible}">
-          From: {{ dailyMessagePack[0].author }}
+        <div class="conversation-messages__per-day-packs" v-for="(dailyMessagePack, index2) in dailyMessagePacksOfDay"
+             :key="index2">
+          <div class="conversation-messages__per-day-packs-author"
+               :class="{'conversation-messages__per-day-packs-author--with-new-message': dailyMessagePack[dailyMessagePack.length - 1].watchVisible}">
+            <strong><Chatter :chatter-id="dailyMessagePack[0].author"/></strong> @ {{ $filters.timeToMinutes(dailyMessagePack[0].dateTime * 1000) }}
+          </div>
+          <div class="conversation-messages__per-day-packs-pack">
+            <ConversationMessage v-for="(dailyMessage, index3) in dailyMessagePack"
+                                 :key="index3"
+                                 :message="dailyMessage"
+                                 v-observe-visibility="index3 === dailyMessagePack.length - 1
+                                 ? markViewedMessage(dailyMessage)
+                                 : false"/>
+          </div>
         </div>
-        <div class="conversation-messages--per-day-packs-pack" v-for="(dailyMessage, index3) in dailyMessagePack"
-             :key="index3">
-          <ConversationMessage :message="dailyMessage"
-                               v-observe-visibility="index3 === dailyMessagePack.length - 1
-                               && dailyMessage.watchVisible ? {
-                                    callback: (isVisible, elem) => {
-                                     if (isVisible) {
-                                       dailyMessage.onVisible()
-                                     }
-                                    },
-                                    throttle: 1500,
-                                    once: true,
-                                  } : false"/>
-        </div>
-        <!--        <br/>-->
       </div>
-      <!--      <br/>-->
     </div>
   </div>
 </template>
 
 <script lang="ts">
 /* eslint-disable no-debugger */
-import {computed, defineComponent, PropType, toRefs} from "vue";
+import {computed, defineComponent, nextTick, onMounted, PropType, ref, toRefs, watch} from "vue";
 import {ConversationDataWithMarkers} from "@/composables/use-conversation";
 import ConversationMessage from "@/components/chat/ConversationMessage.vue";
 import moment from "moment/moment";
 import {DateTime} from "luxon";
 import {ChatterId} from "@/store/state";
+import {useStore} from "@/store";
+import Chatter from "@/components/chat/Chatter.vue";
 
 const groupBy = <K, V>(list: Array<V>, keyGetter: (input: V) => K): Map<K, Array<V>> => {
   const map = new Map();
@@ -92,26 +91,87 @@ const packSameUserSameBlockOfMessage = (dailyMessages: Array<ConversationDataWit
 
 export default defineComponent({
   name: "ConversationMessages",
-  components: {ConversationMessage},
+  components: {Chatter, ConversationMessage},
   props: {
+    conversationId: {
+      type: String,
+      required: true
+    },
     messages: {
       type: Object as PropType<ConversationDataWithMarkers[]>,
       required: true
     }
   },
   setup(props) {
-    const {messages} = toRefs(props)
-    const dailyMessagePacksPerDa = computed(() => {
-      const dailyMessagePacksPerDay: Array<Array<Array<ConversationDataWithMarkers>>> = []
-      const messagesByDay: Map<string, Array<ConversationDataWithMarkers>> = groupBy(messages.value, m => "" + moment(m.dateTime * 1000).year() + moment(m.dateTime * 1000).dayOfYear());
-      messagesByDay.forEach((dailyMessages, k) => {
-        dailyMessagePacksPerDay.push(packSameUserSameBlockOfMessage(dailyMessages))
+    const messagesContainer = ref<HTMLElement | null>(null)
+    const store = useStore();
+    const shouldStickToBottom = ref<boolean>(true)
+    const scrollToBottom = () => {
+      nextTick(() => {
+        // shouldStickToBottom.value = true
+        if (messagesContainer.value != null) {
+          messagesContainer.value.scrollTop = messagesContainer.value?.scrollHeight;
+        }
       })
-      return dailyMessagePacksPerDay
+    };
+
+    const {conversationId, messages} = toRefs(props)
+    onMounted(scrollToBottom)
+    watch(conversationId, scrollToBottom)
+    watch(messages, (newMessages) => {
+      if (shouldStickToBottom.value || newMessages.length > 0 &&  newMessages[newMessages.length - 1].author === store.state.chatterId) {
+        scrollToBottom()
+      }
+    })
+    watch(() => store.state.ui.visible, (screenVisible) => {
+      // note: one could delay and debounce
+      if (screenVisible && shouldStickToBottom.value && messages.value.length > 0) {
+        const lastMessage = messages.value[messages.value.length - 1];
+        if (lastMessage.watchVisible) {
+          lastMessage.onVisible()
+        }
+      }
     })
 
+    const dailyMessagePacksPerDay = computed(() => {
+      const packsPerDay: Array<Array<Array<ConversationDataWithMarkers>>> = []
+      const messagesByDay: Map<string, Array<ConversationDataWithMarkers>> = groupBy(messages.value, m => "" + moment(m.dateTime * 1000).year() + moment(m.dateTime * 1000).dayOfYear());
+      messagesByDay.forEach((dailyMessages) => {
+        packsPerDay.push(packSameUserSameBlockOfMessage(dailyMessages))
+      })
+      return packsPerDay
+    })
+    const markViewedMessage = (dailyMessage: ConversationDataWithMarkers) => {
+      return dailyMessage.watchVisible ? {
+        callback: (isVisible: boolean) => {
+          if (isVisible) {
+            dailyMessage.onVisible()
+          }
+        },
+        throttle: 1500,
+        // once: true,
+      } : false
+    }
+
+    const hasNewMessage = computed(() => {
+      const dailyMessagePacks = dailyMessagePacksPerDay.value[dailyMessagePacksPerDay.value.length - 1] || [];
+      const dailyMessagePack = dailyMessagePacks[dailyMessagePacks.length - 1] || [];
+      return dailyMessagePack.length > 0 && dailyMessagePack[dailyMessagePack.length - 1].watchVisible
+    })
+
+    const handleScroll = (e: any) => {
+      console.log("scrollTop", e.target.scrollTop, "scrollHeight", e.target.scrollHeight, "offsetHeight", e.target.offsetHeight)
+      shouldStickToBottom.value = e.target.scrollTop === e.target.scrollHeight - e.target.offsetHeight
+    }
+
     return {
-      dailyMessagePacksPerDay: dailyMessagePacksPerDa
+      scrollToBottom,
+      markViewedMessage,
+      messagesContainer,
+      dailyMessagePacksPerDay,
+      hasNewMessage,
+      handleScroll,
+      shouldStickToBottom,
     }
   }
 });
@@ -120,15 +180,24 @@ export default defineComponent({
 
 <style scoped lang="scss">
 .conversation-messages {
-  overflow: -moz-scrollbars-vertical;
-  overflow-y: scroll;
-  height: 400px;
-  border: 1px solid black;
+  position: relative;
+  min-height: inherit;
+  max-height: inherit;
+
+  &__wrapper {
+    position: relative;
+    overflow: -moz-scrollbars-vertical;
+    overflow-y: scroll;
+    width: 100%;
+    min-height: inherit;
+    max-height: inherit;
+  }
 
   .separator {
     display: flex;
     align-items: center;
     text-align: center;
+
     &::before, &::after {
       content: '';
       flex: 1;
@@ -144,7 +213,9 @@ export default defineComponent({
     }
   }
 
-  &--per-day{
+  &__per-day {
+    padding-left: 10px;
+    padding-right: 10px;
     padding-top: 5px;
 
     &:not(:last-child) {
@@ -152,9 +223,11 @@ export default defineComponent({
     }
 
     &-packs {
+      text-align: left;
       &:not(:last-child) {
         padding-bottom: 20px;
       }
+
       &-author {
         &--with-new-message {
           font-weight: bold;
@@ -164,6 +237,16 @@ export default defineComponent({
       &-pack:not(:last-child) {
         padding-bottom: 12px;
       }
+    }
+  }
+
+  &__arrow {
+    position: absolute;
+    z-index:2;
+    right: 20px;
+    bottom: 20px;
+    &--with-new-message {
+      box-shadow: 0 0 30px 3px #0080FF;
     }
   }
 }
