@@ -11,7 +11,7 @@
           <div>Sse Open : {{ sseState.sseOpen }}</div>
         </div>
       </div>
-      <span v-if="sseState.sseOpen" @click="toggleEditingProfile">{{"\uD83D\uDC64"}}</span>
+      <span class="chat-header__connect-body" v-if="sseState.sseOpen" @click="toggleEditingProfile">{{"\uD83D\uDC64"}}</span>
     </div>
   </div>
 </template>
@@ -75,6 +75,11 @@ export default defineComponent({
         &-tooltip {
           visibility: visible;
         }
+      }
+    }
+    &-body {
+      &:hover {
+        cursor: pointer;
       }
     }
   }

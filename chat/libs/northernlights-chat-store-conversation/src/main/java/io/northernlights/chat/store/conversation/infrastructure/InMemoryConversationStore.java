@@ -38,17 +38,17 @@ public class InMemoryConversationStore implements ConversationStore {
         final ChatterId chatterId4 = new ChatterId("4");
         final ChatterId chatterId5 = new ChatterId("5");
         final ChatterId chatterId6 = new ChatterId("6");
-        createConversation(OffsetDateTime.now(), "1", "Conversation 1", chatterId1, List.of(chatterId1, chatterId2));
-        createConversation(OffsetDateTime.now(), "2", "Conversation 2", chatterId1, List.of(chatterId1, chatterId3, chatterId4, chatterId5, chatterId6));
-        createConversation(OffsetDateTime.now(), "3", "Conversation 3", chatterId2, List.of(chatterId2, chatterId3));
-        createConversation(OffsetDateTime.now(), "4", "Conversation 4", chatterId2, List.of(chatterId2, chatterId4));
+        createConversation(OffsetDateTime.now(), "1", "Conversation 1", chatterId1, List.of(chatterId1, chatterId2), false);
+        createConversation(OffsetDateTime.now(), "2", "Conversation 2", chatterId1, List.of(chatterId1, chatterId3, chatterId4, chatterId5, chatterId6), false);
+        createConversation(OffsetDateTime.now(), "3", "Conversation 3", chatterId2, List.of(chatterId2, chatterId3), false);
+        createConversation(OffsetDateTime.now(), "4", "Conversation 4", chatterId2, List.of(chatterId2, chatterId4), false);
     }
 
-    private void createConversation(OffsetDateTime dateTime, String conversationIdValue, String conversationName, ChatterId author, List<ChatterId> allParticipants) {
+    private void createConversation(OffsetDateTime dateTime, String conversationIdValue, String conversationName, ChatterId author, List<ChatterId> allParticipants, Boolean dialogue) {
         ConversationId conversationId = new ConversationId(conversationIdValue);
         Conversation conversationDataList = new Conversation();
         ConversationDataId conversationDataId = conversationDataIdGenerator.generate();
-        conversationDataList.add(new ConversationCreation(conversationId, conversationDataId, author, conversationName, allParticipants, dateTime));
+        conversationDataList.add(new ConversationCreation(conversationId, conversationDataId, author, conversationName, allParticipants, dateTime, dialogue));
         conversations.put(conversationId, conversationDataList);
         conversationsReadStatus.put(conversationId, new HashMap<>());
     }
@@ -69,16 +69,16 @@ public class InMemoryConversationStore implements ConversationStore {
         return Mono.just(conversationsReadStatus.get(conversationId));
     }
 
-    public Mono<ConversationCreatedEvent> create(OffsetDateTime dateTime, ChatterId author, String conversationName, List<ChatterId> participants) {
+    public Mono<ConversationCreatedEvent> create(OffsetDateTime dateTime, ChatterId author, String conversationName, List<ChatterId> participants, Boolean dialogue) {
         List<ChatterId> allParticipants = uniqueChatterIdsWithAuthor(author, participants);
         ConversationId conversationId = conversationIdGenerator.generate();
         Conversation conversationDataList = new Conversation();
         ConversationDataId conversationDataId = conversationDataIdGenerator.generate();
-        conversationDataList.add(new ConversationCreation(conversationId, conversationDataId, author, conversationName, allParticipants, dateTime));
+        conversationDataList.add(new ConversationCreation(conversationId, conversationDataId, author, conversationName, allParticipants, dateTime, dialogue));
         conversations.put(conversationId, conversationDataList);
         conversationsReadStatus.put(conversationId, new HashMap<>());
 
-        return Mono.just(new ConversationCreatedEvent(conversationId, conversationDataId, author, conversationName, allParticipants, dateTime));
+        return Mono.just(new ConversationCreatedEvent(conversationId, conversationDataId, author, conversationName, allParticipants, dateTime, dialogue));
     }
 
     private List<ChatterId> uniqueChatterIdsWithAuthor(ChatterId author, List<ChatterId> participants) {

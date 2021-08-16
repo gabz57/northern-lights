@@ -26,6 +26,7 @@ public class ChatApiAdapter {
             .creator(new ChatterId(issuer))
             .conversationName(request.getName())
             .participants(request.getParticipants().stream().map(ChatterId::new).collect(Collectors.toList()))
+            .dialogue(request.getDialogue())
             .build();
     }
 

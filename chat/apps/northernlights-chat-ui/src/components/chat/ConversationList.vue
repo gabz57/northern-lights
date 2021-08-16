@@ -1,10 +1,9 @@
 <template>
-  <ul>
-    <li v-for="(conversationId) in conversationIds" :key="conversationId" style="text-align: left;">
-      <ConversationListElement :conversation-id="conversationId"
-                               @click="$emit('selectConversation', conversationId)" />
-    </li>
-  </ul>
+  <div class="conversation-list">
+    <ConversationListElement v-for="(conversationId) in conversationIds" :key="conversationId"
+                             :conversation-id="conversationId"
+                             @click="$emit('selectConversation', conversationId)"/>
+  </div>
 </template>
 
 <script lang="ts">
@@ -23,7 +22,9 @@ export default defineComponent({
   },
   setup(props) {
     const {conversations} = toRefs(props)
-    const conversationIds = computed(() => conversations.value.map(c => c.id))
+    const conversationIds = computed(() => conversations.value
+        .filter(conversation => conversation.dialogue === false)
+        .map(c => c.id))
     return {
       conversationIds: conversationIds,
     }
@@ -33,4 +34,9 @@ export default defineComponent({
 </script>
 
 <style scoped lang="scss">
+.conversation-list {
+  &:hover {
+    cursor: pointer;
+  }
+}
 </style>

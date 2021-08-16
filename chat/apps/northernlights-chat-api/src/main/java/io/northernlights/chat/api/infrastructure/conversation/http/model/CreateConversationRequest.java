@@ -14,4 +14,5 @@ import java.util.List;
 public class CreateConversationRequest {
     private String name;
     private List<String> participants;
+    private Boolean dialogue;
 }

@@ -41,7 +41,8 @@ export default defineComponent({
       store.dispatch(ActionTypes.CreateConversation, {
         chatterId: store.state.chatterId || "",
         name: newConversationName.value,
-        participants: selectedChatters.value.map(chatter => chatter.id)
+        participants: selectedChatters.value.map(chatter => chatter.id),
+        dialogue: false,
       })
     }
     const addChatter = (chatter: Chatter) => {

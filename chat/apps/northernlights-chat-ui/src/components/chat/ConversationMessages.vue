@@ -160,7 +160,6 @@ export default defineComponent({
     })
 
     const handleScroll = (e: any) => {
-      console.log("scrollTop", e.target.scrollTop, "scrollHeight", e.target.scrollHeight, "offsetHeight", e.target.offsetHeight)
       shouldStickToBottom.value = e.target.scrollTop === e.target.scrollHeight - e.target.offsetHeight
     }
 

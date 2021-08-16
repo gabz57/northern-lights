@@ -43,6 +43,7 @@ export type Conversation = {
     name: string,
     creator: ChatterId,
     createdAt: number,
+    dialogue: boolean,
     participants: ChatterId[],
     data: ConversationData[],
     readMarkers: ReadMarkers

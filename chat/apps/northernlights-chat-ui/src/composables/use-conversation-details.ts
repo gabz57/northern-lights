@@ -7,6 +7,7 @@ import {useStore} from "@/store";
 export type ConversationDetails = {
     id?: ConversationId,
     name?: string,
+    dialogue?: boolean,
     createdBy?: ChatterId,
     createdAt?: number,
     nbUnreadMessages: number,
@@ -19,11 +20,30 @@ export default function useConversationDetails(conversationIdRef: Ref<Conversati
     const store = useStore()
 
     const conversationRef = ref<Conversation>()
+    const conversationNameRef = ref<string | undefined>(conversationRef.value?.name)
+
+    const getOtherChatter = (conversation: Conversation) => {
+        const selfChatterId = store.state.chatterId as NonNullable<typeof store.state.chatterId>;
+        const otherChatterId = Array.from(conversation.participants.values())
+            .find(chatterId => selfChatterId !== chatterId);
+        let otherChatter
+        if (otherChatterId !== undefined) {
+            otherChatter = store.getters.getChatterById(otherChatterId);
+        }
+        return otherChatter;
+    }
 
     const getConversation = () => {
         const conversation = store.getters.getConversationById(conversationIdRef.value);
         if (conversation !== undefined) {
             conversationRef.value = conversation
+            conversationNameRef.value = conversation.name
+            if (conversation.dialogue) {
+                const otherChatter = getOtherChatter(conversation);
+                if (otherChatter !== undefined) {
+                    conversationNameRef.value = otherChatter.name
+                }
+            }
         }
     }
 
@@ -32,7 +52,8 @@ export default function useConversationDetails(conversationIdRef: Ref<Conversati
 
     const details: ConversationDetails = reactive({
         id: computed(() => conversationRef.value?.id),
-        name: computed(() => conversationRef.value?.name),
+        name: computed(() => conversationNameRef.value),
+        dialogue: computed(() => conversationRef.value?.dialogue),
         createdBy: computed(() => conversationRef.value?.creator),
         createdAt: computed(() => conversationRef.value?.createdAt),
         nbUnreadMessages: computed(() => {

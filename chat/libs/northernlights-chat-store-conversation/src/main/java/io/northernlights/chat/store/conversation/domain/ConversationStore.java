@@ -25,7 +25,7 @@ public interface ConversationStore {
 
     Mono<Map<ChatterId, ConversationDataId>> readMarkers(ConversationId conversationId);
 
-    Mono<ConversationCreatedEvent> create(OffsetDateTime dateTime, ChatterId author, String conversationName, List<ChatterId> participants);
+    Mono<ConversationCreatedEvent> create(OffsetDateTime dateTime, ChatterId author, String conversationName, List<ChatterId> participants, Boolean dialogue);
 
     Mono<ConversationMessageSentEvent> appendMessage(OffsetDateTime dateTime, ConversationId conversationId, ChatterId author, Message message);
 

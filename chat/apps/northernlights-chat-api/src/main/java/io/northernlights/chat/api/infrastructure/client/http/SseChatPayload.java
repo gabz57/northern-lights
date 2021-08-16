@@ -30,6 +30,7 @@ public class SseChatPayload {
         private Long createdAt;
         private String from;
         private String to;
+        private Boolean dialogue;
         private List<String> participants;
         private List<SseChatConversationData> data;
         private Map<String, String> readMarkers;// ChatterId.id <> ConversationDataId.id

@@ -2,7 +2,8 @@
   <div class="conversation-list-element"
        :class="{'conversation-list-element--with-new-message': details.nbUnreadMessages > 0}"
        @click="$emit('select-conversation', details.id)">
-    {{ details.name + " : " + details.nbUnreadMessages }}
+    <span>{{ details.name }}</span>
+    <span>{{ details.nbUnreadMessages }}</span>
   </div>
 </template>
 
@@ -31,8 +32,16 @@ export default defineComponent({
 
 <style scoped lang="scss">
 .conversation-list-element {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.4rem 1rem;
   &--with-new-message {
     font-weight: bold;
+  }
+  &:hover {
+    cursor: pointer;
+    border-radius: 2rem;
+    background-color: lightblue;
   }
 }
 </style>

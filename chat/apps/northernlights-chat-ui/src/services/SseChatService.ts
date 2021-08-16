@@ -25,6 +25,7 @@ export default class SseChatService {
             name: conv.name || "",
             data: conv.data || [],
             readMarkers: SseChatService.toReadMarkers(conv.readMarkers),
+            dialogue: conv.dialogue || false,
             participants: conv.participants || []
         }
     }

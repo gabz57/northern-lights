@@ -10,10 +10,11 @@ class ChatApiClient {
         })).json()).sseChatKey
     }
 
-    async createConversation(userId: string, name: string, participants: string[]): Promise<void> {
+    async createConversation(userId: string, name: string, participants: string[], dialogue: boolean): Promise<void> {
         await ChatApiClient.fetch(userId, "open", {
             name,
-            participants
+            participants,
+            dialogue
         })
     }
 

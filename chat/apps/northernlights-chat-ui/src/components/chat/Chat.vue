@@ -14,7 +14,7 @@
       <div class="chat__body-content">
         <ChatterProfile v-if="editingProfile" />
         <ConversationCreation v-else-if="creatingConversation" />
-        <Conversation v-else-if="!creatingConversation && selectedConversationId" :conversation-id="selectedConversationId"/>
+        <Conversation v-else-if="selectedConversationId" :conversation-id="selectedConversationId"/>
         <div v-else style="display: flex; height: 100%">
           <div style="margin: auto">Connect,<br/><br/>then<br/><br/>Select a conversation ... or create a new one</div>
         </div>
@@ -60,8 +60,8 @@ export default defineComponent({
     watch(conversations, (newConversations, prevConversations) => {
       const createdConversation = newConversations.filter(newConv => !prevConversations.some(prevConv => prevConv.id === newConv.id));
       if (createdConversation.length === 1) {
+        // if chatter is creator => select created conversation
         if (createdConversation[0].creator === store.state.chatterId) {
-          store.dispatch(ActionTypes.SetCreatingConversation, false)
           selectConversation(createdConversation[0].id)
         }
       }

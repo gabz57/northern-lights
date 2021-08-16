@@ -19,6 +19,7 @@ public class ChatDataConversationInstall implements ChatData {
     ChatterId createdBy;
     OffsetDateTime createdAt;
     ConversationId conversationId;
+    Boolean dialogue;
     Conversation conversationData;
     List<Chatter> chatters;
     Map<ChatterId, ConversationDataId> readMarkers;

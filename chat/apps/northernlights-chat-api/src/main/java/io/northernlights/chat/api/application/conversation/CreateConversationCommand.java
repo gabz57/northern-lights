@@ -26,7 +26,7 @@ public class CreateConversationCommand implements UseCase<CreateConversationComm
     private final ConversationEventPublisher conversationEventPublisher;
 
     public Mono<CreateConversationCommandResult> execute(CreateConversationCommandInput input) {
-        return conversationStore.create(timeService.now().toOffsetDateTime(), input.creator, input.conversationName, input.participants)
+        return conversationStore.create(timeService.now().toOffsetDateTime(), input.creator, input.conversationName, input.participants, input.dialogue)
             .doOnNext(chatterStore::writeConversationCreated)
             .doOnNext(conversationEventPublisher::publish)
             .map(CreateConversationCommandResult::new);
@@ -39,6 +39,7 @@ public class CreateConversationCommand implements UseCase<CreateConversationComm
         String conversationName;
         ChatterId creator;
         List<ChatterId> participants;
+        Boolean dialogue;
     }
 
     @Value

@@ -69,7 +69,7 @@ export type Actions = {
     [ActionTypes.SetChatterId](context: ActionAugments, value: { chatterId: ChatterId }): void
     [ActionTypes.SendMessage](context: ActionAugments, value: { chatterId: ChatterId, conversationId: ConversationId, message: string }): void
     [ActionTypes.MarkAsRead](context: ActionAugments, value: { chatterId: ChatterId, conversationId: ConversationId, conversationDataId: ConversationDataId }): void
-    [ActionTypes.CreateConversation](context: ActionAugments, value: { chatterId: ChatterId, name: string, participants: ChatterId[] }): void
+    [ActionTypes.CreateConversation](context: ActionAugments, value: { chatterId: ChatterId, name: string, participants: ChatterId[], dialogue: boolean }): void
 }
 
 // const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
@@ -79,12 +79,16 @@ export const actions: ActionTree<State, State> & Actions = {
     },
     async [ActionTypes.SetSelectedConversationId]({commit}, conversationId: ConversationId) {
         commit(MutationType.SetSelectedConversationId, conversationId)
+        commit(MutationType.SetEditingProfile, false)
+        commit(MutationType.SetCreatingConversation, false)
     },
     async [ActionTypes.SetEditingProfile]({commit}, enabled: boolean) {
         commit(MutationType.SetEditingProfile, enabled)
+        commit(MutationType.SetCreatingConversation, false)
     },
     async [ActionTypes.SetCreatingConversation]({commit}, enabled: boolean) {
         commit(MutationType.SetCreatingConversation, enabled)
+        commit(MutationType.SetEditingProfile, false)
     },
     async [ActionTypes.StoreSseOpenStatus]({commit}, isOpen: boolean) {
         console.log("ActionTypes.StoreSseOpenStatus")
@@ -138,7 +142,7 @@ export const actions: ActionTree<State, State> & Actions = {
     async [ActionTypes.MarkAsRead](context, {chatterId, conversationId, conversationDataId}) {
         await chatApiClient.markAsRead(chatterId, conversationId, conversationDataId)
     },
-    async [ActionTypes.CreateConversation](context, {chatterId, name, participants}) {
-        await chatApiClient.createConversation(chatterId, name, participants)
+    async [ActionTypes.CreateConversation](context, {chatterId, name, participants, dialogue}) {
+        await chatApiClient.createConversation(chatterId, name, participants, dialogue)
     },
 }

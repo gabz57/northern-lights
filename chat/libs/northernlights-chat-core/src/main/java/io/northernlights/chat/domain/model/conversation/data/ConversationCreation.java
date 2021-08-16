@@ -13,10 +13,12 @@ import static io.northernlights.chat.domain.model.conversation.data.Conversation
 public class ConversationCreation extends ConversationData.AbstractConversationData implements ConversationData {
     private final String name;
     private final List<ChatterId> participants;
+    private final Boolean dialogue;
 
-    public ConversationCreation(ConversationId conversationId, ConversationDataId conversationDataId, ChatterId chatterId, String name, List<ChatterId> participants, OffsetDateTime dateTime) {
+    public ConversationCreation(ConversationId conversationId, ConversationDataId conversationDataId, ChatterId chatterId, String name, List<ChatterId> participants, OffsetDateTime dateTime, Boolean dialogue) {
         super(CREATION, conversationId, conversationDataId, chatterId, dateTime);
         this.name = name;
         this.participants = participants;
+        this.dialogue = dialogue;
     }
 }

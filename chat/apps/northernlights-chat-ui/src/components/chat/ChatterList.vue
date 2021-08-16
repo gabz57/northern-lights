@@ -1,18 +1,19 @@
 <template>
-  <ul>
-    <li v-for="(chatter) in chatters" :key="chatter.id" style="text-align: left;">
-      <Chatter :chatter-id="chatter.id" />
-    </li>
-  </ul>
+  <div class="chatter-list">
+    <ChatterListElement v-for="(chatter) in chatters" :key="chatter.id"
+                        :chatter-id="chatter.id" />
+  </div>
 </template>
 
 <script lang="ts">
+/* eslint-disable no-debugger */
+
 import {defineComponent} from "vue";
-import Chatter from "@/components/chat/Chatter.vue";
+import ChatterListElement from "@/components/chat/ChatterListElement.vue";
 
 export default defineComponent({
   name: "ChatterList",
-  components: {Chatter},
+  components: {ChatterListElement},
   props: {
     chatters: {
       type: Array,
@@ -24,4 +25,9 @@ export default defineComponent({
 </script>
 
 <style scoped lang="scss">
+.chatter-list {
+  &:hover {
+    cursor: pointer;
+  }
+}
 </style>

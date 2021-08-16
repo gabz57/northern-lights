@@ -2,7 +2,7 @@
   <div class="conversation">
     <div class="conversation__separator"/>
     <div class="conversation__messages">
-      <h1 class="conversation__messages-header">{{ details.name }}</h1>
+      <h1 class="conversation__messages-header">{{ details.name || "&nbsp;" }}</h1>
       <ConversationMessages class="conversation__messages-messages" :conversationId="conversationId" :messages="messages"/>
       <ConversationInput class="conversation__messages-input" @sendMessage="(message) => sendMessage(message)"/>
     </div>

@@ -6,6 +6,7 @@ export type Getters = {
     // totalTaskCount(state: State): number
     getChatterById(state: State): (id: ChatterId) => Chatter;
     getConversationById(state: State): (id: ConversationId) => Conversation;
+    getDirectConversationByChatterId(state: State): (id: ChatterId) => Conversation | undefined;
 }
 
 export const getters: GetterTree<State, State> & Getters = {
@@ -28,5 +29,11 @@ export const getters: GetterTree<State, State> & Getters = {
             throw new Error("Using unknown conversation id : " + id);
         }
         return conversation
+    },
+    getDirectConversationByChatterId: (state) => (chatterId: ChatterId): Conversation | undefined => {
+        return Array.from(state.conversations.values())
+            .find(c => c.dialogue === true
+                && state.chatterId !== undefined && c.participants.includes(state.chatterId)
+                && c.participants.includes(chatterId))
     }
 }
