@@ -18,7 +18,8 @@ public interface ConversationData {
     enum ConversationDataType {
         CREATION,
         MESSAGE,
-        READ_MARKER
+        READ_MARKER,
+        CHATTER_ADD
     }
 
     @Getter

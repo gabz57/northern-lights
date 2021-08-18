@@ -15,11 +15,13 @@ import useConversationDetails, {ConversationDetails} from "@/composables/use-con
 
 export type ReadMarkersReversed = Map<ConversationDataId, ChatterId[]>;
 
-export type ConversationDataWithMarkers = ConversationData & {
+export type Markers = {
     readBy: ChatterId[],
     onVisible: () => void
     watchVisible: boolean
 }
+
+export type ConversationDataWithMarkers = ConversationData & Markers
 
 export default function useConversation(conversationIdRef: Ref<ConversationId>): {
     messages: Ref<ConversationDataWithMarkers[]>;
@@ -40,10 +42,22 @@ export default function useConversation(conversationIdRef: Ref<ConversationId>):
         })
         return reversed;
     }
+    const lastEmittedReadMarkerRef = ref<ConversationDataId | undefined>()
+    const maxConversationDataId = (a: ConversationDataId | undefined, b: ConversationDataId | undefined): ConversationDataId | undefined => {
+        if (a === undefined) {
+            return b
+        }
+        if (b === undefined) {
+            return a
+        }
+        return a > b ? a : b
+    }
+
     const withReadMarkers = (data: ConversationData[], readMarkers: ReadMarkers): ConversationDataWithMarkers[] => {
         const reversed: ReadMarkersReversed = reverse(readMarkers);
 
-        const lastConversationDataIdSeenByChatter: ConversationDataId | undefined = readMarkers.get(store.state.chatterId || "");
+        const lastConversationDataIdSeenByChatter: ConversationDataId | undefined = maxConversationDataId(lastEmittedReadMarkerRef.value, readMarkers.get(store.state.chatterId || ""));
+        debugger
 
         return data.map(conversationData => {
             const watchVisible = !lastConversationDataIdSeenByChatter || conversationData.id > lastConversationDataIdSeenByChatter;
@@ -62,6 +76,7 @@ export default function useConversation(conversationIdRef: Ref<ConversationId>):
         const conversation = store.getters.getConversationById(conversationIdRef.value);
         if (conversation !== undefined) {
             conversationRef.value = conversation
+            lastEmittedReadMarkerRef.value = undefined
         }
     }
 
@@ -77,6 +92,7 @@ export default function useConversation(conversationIdRef: Ref<ConversationId>):
     }
     const markAsRead = (conversationDataId: ConversationDataId) => {
         if (store.state.ui.visible) {
+            lastEmittedReadMarkerRef.value = conversationDataId
             store.dispatch(ActionTypes.MarkAsRead, {
                 chatterId: store.state.chatterId || "",
                 conversationId: conversationIdRef.value,

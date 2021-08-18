@@ -4,6 +4,7 @@ import io.northernlights.chat.api.domain.client.model.*;
 import io.northernlights.chat.api.infrastructure.client.http.SseChatPayload.SseChatConversation;
 import io.northernlights.chat.domain.model.chatter.Chatter;
 import io.northernlights.chat.domain.model.chatter.ChatterId;
+import io.northernlights.chat.domain.model.conversation.data.ConversationChatter;
 import io.northernlights.chat.domain.model.conversation.data.ConversationData;
 import io.northernlights.chat.domain.model.conversation.data.ConversationMessage;
 import reactor.core.publisher.Flux;
@@ -19,6 +20,7 @@ public class SseChatDataAdapter {
     private static final String CONVERSATION_PARTIAL = "CONVERS:PARTIAL";
     private static final String CONVERSATION_UPDATE_MESSAGE = "CONVERS:UPDATE:MESSAGE";
     private static final String CONVERSATION_UPDATE_READ_MARKER = "CONVERS:UPDATE:READ_MARKER";
+    private static final String CONVERSATION_ADD_CHATTER = "CONVERS:UPDATE:ADD_CHATTER";
     private static final String CHATTER_INSTALL = "CHATTER:INSTALL";
 
     public Flux<SseChatData> mapToSseChatData(ChatData chatData) {
@@ -43,12 +45,14 @@ public class SseChatDataAdapter {
                     partialConversation(chatDataConversationPartial)
                 );
             }
-            case UPDATE -> {
+            case LIVE_UPDATE -> {
                 ChatDataUpdate chatDataUpdate = (ChatDataUpdate) chatData;
                 if (chatDataUpdate.getMessage() != null) {
                     yield updateConversationMessage(chatDataUpdate, chatDataUpdate.getMessage());
                 } else if (chatDataUpdate.getMarkedAsRead() != null) {
                     yield updateConversationReadMarker(chatDataUpdate, chatDataUpdate.getMarkedAsRead());
+                } else if (chatDataUpdate.getChatterAdd() != null) {
+                    yield updateConversationChatter(chatDataUpdate, chatDataUpdate.getChatterAdd());
                 } else {
                     yield Flux.empty();
                 }
@@ -64,11 +68,11 @@ public class SseChatDataAdapter {
                 .conversation(SseChatConversation.builder()
                     .id(chatDataUpdate.getConversationId().getId())
                     .data(List.of(
-                        SseChatPayload.SseChatConversationData.builder()
+                        SseChatPayload.SseChatConversationMessageData.builder()
                             .id(messageValue.getConversationDataId().getId())
-                            .message(messageValue.getMessage().getContent())
                             .dateTime(messageValue.getDateTime().toEpochSecond())
-                            .author(messageValue.getAuthor().getId())
+                            .from(messageValue.getFrom().getId())
+                            .message(messageValue.getMessage().getContent())
                             .build()
                     ))
                     .build())
@@ -84,6 +88,29 @@ public class SseChatDataAdapter {
                 .conversation(SseChatConversation.builder()
                     .id(chatDataUpdate.getConversationId().getId())
                     .readMarkers(Map.of(markedAsReadValue.getBy().getId(), markedAsReadValue.getAt().getId()))
+                    .build())
+                .build())
+            .build());
+    }
+
+    // LIVE
+    private Flux<SseChatData> updateConversationChatter(ChatDataUpdate chatDataUpdate, ChatDataUpdate.ChatterAddValue chatterAddValue) {
+        return Flux.just(SseChatData.builder()
+            // .id()
+            .event(CONVERSATION_ADD_CHATTER)
+            .payload(SseChatPayload.builder()
+                .conversation(SseChatConversation.builder()
+                    .id(chatDataUpdate.getConversationId().getId())
+//                    .participants(List.of(chatterAddValue.getChatterId().getId()))
+                    // TO DO: ⬆ or ⬇ or both ??
+                    .data(List.of(
+                        SseChatPayload.SseChatConversationChatterData.builder()
+                            .id(chatterAddValue.getConversationDataId().getId())
+                            .dateTime(chatterAddValue.getDateTime().toEpochSecond())
+                            .from(chatterAddValue.getFrom().getId())
+                            .chatterId(chatterAddValue.getChatterId().getId())
+                            .build()
+                    ))
                     .build())
                 .build())
             .build());
@@ -133,6 +160,7 @@ public class SseChatDataAdapter {
                 .build())
             .build());
     }
+
     private Flux<SseChatData> installChatters(List<Chatter> chatters) {
         return Flux.fromIterable(chatters)
             .map(chatter -> SseChatData.builder()
@@ -147,17 +175,26 @@ public class SseChatDataAdapter {
                 .build());
     }
 
+    // COLD .data
     private SseChatPayload.SseChatConversationData toSseChatConversationData(ConversationData conversationData) {
         return switch (conversationData.getConversationDataType()) {
             case CREATION, READ_MARKER:
                 yield null;
             case MESSAGE:
                 ConversationMessage conversationMessage = (ConversationMessage) conversationData;
-                yield SseChatPayload.SseChatConversationData.builder()
+                yield SseChatPayload.SseChatConversationMessageData.builder()
                     .id(conversationMessage.getConversationDataId().getId())
-                    .author(conversationMessage.getChatterId().getId())
-                    .message(conversationMessage.getMessage().getContent())
                     .dateTime(conversationMessage.getDateTime().toEpochSecond())
+                    .from(conversationMessage.getChatterId().getId())
+                    .message(conversationMessage.getMessage().getContent())
+                    .build();
+            case CHATTER_ADD:
+                ConversationChatter conversationChatter = (ConversationChatter) conversationData;
+                yield SseChatPayload.SseChatConversationChatterData.builder()
+                    .id(conversationChatter.getConversationDataId().getId())
+                    .dateTime(conversationChatter.getDateTime().toEpochSecond())
+                    .from(conversationChatter.getInvitedByChatterId().getId())
+                    .chatterId(conversationChatter.getChatterId().getId())
                     .build();
         };
     }

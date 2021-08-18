@@ -91,7 +91,7 @@ export default class SseChatService {
             const parse = JSON.parse(e.data);
             store.dispatch(ActionTypes.UpdateConversationAddMessage, {
                 conversationId: parse.conversation.id,
-                conversationData: parse.conversation.data
+                conversationMessageData: parse.conversation.data[0]
             });
         }, false);
 
@@ -101,6 +101,15 @@ export default class SseChatService {
             store.dispatch(ActionTypes.UpdateConversationMarkAsRead, {
                 conversationId: parse.conversation.id,
                 readMarkers: SseChatService.toReadMarkers(parse.conversation.readMarkers)
+            });
+        }, false);
+
+        eventSource.addEventListener('CONVERS:UPDATE:ADD_CHATTER', (e: any) => {
+            console.log('CONVERS:UPDATE:ADD_CHATTER')
+            const parse = JSON.parse(e.data);
+            store.dispatch(ActionTypes.UpdateConversationAddChatter, {
+                conversationId: parse.conversation.id,
+                conversationChatterData: parse.conversation.data[0]
             });
         }, false);
 

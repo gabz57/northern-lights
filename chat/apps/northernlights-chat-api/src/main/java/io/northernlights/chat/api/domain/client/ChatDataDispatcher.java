@@ -2,6 +2,7 @@ package io.northernlights.chat.api.domain.client;
 
 import io.northernlights.chat.api.domain.client.model.ChatClientID;
 import io.northernlights.chat.api.domain.client.model.ChatData;
+import io.northernlights.chat.domain.event.ChatterJoinedEvent;
 import io.northernlights.chat.domain.event.ConversationCreatedEvent;
 import io.northernlights.chat.domain.event.ConversationEvent;
 import io.northernlights.chat.domain.model.chatter.ChatterId;
@@ -13,7 +14,6 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
-import static io.northernlights.chat.domain.event.ConversationEvent.ConversationEventType.CONVERSATION_CREATED;
 import static java.util.Optional.ofNullable;
 
 @Slf4j
@@ -27,7 +27,7 @@ public class ChatDataDispatcher implements ChatDataProvider {
     public ChatDataDispatcher(ConversationEventSubscriber conversationEventSubscriber, ChatDataAdapter chatDataAdapter) {
         this.chatDataAdapter = chatDataAdapter;
         this.allConversationEventsFlux = Flux.from(conversationEventSubscriber.subscribe())
-            .doOnNext(this::updateFollowedConversationsOnCreation)
+            .doOnNext(this::updateFollowedConversations)
             .filter(this::followedConversations)
             .share();
         allConversationEventsFlux.subscribe(e -> log.info("Dispatching {}", e.getConversationEventType()));
@@ -53,7 +53,8 @@ public class ChatDataDispatcher implements ChatDataProvider {
 
     private void cleanFollowedConversations(ChatClientID chatClientId) {
         List<ConversationId> removedConversationIds = followedConversationsByChatterId.remove(chatClientId.getChatterId());
-        // ⚠️ count after removal of current chatter conversations
+        // ⚠️ do not inline above expression, count must be done
+        //    after removal of current chatter conversations
         Map<ConversationId, Long> nbFollowersByConversationId = followedConversationsByChatterId.values().stream().flatMap(Collection::stream)
             .collect(Collectors.groupingBy(e -> e, Collectors.counting()));
 
@@ -65,16 +66,31 @@ public class ChatDataDispatcher implements ChatDataProvider {
         });
     }
 
-    private void updateFollowedConversationsOnCreation(ConversationEvent conversationEvent) {
-        if (conversationEvent.getConversationEventType().equals(CONVERSATION_CREATED)) {
-            log.info("updateFollowedConversationsOnCreation");
-            ConversationCreatedEvent conversationCreatedEvent = (ConversationCreatedEvent) conversationEvent;
-            conversationCreatedEvent.getParticipants()
-                .forEach(chatterId -> ofNullable(followedConversationsByChatterId.get(chatterId))
-                    .ifPresent(lst -> {
-                        lst.add(conversationCreatedEvent.getConversationId());
-                        followedConversations.add(conversationCreatedEvent.getConversationId());
-                    }));
+    private void updateFollowedConversations(ConversationEvent conversationEvent) {
+        switch (conversationEvent.getConversationEventType()) {
+            case CONVERSATION_CREATED -> {
+                log.info("updateFollowedConversations -> Creation");
+                ConversationCreatedEvent conversationCreatedEvent = (ConversationCreatedEvent) conversationEvent;
+                conversationCreatedEvent.getParticipants()
+                    .forEach(chatterId -> ofNullable(followedConversationsByChatterId.get(chatterId))
+                        .ifPresent(lst -> {
+                            lst.add(conversationCreatedEvent.getConversationId());
+                            followedConversations.add(conversationCreatedEvent.getConversationId());
+                        }));
+            }
+            case CHATTER_JOINED -> {
+                log.info("updateFollowedConversations -> ChatterJoined");
+                ChatterJoinedEvent chatterJoinedEvent = (ChatterJoinedEvent) conversationEvent;
+                ofNullable(followedConversationsByChatterId.get(chatterJoinedEvent.getInvited()))
+                    .ifPresent(followedConversationsOfChatter -> {
+                        followedConversationsOfChatter.add(chatterJoinedEvent.getConversationId());
+                        followedConversations.add(chatterJoinedEvent.getConversationId());
+                    });
+            }
+            case CONVERSATION_MESSAGE, CONVERSATION_MARKED_AS_READ -> {
+            }
+            default -> {
+            }
         }
     }
 }

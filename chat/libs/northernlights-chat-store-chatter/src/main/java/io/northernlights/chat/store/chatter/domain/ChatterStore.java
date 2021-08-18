@@ -1,5 +1,6 @@
 package io.northernlights.chat.store.chatter.domain;
 
+import io.northernlights.chat.domain.event.ChatterJoinedEvent;
 import io.northernlights.chat.domain.event.ConversationCreatedEvent;
 import io.northernlights.chat.domain.model.chatter.Chatter;
 import io.northernlights.chat.domain.model.chatter.ChatterId;
@@ -12,6 +13,8 @@ import java.util.Map;
 
 public interface ChatterStore {
     Mono<Void> writeConversationCreated(ConversationCreatedEvent conversationEvent);
+
+    Mono<Void> writeChatterJoined(ChatterJoinedEvent conversationEvent);
 
 //    Mono<Void> writeConversationUpdate(ConversationEvent conversationEvent, List<ChatterId> participants);
 

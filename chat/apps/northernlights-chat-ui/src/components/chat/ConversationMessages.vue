@@ -1,6 +1,7 @@
 <template>
   <div class="conversation-messages">
-    <div v-if="!shouldStickToBottom" class="conversation-messages__arrow" :class="{'conversation-messages__arrow--with-new-message': hasNewMessage}" >
+    <div v-if="!shouldStickToBottom" class="conversation-messages__arrow"
+         :class="{'conversation-messages__arrow--with-new-message': hasNewMessage}">
       <button @click="scrollToBottom">⬇</button>
     </div>
     <div class="conversation-messages__wrapper" ref="messagesContainer" @scroll.passive="handleScroll">
@@ -11,17 +12,27 @@
 
         <div class="conversation-messages__per-day-packs" v-for="(dailyMessagePack, index2) in dailyMessagePacksOfDay"
              :key="index2">
-          <div class="conversation-messages__per-day-packs-author"
-               :class="{'conversation-messages__per-day-packs-author--with-new-message': dailyMessagePack[dailyMessagePack.length - 1].watchVisible}">
-            <strong><Chatter :chatter-id="dailyMessagePack[0].author"/></strong> @ {{ $filters.timeToMinutes(dailyMessagePack[0].dateTime * 1000) }}
+          <div v-if="dailyMessagePack[0].type === 'MESSAGE'">
+            <div class="conversation-messages__per-day-packs-author"
+                 :class="{'conversation-messages__per-day-packs-author--with-new-message': dailyMessagePack[dailyMessagePack.length - 1].watchVisible}">
+              <strong>
+                <Chatter :chatter-id="dailyMessagePack[0].from"/>
+              </strong> @ {{ $filters.timeToMinutes(dailyMessagePack[0].dateTime * 1000) }}
+            </div>
+            <div class="conversation-messages__per-day-packs-pack">
+              <ConversationMessage v-for="(dailyMessage, index3) in dailyMessagePack"
+                                   :key="index3"
+                                   :message-data="dailyMessage"
+                                   v-observe-visibility="index3 === dailyMessagePack.length - 1 && dailyMessage.watchVisible
+                                   ? markViewedMessage(dailyMessage)
+                                   : false"/>
+            </div>
           </div>
-          <div class="conversation-messages__per-day-packs-pack">
-            <ConversationMessage v-for="(dailyMessage, index3) in dailyMessagePack"
-                                 :key="index3"
-                                 :message="dailyMessage"
-                                 v-observe-visibility="index3 === dailyMessagePack.length - 1
-                                 ? markViewedMessage(dailyMessage)
-                                 : false"/>
+          <div v-if="dailyMessagePack[0].type === 'CHATTER'">
+            <ConversationChatter :chatter-data="dailyMessagePack[0]"
+                                 v-observe-visibility="dailyMessagePack[0].watchVisible
+                                   ? markViewedMessage(dailyMessagePack[0])
+                                   : false"/>
           </div>
         </div>
       </div>
@@ -39,6 +50,7 @@ import {DateTime} from "luxon";
 import {ChatterId} from "@/store/state";
 import {useStore} from "@/store";
 import Chatter from "@/components/chat/Chatter.vue";
+import ConversationChatter from "@/components/chat/ConversationChatter.vue";
 
 const groupBy = <K, V>(list: Array<V>, keyGetter: (input: V) => K): Map<K, Array<V>> => {
   const map = new Map();
@@ -60,29 +72,37 @@ const packSameUserSameBlockOfMessage = (dailyMessages: Array<ConversationDataWit
   let pack: ConversationDataWithMarkers[] = [];
 
   const firstDailyMessage = dailyMessages[0];
-
-  let currentChatter: ChatterId = firstDailyMessage.author;
+  let currentChatter: ChatterId = firstDailyMessage.from;
   let previousMessageDateTime: DateTime = DateTime.fromSeconds(firstDailyMessage.dateTime);
+  let previousType = ''
+  debugger
   dailyMessages.forEach(dailyMessage => {
+    if (dailyMessage.type === 'CHATTER') {
+      // use next pack
+      if (pack.length > 0) packs.push(pack)
+      pack = [dailyMessage]
+    } else if (dailyMessage.type === 'MESSAGE') {
+      if (previousType !== 'MESSAGE' || dailyMessage.from === currentChatter) {
 
-    if (dailyMessage.author === currentChatter) {
-
-      const diffInMinutes = DateTime.fromSeconds(dailyMessage.dateTime).diff(previousMessageDateTime, 'minutes');
-
-      if (diffInMinutes.minutes < 3) {
-        pack.push(dailyMessage)
+        const diffInMinutes = DateTime.fromSeconds(dailyMessage.dateTime).diff(previousMessageDateTime, 'minutes');
+        if (diffInMinutes.minutes < 3) {
+          // complete pack
+          pack.push(dailyMessage)
+        } else {
+          // use next pack
+          if (pack.length > 0) packs.push(pack)
+          pack = [dailyMessage]
+        }
       } else {
-        // next pack
-        packs.push(pack)
+        // use next pack
+        if (pack.length > 0) packs.push(pack)
         pack = [dailyMessage]
       }
-    } else {
-      // next pack
-      packs.push(pack)
-      pack = [dailyMessage]
+
+      previousMessageDateTime = DateTime.fromSeconds(dailyMessage.dateTime)
+      currentChatter = dailyMessage.from
+      previousType = dailyMessage.type
     }
-    previousMessageDateTime = DateTime.fromSeconds(dailyMessage.dateTime)
-    currentChatter = dailyMessage.author
   })
   packs.push(pack)
 
@@ -91,7 +111,7 @@ const packSameUserSameBlockOfMessage = (dailyMessages: Array<ConversationDataWit
 
 export default defineComponent({
   name: "ConversationMessages",
-  components: {Chatter, ConversationMessage},
+  components: {ConversationChatter, Chatter, ConversationMessage},
   props: {
     conversationId: {
       type: String,
@@ -119,7 +139,7 @@ export default defineComponent({
     onMounted(scrollToBottom)
     watch(conversationId, scrollToBottom)
     watch(messages, (newMessages) => {
-      if (shouldStickToBottom.value || newMessages.length > 0 &&  newMessages[newMessages.length - 1].author === store.state.chatterId) {
+      if (shouldStickToBottom.value || newMessages.length > 0 && newMessages[newMessages.length - 1].from === store.state.chatterId) {
         scrollToBottom()
       }
     })
@@ -223,6 +243,7 @@ export default defineComponent({
 
     &-packs {
       text-align: left;
+
       &:not(:last-child) {
         padding-bottom: 20px;
       }
@@ -241,9 +262,10 @@ export default defineComponent({
 
   &__arrow {
     position: absolute;
-    z-index:2;
+    z-index: 2;
     right: 20px;
     bottom: 20px;
+
     &--with-new-message {
       box-shadow: 0 0 30px 3px #0080FF;
     }

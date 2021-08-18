@@ -5,6 +5,7 @@ import io.northernlights.chat.domain.model.conversation.ConversationId;
 import io.northernlights.chat.domain.model.conversation.Message;
 import io.northernlights.chat.domain.model.conversation.data.ConversationDataId;
 import lombok.Builder;
+import lombok.NonNull;
 import lombok.Value;
 
 import java.time.OffsetDateTime;
@@ -12,13 +13,16 @@ import java.time.OffsetDateTime;
 @Value
 @Builder
 public class ChatDataUpdate implements ChatData {
+    @NonNull
     ConversationId conversationId;
+
     MarkedAsReadValue markedAsRead;
     MessageValue message;
+    ChatterAddValue chatterAdd;
 //    ConversationCreationValue conversationCreation;
 
     public ChatDataType getChatDataType() {
-        return ChatDataType.UPDATE;
+        return ChatDataType.LIVE_UPDATE;
     }
 
     @Value
@@ -33,8 +37,17 @@ public class ChatDataUpdate implements ChatData {
     @Builder
     public static class MessageValue {
         ConversationDataId conversationDataId;
-        ChatterId author;
+        ChatterId from;
         Message message;
+        OffsetDateTime dateTime;
+    }
+
+    @Value
+    @Builder
+    public static class ChatterAddValue {
+        ConversationDataId conversationDataId;
+        ChatterId from;
+        ChatterId chatterId;
         OffsetDateTime dateTime;
     }
 //

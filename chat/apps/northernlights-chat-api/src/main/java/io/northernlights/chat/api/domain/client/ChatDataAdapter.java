@@ -4,10 +4,7 @@ import io.northernlights.chat.api.domain.client.model.ChatData;
 import io.northernlights.chat.api.domain.client.model.ChatDataConversationInstall;
 import io.northernlights.chat.api.domain.client.model.ChatDataConversationPartial;
 import io.northernlights.chat.api.domain.client.model.ChatDataUpdate;
-import io.northernlights.chat.domain.event.ConversationCreatedEvent;
-import io.northernlights.chat.domain.event.ConversationEvent;
-import io.northernlights.chat.domain.event.ConversationMarkedAsReadEvent;
-import io.northernlights.chat.domain.event.ConversationMessageSentEvent;
+import io.northernlights.chat.domain.event.*;
 import io.northernlights.chat.domain.model.chatter.Chatter;
 import io.northernlights.chat.domain.model.chatter.ChatterId;
 import io.northernlights.chat.domain.model.conversation.Conversation;
@@ -26,7 +23,7 @@ import java.util.Map;
 public class ChatDataAdapter {
     private final ChatterStore chatterStore;
 
-    public ChatData adaptFullColdData(
+    public ChatData adaptConversationInstallData(
         ConversationId conversationId,
         ConversationCreation conversationCreation,
         List<Chatter> chatters,
@@ -64,6 +61,7 @@ public class ChatDataAdapter {
             case CONVERSATION_CREATED -> adaptLiveData((ConversationCreatedEvent) conversationEvent);
             case CONVERSATION_MESSAGE -> adaptLiveData((ConversationMessageSentEvent) conversationEvent);
             case CONVERSATION_MARKED_AS_READ -> adaptLiveData((ConversationMarkedAsReadEvent) conversationEvent);
+            case CHATTER_JOINED -> adaptLiveData((ChatterJoinedEvent) conversationEvent);
         };
     }
 
@@ -86,7 +84,7 @@ public class ChatDataAdapter {
             .conversationId(conversationEvent.getConversationId())
             .message(ChatDataUpdate.MessageValue.builder()
                 .conversationDataId(conversationEvent.getConversationDataId())
-                .author(conversationEvent.getAuthor())
+                .from(conversationEvent.getAuthor())
                 .dateTime(conversationEvent.getDateTime())
                 .message(conversationEvent.getMessage())
                 .build())
@@ -100,6 +98,18 @@ public class ChatDataAdapter {
                 .conversationDataId(conversationEvent.getConversationDataId())
                 .by(conversationEvent.getMarkedBy())
                 .at(conversationEvent.getMarkedConversationDataId())
+                .build())
+            .build());
+    }
+
+    private Mono<ChatData> adaptLiveData(ChatterJoinedEvent conversationEvent) {
+        return Mono.just(ChatDataUpdate.builder()
+            .conversationId(conversationEvent.getConversationId())
+            .chatterAdd(ChatDataUpdate.ChatterAddValue.builder()
+                .conversationDataId(conversationEvent.getConversationDataId())
+                .from(conversationEvent.getInvitedBy())
+                .chatterId(conversationEvent.getInvited())
+                .dateTime(conversationEvent.getDateTime())
                 .build())
             .build());
     }

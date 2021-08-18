@@ -17,6 +17,7 @@ public interface ConversationEvent {
     enum ConversationEventType {
         CONVERSATION_CREATED,
         CONVERSATION_MESSAGE,
-        CONVERSATION_MARKED_AS_READ
+        CONVERSATION_MARKED_AS_READ,
+        CHATTER_JOINED
     }
 }

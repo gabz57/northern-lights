@@ -2,6 +2,7 @@ package io.northernlights.chat.api.domain.client.model;
 
 import io.northernlights.chat.api.domain.client.ChatClientStore;
 import io.northernlights.chat.api.domain.client.ChatDataProvider;
+import io.northernlights.chat.api.domain.client.model.ChatDataUpdate.ChatterAddValue;
 import io.northernlights.chat.domain.model.conversation.ConversationId;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.Disposable;
@@ -70,7 +71,21 @@ public class ChatClient {
         disposableChatDataFlow = chatDataProvider.chatterFlow(this.chatClientId, this.conversationIds)
             .doOnSubscribe(s -> log.info("Subscribed to chatterEventProvider.chatterFlow for " + this.chatClientId))
             .doOnTerminate(() -> log.warn("Subscription to chatterEventProvider.chatterFlow for " + this.chatClientId + " TERMINATED"))
-            .subscribe(chatterDataSink::tryEmitNext);
+            .subscribe(t -> {
+                // OMG...
+                if (t.getChatDataType() == ChatData.ChatDataType.LIVE_UPDATE) {
+                    ChatDataUpdate chatDataUpdate = (ChatDataUpdate) t;
+                    ChatterAddValue chatterAdd = chatDataUpdate.getChatterAdd();
+                    // only invitee is interested, intercept and replace what he receives with previous content
+                    if (chatterAdd != null && chatterAdd.getChatterId().equals(this.chatClientId.getChatterId())) {
+                            chatClientStore.loadConversationInstallData(chatDataUpdate.getConversationId())
+                                .doOnNext(chatterDataSink::tryEmitNext)
+                                .subscribe();
+                            return;
+                    }
+                }
+                chatterDataSink.tryEmitNext(t);
+            });
     }
 
 }

@@ -12,6 +12,8 @@ import java.util.List;
 public interface ChatClientStore {
     Flux<ChatData> loadPreviousData(ChatClientID chatClientId, String sseChatKey);
 
+    Mono<ChatData> loadConversationInstallData(ConversationId conversationId);
+
     Mono<List<ConversationId>> loadConversationIds(ChatClientID chatClientId);
 
     Mono<ChatterId> authenticate(String sseChatKey);

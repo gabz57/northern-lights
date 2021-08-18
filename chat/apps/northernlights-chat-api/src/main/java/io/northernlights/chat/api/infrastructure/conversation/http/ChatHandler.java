@@ -54,6 +54,15 @@ public class ChatHandler {
                 .flatMap(withJsonResponseBody(ok(), MarkAsReadResponse.class)));
     }
 
+    public Mono<ServerResponse> inviteChatter(ServerRequest serverRequest) {
+        return serverRequest.principal()
+            .flatMap(principal -> serverRequest.bodyToMono(InviteChatterRequest.class)
+                .map(request -> chatApiAdapter.adapt(request, principal.getName()))
+                .flatMap(chatCommands.inviteChatter()::execute)
+                .map(chatApiAdapter::adapt)
+                .flatMap(withJsonResponseBody(ok(), InviteChatterResponse.class)));
+    }
+
     private <T> Function<T, Mono<ServerResponse>> withJsonResponseBody(ServerResponse.BodyBuilder responseBuilder, Class<T> elementClass) {
         return response -> responseBuilder
             .contentType(MediaType.APPLICATION_JSON)

@@ -1,6 +1,6 @@
 <template>
   <div>
-    <span>> {{ data.value.message }}</span>
+    <span style="color: #8599ad">{{ data.value.chatterId }} joined the conversation</span>
     <span v-if="data.value.readBy.length > 0"><br/>Read by [{{ data.value.readBy.join(", ") }}]</span>
   </div>
 </template>
@@ -8,21 +8,21 @@
 <script lang="ts">
 import {computed, ComputedRef, defineComponent, PropType, Ref, toRefs} from "vue";
 import {ConversationDataWithMarkers, Markers} from "@/composables/use-conversation";
-import {ConversationMessageData} from "@/store/state";
+import {ConversationChatterData, ConversationMessageData} from "@/store/state";
 
 export default defineComponent({
-  name: "ConversationMessage",
+  name: "ConversationChatter",
   props: {
-    messageData: {
+    chatterData: {
       type: Object as PropType<ConversationDataWithMarkers>,
       required: true
     }
   },
   setup(props) {
-    const {messageData} = toRefs(props)
+    const {chatterData} = toRefs(props)
 
     return {
-      data: computed(() => messageData) as ComputedRef<Ref<ConversationMessageData & Markers>>
+      data: computed(() => chatterData) as ComputedRef<Ref<ConversationChatterData & Markers>>
     }
   }
 });

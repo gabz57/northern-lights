@@ -12,9 +12,9 @@
         <button @click="toggleCreatingConversation">{{ creatingConversation ? '-' : '+' }}</button>
       </div>
       <div class="chat__body-content">
-        <ChatterProfile v-if="editingProfile" />
-        <ConversationCreation v-else-if="creatingConversation" />
-        <Conversation v-else-if="selectedConversationId" :conversation-id="selectedConversationId"/>
+        <ChatterProfile v-if="editingProfile"/>
+        <ConversationCreation v-if="creatingConversation"/>
+        <Conversation v-show="!editingProfile && !creatingConversation" v-if="selectedConversationId" :conversation-id="selectedConversationId"/>
         <div v-else style="display: flex; height: 100%">
           <div style="margin: auto">Connect,<br/><br/>then<br/><br/>Select a conversation ... or create a new one</div>
         </div>

@@ -4,9 +4,9 @@ import {MutationTree} from 'vuex'
 import {
     Chatter,
     ChatterId,
-    Conversation,
+    Conversation, ConversationChatterData,
     ConversationData,
-    ConversationId,
+    ConversationId, ConversationMessageData,
     ConversationPart,
     ReadMarkers,
     State
@@ -27,6 +27,7 @@ export enum MutationType {
     InstallConversation = 'INSTALL_CONVERSATION',
     InstallConversationPart = 'INSTALL_CONVERSATION_PART',
     UpdateConversationAddMessage = 'UPDATE_CONVERSATION_ADD_MESSAGE',
+    UpdateConversationAddChatter = 'UPDATE_CONVERSATION_ADD_CHATTER',
     UpdateConversationMarkerAsRead = 'UPDATE_CONVERSATION_MARKER_AS_READ',
 }
 
@@ -46,7 +47,11 @@ export type Mutations = {
     [MutationType.InstallConversationPart](state: State, conversation: ConversationPart): void
     [MutationType.UpdateConversationAddMessage](
         state: State,
-        value: { conversationId: ConversationId, conversationData: ConversationData[] }
+        value: { conversationId: ConversationId, conversationMessageData: ConversationMessageData }
+    ): void
+    [MutationType.UpdateConversationAddChatter](
+        state: State,
+        value: { conversationId: ConversationId, conversationChatterData: ConversationChatterData }
     ): void
     [MutationType.UpdateConversationMarkerAsRead](
         state: State,
@@ -99,8 +104,12 @@ export const mutations: MutationTree<State> & Mutations = {
         conversationPart.readMarkers.forEach((conversationId: ConversationId, chatterId: ChatterId) =>
             conversation.readMarkers.set(chatterId, conversationId))
     },
-    [MutationType.UpdateConversationAddMessage](state, {conversationId, conversationData}) {
-        conversationData.forEach(cData => state.conversations.get(conversationId)?.data.push(cData))
+    [MutationType.UpdateConversationAddMessage](state, {conversationId, conversationMessageData}) {
+        state.conversations.get(conversationId)?.data.push(conversationMessageData)
+    },
+    [MutationType.UpdateConversationAddChatter](state, {conversationId, conversationChatterData}) {
+        state.conversations.get(conversationId)?.participants.push(conversationChatterData.chatterId)
+        state.conversations.get(conversationId)?.data.push(conversationChatterData)
     },
     [MutationType.UpdateConversationMarkerAsRead](state, {conversationId, readMarkers}) {
         readMarkers.forEach((conversationDataId, chatterId) =>

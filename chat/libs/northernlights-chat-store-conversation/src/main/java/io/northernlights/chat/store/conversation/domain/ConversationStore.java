@@ -1,5 +1,6 @@
 package io.northernlights.chat.store.conversation.domain;
 
+import io.northernlights.chat.domain.event.ChatterJoinedEvent;
 import io.northernlights.chat.domain.event.ConversationCreatedEvent;
 import io.northernlights.chat.domain.event.ConversationMarkedAsReadEvent;
 import io.northernlights.chat.domain.event.ConversationMessageSentEvent;
@@ -28,6 +29,8 @@ public interface ConversationStore {
     Mono<ConversationCreatedEvent> create(OffsetDateTime dateTime, ChatterId author, String conversationName, List<ChatterId> participants, Boolean dialogue);
 
     Mono<ConversationMessageSentEvent> appendMessage(OffsetDateTime dateTime, ConversationId conversationId, ChatterId author, Message message);
+
+    Mono<ChatterJoinedEvent> addChatter(OffsetDateTime dateTime, ConversationId conversationId, ChatterId invitedByChatterId, ChatterId invitedChatterId);
 
     Mono<ConversationMarkedAsReadEvent> markEventAsRead(OffsetDateTime dateTime, ConversationId conversationId, ChatterId chatterId, ConversationDataId markedConversationDataId);
 

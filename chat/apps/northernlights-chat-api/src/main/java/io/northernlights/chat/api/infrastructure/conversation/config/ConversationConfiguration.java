@@ -91,6 +91,7 @@ public class ConversationConfiguration {
             .andRoute(POST(CHAT_CONVERSATION + "/open").and(accept(APPLICATION_JSON)).and(contentType(APPLICATION_JSON)), chatHandler::createConversation)
             .andRoute(POST(CHAT_CONVERSATION + "/mark-as-read").and(accept(APPLICATION_JSON)).and(contentType(APPLICATION_JSON)), chatHandler::markAsRead)
             .andRoute(POST(CHAT_CONVERSATION + "/message").and(accept(APPLICATION_JSON)).and(contentType(APPLICATION_JSON)), chatHandler::sendMessage)
+            .andRoute(POST(CHAT_CONVERSATION + "/invite-chatter").and(accept(APPLICATION_JSON)).and(contentType(APPLICATION_JSON)), chatHandler::inviteChatter)
             .filter(new ErrorHandler());
     }
 }

@@ -32,19 +32,37 @@ public class SseChatPayload {
         private String to;
         private Boolean dialogue;
         private List<String> participants;
-        private List<SseChatConversationData> data;
+        private List<? extends SseChatConversationData> data;
         private Map<String, String> readMarkers;// ChatterId.id <> ConversationDataId.id
+    }
+
+    public interface SseChatConversationData {
     }
 
     @Data
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class SseChatConversationData {
+    public static class SseChatConversationMessageData implements SseChatConversationData {
+        @Builder.Default
+        private String type = "MESSAGE";
         private String id;
-        private String author;
-        private String message;
         private Long dateTime;
+        private String from;
+        private String message;
+    }
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class SseChatConversationChatterData implements SseChatConversationData {
+        @Builder.Default
+        private String type = "CHATTER";
+        private String id;
+        private Long dateTime;
+        private String from;
+        private String chatterId;
     }
 
     @Data

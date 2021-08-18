@@ -32,6 +32,13 @@ class ChatApiClient {
         })
     }
 
+    async inviteChatter(userId: string, conversationId: string, invitedChatterId: string): Promise<void> {
+        await ChatApiClient.fetch(userId, "invite-chatter", {
+            conversationId,
+            chatterId: invitedChatterId
+        })
+    }
+
     private static async fetch(userId: string, endpoint: string, payload: unknown): Promise<Response> {
         return fetch("http://localhost:8080/v1/chat/api/" + endpoint, {
             method: 'POST',

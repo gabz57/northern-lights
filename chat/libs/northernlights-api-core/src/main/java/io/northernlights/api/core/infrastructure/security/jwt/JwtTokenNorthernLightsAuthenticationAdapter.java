@@ -19,7 +19,6 @@ public class JwtTokenNorthernLightsAuthenticationAdapter {
     }
 
 //    private NorthernLightsRoles readNorthernLightsRoles(JwtToken jwtToken) {
-//        // FIXME: add '-qua'
 //        return jwtToken.readClaim("https://shop-api.marketplace-qua.aaaaaaaa.com/v1/roles", NorthernLightsRoles.class, new NorthernLightsRoles());
 //    }
 

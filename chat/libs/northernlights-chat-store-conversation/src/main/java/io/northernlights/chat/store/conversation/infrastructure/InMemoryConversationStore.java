@@ -1,5 +1,6 @@
 package io.northernlights.chat.store.conversation.infrastructure;
 
+import io.northernlights.chat.domain.event.ChatterJoinedEvent;
 import io.northernlights.chat.domain.event.ConversationCreatedEvent;
 import io.northernlights.chat.domain.event.ConversationMarkedAsReadEvent;
 import io.northernlights.chat.domain.event.ConversationMessageSentEvent;
@@ -97,6 +98,14 @@ public class InMemoryConversationStore implements ConversationStore {
         return Mono.just(new ConversationMessageSentEvent(conversationId, conversationDataId, message, author, dateTime));
     }
 
+    public Mono<ChatterJoinedEvent> addChatter(OffsetDateTime dateTime, ConversationId conversationId, ChatterId invitedByChatterId, ChatterId invitedChatterId) {
+        ConversationDataId conversationDataId = conversationDataIdGenerator.generate();
+        ConversationChatter conversationChatter = new ConversationChatter(conversationId, conversationDataId, invitedByChatterId, invitedChatterId, dateTime);
+        conversations.get(conversationId).add(conversationChatter);
+
+        return Mono.just(new ChatterJoinedEvent(conversationId, conversationDataId, invitedByChatterId, invitedChatterId, dateTime));
+    }
+
     public Mono<ConversationMarkedAsReadEvent> markEventAsRead(OffsetDateTime dateTime, ConversationId conversationId, ChatterId markedBy, ConversationDataId markedConversationDataId) {
         ConversationDataId conversationDataId = conversationDataIdGenerator.generate();
         ConversationReadMarker conversationReadMarker = new ConversationReadMarker(conversationId, conversationDataId, markedBy, markedConversationDataId, dateTime);
@@ -114,6 +123,9 @@ public class InMemoryConversationStore implements ConversationStore {
 
                     if (conversationEvent instanceof ConversationCreation conversationCreation) {
                         lst.addAll(conversationCreation.getParticipants());
+                    }
+                    if (conversationEvent instanceof ConversationChatter conversationChatter) {
+                        lst.add(conversationChatter.getChatterId());
                     }
                     lst.addAll(new ArrayList<>());
                     return lst;

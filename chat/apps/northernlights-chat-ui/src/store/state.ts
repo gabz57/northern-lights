@@ -28,13 +28,22 @@ export type Chatters = Map<ChatterId, Chatter>;
 export type ConversationId = string
 export type ConversationDataId = string
 
-export type ConversationData = {
+export type ConversationData = ConversationMessageData | ConversationChatterData
+
+export type ConversationDataValue = {
     id: ConversationDataId
-    author: ChatterId
-    message: string
+    type: string
     dateTime: number
-    // others
-} & Record<any, any>
+    from: ChatterId
+}
+
+export type ConversationMessageData = ConversationDataValue & {
+    message: string
+}
+
+export type ConversationChatterData = ConversationDataValue & {
+    chatterId: ChatterId
+}
 
 export type ReadMarkers = Map<ChatterId, ConversationDataId>;
 

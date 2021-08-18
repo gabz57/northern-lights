@@ -8,7 +8,7 @@ public interface ChatData {
         HELLO,
         INSTALL,
         PARTIAL,
-        UPDATE
+        LIVE_UPDATE
     }
 
 }

@@ -1,5 +1,6 @@
 package io.northernlights.chat.store.chatter.infrastructure;
 
+import io.northernlights.chat.domain.event.ChatterJoinedEvent;
 import io.northernlights.chat.domain.event.ConversationCreatedEvent;
 import io.northernlights.chat.domain.model.chatter.Chatter;
 import io.northernlights.chat.domain.model.chatter.ChatterId;
@@ -55,6 +56,14 @@ public class InMemoryChatterStore implements ChatterStore {
                 set1.addAll(set2);
                 return set1;
             }));
+        return Mono.empty();
+    }
+
+    public Mono<Void> writeChatterJoined(ChatterJoinedEvent conversationEvent) {
+        conversationsIdByChatterId.merge(conversationEvent.getInvited(), new HashSet<>(List.of(conversationEvent.getConversationId())), (set1, set2) -> {
+            set1.addAll(set2);
+            return set1;
+        });
         return Mono.empty();
     }
 

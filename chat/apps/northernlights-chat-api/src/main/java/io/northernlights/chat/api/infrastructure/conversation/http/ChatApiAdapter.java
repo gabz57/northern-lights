@@ -2,6 +2,8 @@ package io.northernlights.chat.api.infrastructure.conversation.http;
 
 import io.northernlights.chat.api.application.conversation.ChatAuthenticationCommand.ChatAuthenticationCommandInput;
 import io.northernlights.chat.api.application.conversation.ChatAuthenticationCommand.ChatAuthenticationCommandResult;
+import io.northernlights.chat.api.application.conversation.InviteChatterCommand.InviteChatterCommandInput;
+import io.northernlights.chat.api.application.conversation.InviteChatterCommand.InviteChatterCommandResult;
 import io.northernlights.chat.api.application.conversation.MarkConversationAsReadCommand.MarkConversationAsReadCommandInput;
 import io.northernlights.chat.api.infrastructure.conversation.http.model.*;
 import io.northernlights.chat.domain.model.chatter.ChatterId;
@@ -63,6 +65,21 @@ public class ChatApiAdapter {
         return MarkAsReadResponse.builder()
             .conversationId(result.getConversationMarkedAsReadEvent().getConversationId().getId())
             .conversationDataId(result.getConversationMarkedAsReadEvent().getConversationDataId().getId())
+            .build();
+    }
+
+    public InviteChatterCommandInput adapt(InviteChatterRequest request, String issuer) {
+        return InviteChatterCommandInput.builder()
+            .chatterId(new ChatterId(issuer))
+            .conversationId(new ConversationId(request.getConversationId()))
+            .invitedChatterId(new ChatterId(request.getChatterId()))
+            .build();
+    }
+
+    public InviteChatterResponse adapt(InviteChatterCommandResult result) {
+        return InviteChatterResponse.builder()
+            .conversationId(result.getChatterJoinedEvent().getConversationId().getId())
+            .conversationDataId(result.getChatterJoinedEvent().getConversationDataId().getId())
             .build();
     }
 

@@ -31,21 +31,21 @@ public class ChatClientStoreImpl implements ChatClientStore {
         return chatterStore.useConversationStatusesBySseChatKey(sseChatKey)
             // when empty, let Mono.empty() to skip previous data
             .zipWith(chatterStore.listConversationIds(chatClientId.getChatterId()))
-            .flatMapMany(t -> toChatInstallDatas(t.getT2(), t.getT1()));
+            .flatMapMany(t -> toChatInstallData(t.getT2(), t.getT1()));
     }
 
-    private Flux<ChatData> toChatInstallDatas(List<ConversationId> conversationIds, Map<ConversationId, ConversationDataId> conversationStatuses) {
+    private Flux<ChatData> toChatInstallData(List<ConversationId> conversationIds, Map<ConversationId, ConversationDataId> conversationStatuses) {
         log.info("Loading install data for conversations : {}", conversationIds);
         return conversationStatuses.isEmpty()
-            ? getFullDatas(conversationIds) // new client
-            : getPartialDatas(conversationIds, conversationStatuses); // client with data
+            ? getFullData(conversationIds) // new client
+            : getPartialData(conversationIds, conversationStatuses); // client with data
     }
 
-    private Flux<ChatData> getFullDatas(List<ConversationId> conversationIds) {
-        return Flux.fromStream(conversationIds.stream()).flatMap(this::getFullData);
+    private Flux<ChatData> getFullData(List<ConversationId> conversationIds) {
+        return Flux.fromStream(conversationIds.stream()).flatMap(this::loadConversationInstallData);
     }
 
-    private Mono<ChatData> getFullData(ConversationId conversationId) {
+    public Mono<ChatData> loadConversationInstallData(ConversationId conversationId) {
         log.info("Loading full data for conversation : {}", conversationId.getId());
         return conversationStore.participants(conversationId)
             .flatMap(chatterIds -> Mono
@@ -54,14 +54,14 @@ public class ChatClientStoreImpl implements ChatClientStore {
                     chatterStore.listChatters(chatterIds),
                     conversationStore.conversation(conversationId, null),
                     conversationStore.readMarkers(conversationId))
-                .map(tuple -> chatDataAdapter.adaptFullColdData(
+                .map(tuple -> chatDataAdapter.adaptConversationInstallData(
                     conversationId, tuple.getT1(), tuple.getT2(), tuple.getT3(), tuple.getT4()))
                 .onErrorContinue((e, o) -> log.error("Failed to load chat install data content with object : "
                     + ofNullable(o).map(Object::toString).orElse(""), e))
             );
     }
 
-    private Flux<ChatData> getPartialDatas(List<ConversationId> conversationIds, Map<ConversationId, ConversationDataId> conversationStatuses) {
+    private Flux<ChatData> getPartialData(List<ConversationId> conversationIds, Map<ConversationId, ConversationDataId> conversationStatuses) {
         return Flux.fromStream(conversationIds.stream())
             .flatMap(conversationId -> getPartialData(conversationId, conversationStatuses));
     }

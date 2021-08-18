@@ -4,9 +4,9 @@ import {
     Chatter,
     ChatterId,
     Conversation,
-    ConversationData,
+    ConversationChatterData,
     ConversationDataId,
-    ConversationId, ConversationPart,
+    ConversationId, ConversationMessageData, ConversationPart,
     ReadMarkers,
     State
 } from './state'
@@ -30,13 +30,15 @@ export enum ActionTypes {
     InstallChatter = 'INSTALL_CHATTER',
     InstallConversation = 'INSTALL_CONVERSATION',
     InstallConversationPart = 'INSTALL_CONVERSATION_PART',
-    UpdateConversationAddMessage = 'UPDATE_CONVERSATION_ADD_EVENT',
+    UpdateConversationAddMessage = 'UPDATE_CONVERSATION_ADD_MESSAGE',
+    UpdateConversationAddChatter = 'UPDATE_CONVERSATION_ADD_CHATTER',
     UpdateConversationMarkAsRead = 'UPDATE_CONVERSATION_MARKER_AS_READ',
     // USER
     SetChatterId = 'SET_CHATTER_ID',
     SendMessage = 'SEND_MESSAGE',
     MarkAsRead = 'MARK_AS_READ',
     CreateConversation = 'CREATE_CONVERSATION',
+    InviteChatter = 'INVITE_CHATTER',
 }
 
 type ActionAugments = Omit<ActionContext<State, State>, 'commit'> & {
@@ -63,13 +65,15 @@ export type Actions = {
     [ActionTypes.InstallChatter](context: ActionAugments, chatter: Chatter): void
     [ActionTypes.InstallConversation](context: ActionAugments, conversation: Conversation): void
     [ActionTypes.InstallConversationPart](context: ActionAugments, conversation: ConversationPart): void
-    [ActionTypes.UpdateConversationAddMessage](context: ActionAugments, value: { conversationId: ConversationId, conversationData: ConversationData[] }): void
+    [ActionTypes.UpdateConversationAddMessage](context: ActionAugments, value: { conversationId: ConversationId, conversationMessageData: ConversationMessageData }): void
+    [ActionTypes.UpdateConversationAddChatter](context: ActionAugments, value: { conversationId: ConversationId, conversationChatterData: ConversationChatterData }): void
     [ActionTypes.UpdateConversationMarkAsRead](context: ActionAugments, value: { conversationId: ConversationId, readMarkers: ReadMarkers }): void
     // USER
     [ActionTypes.SetChatterId](context: ActionAugments, value: { chatterId: ChatterId }): void
     [ActionTypes.SendMessage](context: ActionAugments, value: { chatterId: ChatterId, conversationId: ConversationId, message: string }): void
     [ActionTypes.MarkAsRead](context: ActionAugments, value: { chatterId: ChatterId, conversationId: ConversationId, conversationDataId: ConversationDataId }): void
     [ActionTypes.CreateConversation](context: ActionAugments, value: { chatterId: ChatterId, name: string, participants: ChatterId[], dialogue: boolean }): void
+    [ActionTypes.InviteChatter](context: ActionAugments, value: { chatterId: ChatterId, conversationId: ConversationId, invitedChatterId: ChatterId}): void
 }
 
 // const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
@@ -124,10 +128,16 @@ export const actions: ActionTree<State, State> & Actions = {
     async [ActionTypes.InstallConversationPart]({commit}, conversation) {
         commit(MutationType.InstallConversationPart, conversation)
     },
-    async [ActionTypes.UpdateConversationAddMessage]({commit}, {conversationId, conversationData}) {
+    async [ActionTypes.UpdateConversationAddMessage]({commit}, {conversationId, conversationMessageData}) {
         commit(MutationType.UpdateConversationAddMessage, {
             conversationId,
-            conversationData
+            conversationMessageData
+        })
+    },
+    async [ActionTypes.UpdateConversationAddChatter]({commit}, {conversationId, conversationChatterData}) {
+        commit(MutationType.UpdateConversationAddChatter, {
+            conversationId,
+            conversationChatterData
         })
     },
     async [ActionTypes.UpdateConversationMarkAsRead]({commit}, {conversationId, readMarkers}) {
@@ -144,5 +154,8 @@ export const actions: ActionTree<State, State> & Actions = {
     },
     async [ActionTypes.CreateConversation](context, {chatterId, name, participants, dialogue}) {
         await chatApiClient.createConversation(chatterId, name, participants, dialogue)
+    },
+    async [ActionTypes.InviteChatter](context, {chatterId, conversationId, invitedChatterId}) {
+        await chatApiClient.inviteChatter(chatterId, conversationId, invitedChatterId)
     },
 }

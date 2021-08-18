@@ -30,6 +30,10 @@ public class ChatCommands {
         return new MarkConversationAsReadCommand(this.timeService, this.conversationStore, this.chatterStore, this.conversationEventPublisher);
     }
 
+    public InviteChatterCommand inviteChatter() {
+        return new InviteChatterCommand(this.timeService, this.conversationStore, this.chatterStore, this.conversationEventPublisher);
+    }
+
     // leave conversation
     // invite to conversation
 }
