@@ -5,12 +5,15 @@
       <button @click="scrollToBottom">⬇</button>
     </div>
     <div class="conversation-messages__wrapper" ref="messagesContainer" @scroll.passive="handleScroll">
-      <div class="conversation-messages__per-day" v-for="(dailyMessagePacksOfDay, index) in dailyMessagePacksPerDay"
+      <ConversationReadMarkers :markers="positionedReadMarkers" />
+      <div class="conversation-messages__per-day"
+           v-for="(dailyMessagePacksOfDay, index) in dailyMessagePacksPerDay"
            :key="index">
 
         <div class="separator">{{ $filters.date(dailyMessagePacksOfDay[0][0].dateTime * 1000) }}</div>
 
-        <div class="conversation-messages__per-day-packs" v-for="(dailyMessagePack, index2) in dailyMessagePacksOfDay"
+        <div class="conversation-messages__per-day-packs"
+             v-for="(dailyMessagePack, index2) in dailyMessagePacksOfDay"
              :key="index2">
           <div v-if="dailyMessagePack[0].type === 'MESSAGE'">
             <div class="conversation-messages__per-day-packs-author"
@@ -20,16 +23,19 @@
               </strong> @ {{ $filters.timeToMinutes(dailyMessagePack[0].dateTime * 1000) }}
             </div>
             <div class="conversation-messages__per-day-packs-pack">
-              <ConversationMessage v-for="(dailyMessage, index3) in dailyMessagePack"
-                                   :key="index3"
+              <ConversationMessage v-for="dailyMessage in dailyMessagePack"
                                    :message-data="dailyMessage"
-                                   v-observe-visibility="index3 === dailyMessagePack.length - 1 && dailyMessage.watchVisible
+                                   :key="dailyMessage.id"
+                                   :ref="el => { if (el) divs[dailyMessage.index] = el }"
+                                   v-observe-visibility="dailyMessage.watchVisible
                                    ? markViewedMessage(dailyMessage)
                                    : false"/>
+              <!--  TODO: observe read message inside block ? -->
             </div>
           </div>
           <div v-if="dailyMessagePack[0].type === 'CHATTER'">
             <ConversationChatter :chatter-data="dailyMessagePack[0]"
+                                 :ref="el => { if (el) divs[dailyMessagePack[0].index] = el }"
                                  v-observe-visibility="dailyMessagePack[0].watchVisible
                                    ? markViewedMessage(dailyMessagePack[0])
                                    : false"/>
@@ -42,15 +48,17 @@
 
 <script lang="ts">
 /* eslint-disable no-debugger */
-import {computed, defineComponent, nextTick, onMounted, PropType, ref, toRefs, watch} from "vue";
+import {computed, defineComponent, nextTick, onBeforeUpdate, onMounted, PropType, ref, toRefs, watch} from "vue";
 import {ConversationDataWithMarkers} from "@/composables/use-conversation";
 import ConversationMessage from "@/components/chat/ConversationMessage.vue";
 import moment from "moment/moment";
 import {DateTime} from "luxon";
-import {ChatterId} from "@/store/state";
+import {ChatterId, ReadMarkers} from "@/store/state";
 import {useStore} from "@/store";
 import Chatter from "@/components/chat/Chatter.vue";
 import ConversationChatter from "@/components/chat/ConversationChatter.vue";
+import ConversationReadMarkers from "@/components/chat/ConversationReadMarkers.vue";
+import useConversationReadMarkers from "@/composables/use-conversation-read-markers";
 
 const groupBy = <K, V>(list: Array<V>, keyGetter: (input: V) => K): Map<K, Array<V>> => {
   const map = new Map();
@@ -75,7 +83,6 @@ const packSameUserSameBlockOfMessage = (dailyMessages: Array<ConversationDataWit
   let currentChatter: ChatterId = firstDailyMessage.from;
   let previousMessageDateTime: DateTime = DateTime.fromSeconds(firstDailyMessage.dateTime);
   let previousType = ''
-  debugger
   dailyMessages.forEach(dailyMessage => {
     if (dailyMessage.type === 'CHATTER') {
       // use next pack
@@ -111,20 +118,33 @@ const packSameUserSameBlockOfMessage = (dailyMessages: Array<ConversationDataWit
 
 export default defineComponent({
   name: "ConversationMessages",
-  components: {ConversationChatter, Chatter, ConversationMessage},
+  components: {ConversationReadMarkers, ConversationChatter, Chatter, ConversationMessage},
   props: {
-    conversationId: {
-      type: String,
-      required: true
-    },
     messages: {
       type: Object as PropType<ConversationDataWithMarkers[]>,
+      required: true
+    },
+    readMarkers: {
+      type: Object as PropType<ReadMarkers>,
       required: true
     }
   },
   setup(props) {
     const messagesContainer = ref<HTMLElement | null>(null)
+
     const store = useStore();
+    const {messages, readMarkers} = toRefs(props)
+
+    const dailyMessagePacksPerDay = ref<Array<Array<Array<ConversationDataWithMarkers>>>>([])
+    const computeDailyMessagePacksPerDay = () => {
+      const packsPerDay: Array<Array<Array<ConversationDataWithMarkers>>> = []
+      const messagesByDay: Map<string, Array<ConversationDataWithMarkers>> = groupBy(messages.value, m => "" + moment(m.dateTime * 1000).year() + moment(m.dateTime * 1000).dayOfYear());
+      messagesByDay.forEach((dailyMessages) => {
+        packsPerDay.push(packSameUserSameBlockOfMessage(dailyMessages))
+      })
+      dailyMessagePacksPerDay.value = packsPerDay
+    }
+
     const shouldStickToBottom = ref<boolean>(true)
     const scrollToBottom = () => {
       nextTick(() => {
@@ -134,14 +154,19 @@ export default defineComponent({
         }
       })
     };
-
-    const {conversationId, messages} = toRefs(props)
     onMounted(scrollToBottom)
-    watch(conversationId, scrollToBottom)
+
+
+    const {divs, clearDivs, positionedReadMarkers, updateReadMarkers} = useConversationReadMarkers(readMarkers, messages)
+    onBeforeUpdate(clearDivs)
+    onMounted(updateReadMarkers)
+
     watch(messages, (newMessages) => {
       if (shouldStickToBottom.value || newMessages.length > 0 && newMessages[newMessages.length - 1].from === store.state.chatterId) {
         scrollToBottom()
       }
+      computeDailyMessagePacksPerDay()
+      updateReadMarkers();
     })
     watch(() => store.state.ui.visible, (screenVisible) => {
       // note: one could delay and debounce
@@ -153,14 +178,6 @@ export default defineComponent({
       }
     })
 
-    const dailyMessagePacksPerDay = computed(() => {
-      const packsPerDay: Array<Array<Array<ConversationDataWithMarkers>>> = []
-      const messagesByDay: Map<string, Array<ConversationDataWithMarkers>> = groupBy(messages.value, m => "" + moment(m.dateTime * 1000).year() + moment(m.dateTime * 1000).dayOfYear());
-      messagesByDay.forEach((dailyMessages) => {
-        packsPerDay.push(packSameUserSameBlockOfMessage(dailyMessages))
-      })
-      return packsPerDay
-    })
     const markViewedMessage = (dailyMessage: ConversationDataWithMarkers) => {
       return dailyMessage.watchVisible ? {
         callback: (isVisible: boolean) => {
@@ -180,6 +197,7 @@ export default defineComponent({
     })
 
     const handleScroll = (e: any) => {
+      // console.log('scrollTop', e.target.scrollTop, 'scrollHeight', e.target.scrollHeight, 'offsetHeight', e.target.offsetHeight)
       shouldStickToBottom.value = e.target.scrollTop === e.target.scrollHeight - e.target.offsetHeight
     }
 
@@ -191,6 +209,8 @@ export default defineComponent({
       hasNewMessage,
       handleScroll,
       shouldStickToBottom,
+      divs,
+      positionedReadMarkers,
     }
   }
 });

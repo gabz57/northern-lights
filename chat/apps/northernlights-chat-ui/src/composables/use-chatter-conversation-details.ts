@@ -1,7 +1,7 @@
 /* eslint-disable no-debugger */
 
-import {computed, onMounted, reactive, Ref, ref, watch} from 'vue';
-import {ChatterId, Conversation, ConversationDataId, ConversationId,} from "@/store/state";
+import {computed, reactive, Ref} from 'vue';
+import {ChatterId, ConversationDataId, ConversationId,} from "@/store/state";
 import {useStore} from "@/store";
 
 export type ChatterConversationDetails = {
@@ -18,20 +18,7 @@ export default function useChatterConversationDetails(chatterIdRef: Ref<ChatterI
 } {
     const store = useStore()
 
-    // const conversationRef = ref<Conversation>()
     const conversationRef = computed(() => store.getters.getDirectConversationByChatterId(chatterIdRef.value))
-
-    //
-    //
-    // const getConversation = () => {
-    //     const conversation = store.getters.getDirectConversationByChatterId(chatterIdRef.value);
-    //     if (conversation !== undefined) {
-    //         conversationRef.value = conversation
-    //     }
-    // }
-    //
-    // onMounted(getConversation)
-    // watch(chatterIdRef, getConversation)
 
     const details: ChatterConversationDetails = reactive({
         id: computed(() => conversationRef.value?.id),

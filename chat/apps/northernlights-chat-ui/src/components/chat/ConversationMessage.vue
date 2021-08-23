@@ -1,7 +1,7 @@
 <template>
-  <div>
-    <span>> {{ data.value.message }}</span>
-    <span v-if="data.value.readBy.length > 0"><br/>Read by [{{ data.value.readBy.join(", ") }}]</span>
+  <div class="conversation-message">
+    <div class="conversation-message__content">> {{ data.value.message }}</div>
+<!--    <span v-if="data.value.readBy.length > 0"><br/>Read by [{{ data.value.readBy.join(", ") }}]</span>-->
   </div>
 </template>
 
@@ -29,6 +29,10 @@ export default defineComponent({
 
 </script>
 
-<style scoped>
-
+<style scoped lang="scss">
+.conversation-message {
+  &__content {
+    max-width: fit-content;
+  }
+}
 </style>

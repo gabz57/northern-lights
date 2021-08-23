@@ -3,25 +3,24 @@
     <div class="conversation__separator"/>
     <div class="conversation__messages">
       <h1 class="conversation__messages-header">{{ details.name || "&nbsp;" }}</h1>
-      <ConversationMessages class="conversation__messages-messages" :conversationId="conversationId" :messages="messages"/>
-      <ConversationInput class="conversation__messages-input" @sendMessage="(message) => sendMessage(message)"/>
+      <ConversationMessages class="conversation__messages-messages" :messages="messages" :read-markers="readMarkers"/>
+      <ConversationInput class="conversation__messages-input" @sendMessage="sendMessage"/>
     </div>
     <div class="conversation__separator"/>
-    <ConversationDetails class="conversation__details" :details="details" />
+    <ConversationDetails class="conversation__details" :details="details"/>
   </div>
 </template>
 
 <script lang="ts">
 import useConversation from "@/composables/use-conversation";
-import {defineComponent, toRefs} from "vue";
+import {defineComponent, toRef} from "vue";
 import ConversationMessages from "@/components/chat/ConversationMessages.vue";
 import ConversationDetails from "@/components/chat/ConversationDetails.vue";
-import {ConversationDataId} from "@/store/state";
 import ConversationInput from "@/components/chat/ConversationInput.vue";
 
 export default defineComponent({
   name: "Conversation",
-  components: {ConversationInput, ConversationDetails, ConversationMessages},
+  components: {ConversationMessages, ConversationInput, ConversationDetails},
   props: {
     conversationId: {
       type: String,
@@ -29,18 +28,8 @@ export default defineComponent({
     }
   },
   setup(props) {
-    const {conversationId} = toRefs(props)
-    const {details, messages, sendMessage, markAsRead} = useConversation(conversationId)
-
     return {
-      details,
-      messages,
-      sendMessage: (message: string) => {
-        sendMessage(message);
-      },
-      markAsRead: (conversationDataId: ConversationDataId) => {
-        markAsRead(conversationDataId)
-      }
+      ...useConversation(toRef(props, 'conversationId'))
     }
   }
 
@@ -63,6 +52,7 @@ export default defineComponent({
     width: 1px;
     background-color: #8599ad;
   }
+
   &__messages {
     flex-shrink: 0;
     flex-grow: 1;
@@ -77,15 +67,18 @@ export default defineComponent({
       line-height: $conversation-messages-header-height;
       margin: 0;
     }
+
     &-messages {
       flex-grow: 1;
       flex-shrink: 1;
     }
+
     &-input {
       flex-grow: 0;
       flex-shrink: 0;
     }
   }
+
   &__details {
     width: 220px;
     flex-shrink: 0;

@@ -1,6 +1,6 @@
 /* eslint-disable no-debugger */
 
-import {computed, onMounted, Ref, ref, watch} from 'vue';
+import {computed, onMounted, Ref, ref, watch, ComputedRef} from 'vue';
 import {
     ChatterId,
     Conversation,
@@ -13,9 +13,10 @@ import {useStore} from "@/store";
 import {ActionTypes} from "@/store/actions";
 import useConversationDetails, {ConversationDetails} from "@/composables/use-conversation-details";
 
-export type ReadMarkersReversed = Map<ConversationDataId, ChatterId[]>;
+type ReadMarkersReversed = Map<ConversationDataId, ChatterId[]>;
 
 export type Markers = {
+    index: number,
     readBy: ChatterId[],
     onVisible: () => void
     watchVisible: boolean
@@ -27,7 +28,8 @@ export default function useConversation(conversationIdRef: Ref<ConversationId>):
     messages: Ref<ConversationDataWithMarkers[]>;
     details: ConversationDetails;
     sendMessage: (message: string) => void;
-    markAsRead: (conversationDataId: ConversationDataId) => void
+    markAsRead: (conversationDataId: ConversationDataId) => void;
+    readMarkers: Ref<ReadMarkers>
 } {
     const store = useStore()
 
@@ -55,10 +57,8 @@ export default function useConversation(conversationIdRef: Ref<ConversationId>):
 
     const withReadMarkers = (data: ConversationData[], readMarkers: ReadMarkers): ConversationDataWithMarkers[] => {
         const reversed: ReadMarkersReversed = reverse(readMarkers);
-
         const lastConversationDataIdSeenByChatter: ConversationDataId | undefined = maxConversationDataId(lastEmittedReadMarkerRef.value, readMarkers.get(store.state.chatterId || ""));
-        debugger
-
+        let index = 0
         return data.map(conversationData => {
             const watchVisible = !lastConversationDataIdSeenByChatter || conversationData.id > lastConversationDataIdSeenByChatter;
             return {
@@ -68,6 +68,7 @@ export default function useConversation(conversationIdRef: Ref<ConversationId>):
                 onVisible: () => {
                     watchVisible && markAsRead(conversationData.id)
                 },
+                index: index++
             }
         })
     }
@@ -107,11 +108,13 @@ export default function useConversation(conversationIdRef: Ref<ConversationId>):
             conversationRef.value?.readMarkers || new Map<ChatterId, ConversationDataId>()
         )
     )
+    const readMarkers = computed(() => conversationRef.value?.readMarkers || new Map<ChatterId, ConversationDataId>())
 
     return {
         details: useConversationDetails(conversationIdRef).details,
-        messages,
         sendMessage,
-        markAsRead
+        markAsRead,
+        messages,
+        readMarkers,
     };
 }
