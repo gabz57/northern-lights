@@ -30,7 +30,6 @@
                                    v-observe-visibility="dailyMessage.watchVisible
                                    ? markViewedMessage(dailyMessage)
                                    : false"/>
-              <!--  TODO: observe read message inside block ? -->
             </div>
           </div>
           <div v-if="dailyMessagePack[0].type === 'CHATTER'">
@@ -185,7 +184,7 @@ export default defineComponent({
             dailyMessage.onVisible()
           }
         },
-        throttle: 1500,
+        // throttle: 1500,
         // once: true,
       } : false
     }

@@ -44,7 +44,7 @@ export default function useConversation(conversationIdRef: Ref<ConversationId>):
         })
         return reversed;
     }
-    const lastEmittedReadMarkerRef = ref<ConversationDataId | undefined>()
+    const lastEmittedReadMarkerRef = ref<ConversationDataId>()
     const maxConversationDataId = (a: ConversationDataId | undefined, b: ConversationDataId | undefined): ConversationDataId | undefined => {
         if (a === undefined) {
             return b

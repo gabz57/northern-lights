@@ -2,9 +2,20 @@
 
 import {ConversationDataId, ConversationId} from "@/store/state";
 
+const debounceFetch = <Params extends never[]>(func: (...args: Params) => Promise<Response>, timeout = 300): (...args: Params) => void => {
+    let timer: ReturnType<typeof setTimeout>;
+    return (...args: Params) => {
+        clearTimeout(timer)
+        timer = setTimeout(() => func(...args), timeout)
+    }
+};
+
 class ChatApiClient {
 
+    private lastEmittedConversationDataIdPerConversationId = new Map<string, string>();
+
     async authent(userId: string, conversationStatuses: () => Map<ConversationId, ConversationDataId>): Promise<string> {
+        this.lastEmittedConversationDataIdPerConversationId.clear();
         return (await (await ChatApiClient.fetch(userId, "auth", {
             conversationStatuses: conversationStatuses()
         })).json()).sseChatKey
@@ -26,10 +37,16 @@ class ChatApiClient {
     }
 
     async markAsRead(userId: string, conversationId: string, conversationDataId: string): Promise<void> {
-        await ChatApiClient.fetch(userId, "mark-as-read", {
-            conversationId,
-            conversationDataId
-        })
+        const lastEmittedConversationDataId = this.lastEmittedConversationDataIdPerConversationId.get(conversationId);
+        if (lastEmittedConversationDataId === undefined || lastEmittedConversationDataId < conversationDataId) {
+            this.lastEmittedConversationDataIdPerConversationId.set(conversationId, conversationDataId)
+        }
+        debounceFetch(() => ChatApiClient.fetch(userId, "mark-as-read", {
+                conversationId,
+                conversationDataId
+            }),
+            1500
+        )()
     }
 
     async inviteChatter(userId: string, conversationId: string, invitedChatterId: string): Promise<void> {
