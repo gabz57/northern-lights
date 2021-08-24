@@ -6,19 +6,19 @@
         <strong>Name: </strong>{{ details.name }}<br/>
         <strong>Created: </strong><br/>
         <strong>By: </strong>
-        <Chatter v-if="details.createdBy" :chatter-id="details.createdBy"/>
+        <ChatterLabel v-if="details.createdBy" :chatter-id="details.createdBy"/>
         <br/>
         <strong>At: </strong>{{ $filters.dateTime(details.createdAt * 1000) }}
       </div>
       <div>
         <strong>Members: </strong><br/>
         <span v-for="chatterId in details.participants" :key="chatterId">
-          - <Chatter :chatter-id="chatterId"/><br/>
+          - <ChatterLabel :chatter-id="chatterId"/><br/>
         </span>
         <div v-if="!details.dialogue">
           <input placeholder="Invite chatter..." v-model="invitedChatterName" style="width: 100%">
           <div v-for="chatter in invitableChatters" :key="chatter.id">
-            <Chatter :chatter-id="chatter.id"/>
+            <ChatterLabel :chatter-id="chatter.id"/>
             <button @click="() => inviteChatter(chatter)">+</button>
           </div>
         </div>
@@ -28,16 +28,16 @@
 </template>
 
 <script lang="ts">
-import {computed, defineComponent, PropType, ref, toRefs, watch} from "vue";
-import {ConversationDetails} from "@/composables/use-conversation-details";
-import Chatter from "@/components/chat/Chatter.vue";
+import {computed, defineComponent, PropType, ref, watch} from "vue";
+import {useStore} from "@/store";
 import {Chatter as ChatterState, ChatterId} from "@/store/state";
 import {ActionTypes} from "@/store/actions";
-import {useStore} from "@/store";
+import {ConversationDetails} from "@/composables/use-conversation-details";
+import ChatterLabel from "@/components/chat/ChatterLabel.vue";
 
 export default defineComponent({
   name: "ConversationDetails",
-  components: {Chatter},
+  components: {ChatterLabel},
   props: {
     details: {
       type: Object as PropType<ConversationDetails>,
@@ -58,8 +58,6 @@ export default defineComponent({
       })
       invitedChatterName.value = ""
     }
-    // const {details} = toRefs(props)
-    // const {} = toRefs(details)
     const invitedChatters = computed(() => props.details.participants)
     watch([invitedChatterName, invitedChatters], ([chatterName]) => {
       const notCurrentChatter = (chatter: ChatterState, currentChatterId: ChatterId) => chatter.id !== currentChatterId;
@@ -69,6 +67,7 @@ export default defineComponent({
       if (chatterName.length === 0) {
         invitableChatters.value = []
       } else {
+        // TODO: use chatter search
         for (let chatter of store.state.chatters.values()) {
           if (chatter.name.includes(chatterName)) {
             nextSelectableChatters.push(chatter)

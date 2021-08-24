@@ -8,7 +8,7 @@
 </template>
 
 <script lang="ts">
-import {defineComponent, toRefs} from "vue";
+import {defineComponent, toRef} from "vue";
 import useConversationDetails from "@/composables/use-conversation-details";
 
 export default defineComponent({
@@ -20,10 +20,8 @@ export default defineComponent({
     },
   },
   setup(props) {
-    const {conversationId} = toRefs(props)
-
     return {
-      details: useConversationDetails(conversationId).details
+      ...useConversationDetails(toRef(props, 'conversationId'))
     }
   }
 });
@@ -35,6 +33,8 @@ export default defineComponent({
   display: flex;
   justify-content: space-between;
   padding: 0.4rem 1rem;
+  align-items: center;
+
   &--with-new-message {
     font-weight: bold;
   }

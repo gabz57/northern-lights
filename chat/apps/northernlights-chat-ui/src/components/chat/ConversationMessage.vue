@@ -1,12 +1,11 @@
 <template>
   <div class="conversation-message">
     <div class="conversation-message__content">> {{ data.value.message }}</div>
-<!--    <span v-if="data.value.readBy.length > 0"><br/>Read by [{{ data.value.readBy.join(", ") }}]</span>-->
   </div>
 </template>
 
 <script lang="ts">
-import {computed, ComputedRef, defineComponent, PropType, Ref, toRefs} from "vue";
+import {computed, ComputedRef, defineComponent, PropType, Ref, toRef} from "vue";
 import {ConversationDataWithMarkers, Markers} from "@/composables/use-conversation";
 import {ConversationMessageData} from "@/store/state";
 
@@ -19,10 +18,8 @@ export default defineComponent({
     }
   },
   setup(props) {
-    const {messageData} = toRefs(props)
-
     return {
-      data: computed(() => messageData) as ComputedRef<Ref<ConversationMessageData & Markers>>
+      data: computed(() => toRef(props, 'messageData')) as ComputedRef<Ref<ConversationMessageData & Markers>>
     }
   }
 });

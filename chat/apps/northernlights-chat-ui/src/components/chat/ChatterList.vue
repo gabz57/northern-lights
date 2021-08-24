@@ -1,22 +1,22 @@
 <template>
   <div class="chatter-list">
-    <ChatterListElement v-for="(chatter) in chatters" :key="chatter.id"
-                        :chatter-id="chatter.id" />
+    <ChatterListElement v-for="(chatterId) in chatterIds" :key="chatterId" :chatter-id="chatterId"/>
   </div>
 </template>
 
 <script lang="ts">
 /* eslint-disable no-debugger */
 
-import {defineComponent} from "vue";
+import {defineComponent, PropType} from "vue";
 import ChatterListElement from "@/components/chat/ChatterListElement.vue";
+import {ChatterId} from "@/store/state";
 
 export default defineComponent({
   name: "ChatterList",
   components: {ChatterListElement},
   props: {
-    chatters: {
-      type: Array,
+    chatterIds: {
+      type: Object as PropType<ChatterId[]>,
       required: true
     },
   },

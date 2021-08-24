@@ -1,34 +1,29 @@
 <template>
   <div>
-    <span style="color: #8599ad">{{ data.value.chatterId }} joined the conversation</span>
-    <span v-if="data.value.readBy.length > 0"><br/>Read by [{{ data.value.readBy.join(", ") }}]</span>
+    <span style="color: #8599ad">
+      <ChatterLabel :chatter-id="chatterData.chatterId" /> joined the conversation
+    </span>
   </div>
 </template>
 
 <script lang="ts">
-import {computed, ComputedRef, defineComponent, PropType, Ref, toRefs} from "vue";
-import {ConversationDataWithMarkers, Markers} from "@/composables/use-conversation";
-import {ConversationChatterData, ConversationMessageData} from "@/store/state";
+import {defineComponent, PropType} from "vue";
+import {ConversationChatterData} from "@/store/state";
+import ChatterLabel from "@/components/chat/ChatterLabel.vue";
 
 export default defineComponent({
   name: "ConversationChatter",
+  components: {ChatterLabel},
   props: {
     chatterData: {
-      type: Object as PropType<ConversationDataWithMarkers>,
+      type: Object as PropType<ConversationChatterData>,
       required: true
     }
   },
-  setup(props) {
-    const {chatterData} = toRefs(props)
-
-    return {
-      data: computed(() => chatterData) as ComputedRef<Ref<ConversationChatterData & Markers>>
-    }
-  }
 });
 
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 
 </style>

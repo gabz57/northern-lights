@@ -24,6 +24,12 @@ export default defineComponent({
       },
       onBlur: () => {
         store.dispatch(ActionTypes.UpdateChatVisibility, false);
+      },
+      onOnline: () => {
+        store.dispatch(ActionTypes.UpdateNavigatorOnlineStatus, true);
+      },
+      onOffline: () => {
+        store.dispatch(ActionTypes.UpdateNavigatorOnlineStatus, false);
       }
     }
   },
@@ -32,13 +38,16 @@ export default defineComponent({
     window.addEventListener('visibilitychange', this.onVisibilitychange)
     window.addEventListener('focus', this.onFocus)
     window.addEventListener('blur', this.onBlur)
+    window.addEventListener('offline', this.onOffline);
+    window.addEventListener('online', this.onOnline);
   },
 
   unmounted() {
     window.removeEventListener('visibilitychange', this.onVisibilitychange)
     window.removeEventListener('focus', this.onFocus)
     window.removeEventListener('blur', this.onBlur)
-  }
+    window.removeEventListener('offline', this.onOffline);
+    window.removeEventListener('online', this.onOnline);  }
 });
 </script>
 

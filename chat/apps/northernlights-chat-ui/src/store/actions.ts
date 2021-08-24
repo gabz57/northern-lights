@@ -6,7 +6,9 @@ import {
     Conversation,
     ConversationChatterData,
     ConversationDataId,
-    ConversationId, ConversationMessageData, ConversationPart,
+    ConversationId,
+    ConversationMessageData,
+    ConversationPart, Profile,
     ReadMarkers,
     State
 } from './state'
@@ -14,8 +16,10 @@ import {chatApiClient} from "@/services/ChatApiClient";
 
 export enum ActionTypes {
     // UI status
+    UpdateNavigatorOnlineStatus = "UPDATE_NAVIGATOR_ONLINE_STATUS",
     UpdateChatVisibility = "UPDATE_CHAT_VISIBILITY",
     SetSelectedConversationId = 'SET_SELECTED_CONVERSATION_ID',
+    DeselectConversationId = 'DESELECT_CONVERSATION_ID',
     SetEditingProfile = 'SET_EDITING_PROFILE',
     SetCreatingConversation = 'SET_CREATING_CONVERSATION',
     // SSE Mngt
@@ -27,6 +31,7 @@ export enum ActionTypes {
     DisableSseAutoConnect = "DISABLE_SSE_AUTO_CONNECT",
     ClearChatterState = "CLEAR_CHATTER_STATE",
     // SSE
+    InstallProfile = 'INSTALL_PROFILE',
     InstallChatter = 'INSTALL_CHATTER',
     InstallConversation = 'INSTALL_CONVERSATION',
     InstallConversationPart = 'INSTALL_CONVERSATION_PART',
@@ -48,8 +53,10 @@ type ActionAugments = Omit<ActionContext<State, State>, 'commit'> & {
     ): ReturnType<Mutations[K]>
 }
 export type Actions = {
+    [ActionTypes.UpdateNavigatorOnlineStatus](context: ActionAugments, isOnline: boolean): void
     [ActionTypes.UpdateChatVisibility](context: ActionAugments, isVisible: boolean): void
     [ActionTypes.SetSelectedConversationId](context: ActionAugments, conversationId: ConversationId): void
+    [ActionTypes.DeselectConversationId](context: ActionAugments): void
     [ActionTypes.SetEditingProfile](context: ActionAugments, enabled: boolean): void
     [ActionTypes.SetCreatingConversation](context: ActionAugments, enabled: boolean): void
     // SSE Mngt
@@ -62,6 +69,7 @@ export type Actions = {
     [ActionTypes.ClearChatterState](context: ActionAugments): void
 
     // SSE
+    [ActionTypes.InstallProfile](context: ActionAugments, chatter: Profile): void
     [ActionTypes.InstallChatter](context: ActionAugments, chatter: Chatter): void
     [ActionTypes.InstallConversation](context: ActionAugments, conversation: Conversation): void
     [ActionTypes.InstallConversationPart](context: ActionAugments, conversation: ConversationPart): void
@@ -73,11 +81,14 @@ export type Actions = {
     [ActionTypes.SendMessage](context: ActionAugments, value: { chatterId: ChatterId, conversationId: ConversationId, message: string }): void
     [ActionTypes.MarkAsRead](context: ActionAugments, value: { chatterId: ChatterId, conversationId: ConversationId, conversationDataId: ConversationDataId }): void
     [ActionTypes.CreateConversation](context: ActionAugments, value: { chatterId: ChatterId, name: string, participants: ChatterId[], dialogue: boolean }): void
-    [ActionTypes.InviteChatter](context: ActionAugments, value: { chatterId: ChatterId, conversationId: ConversationId, invitedChatterId: ChatterId}): void
+    [ActionTypes.InviteChatter](context: ActionAugments, value: { chatterId: ChatterId, conversationId: ConversationId, invitedChatterId: ChatterId }): void
 }
 
 // const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
 export const actions: ActionTree<State, State> & Actions = {
+    async [ActionTypes.UpdateNavigatorOnlineStatus]({commit}, isOnline: boolean) {
+        commit(MutationType.UpdateNavigatorOnlineStatus, isOnline)
+    },
     async [ActionTypes.UpdateChatVisibility]({commit}, isVisible: boolean) {
         commit(MutationType.UpdateChatVisibility, isVisible)
     },
@@ -85,6 +96,9 @@ export const actions: ActionTree<State, State> & Actions = {
         commit(MutationType.SetSelectedConversationId, conversationId)
         commit(MutationType.SetEditingProfile, false)
         commit(MutationType.SetCreatingConversation, false)
+    },
+    async [ActionTypes.DeselectConversationId]({commit}) {
+        commit(MutationType.SetSelectedConversationId, undefined)
     },
     async [ActionTypes.SetEditingProfile]({commit}, enabled: boolean) {
         commit(MutationType.SetEditingProfile, enabled)
@@ -95,22 +109,18 @@ export const actions: ActionTree<State, State> & Actions = {
         commit(MutationType.SetEditingProfile, false)
     },
     async [ActionTypes.StoreSseOpenStatus]({commit}, isOpen: boolean) {
-        console.log("ActionTypes.StoreSseOpenStatus")
         commit(MutationType.UpdateSseOpenStatus, isOpen)
     },
     async [ActionTypes.StoreEventSource]({commit}, eventSource) {
-        console.log("ActionTypes.StoreEventSource")
         commit(MutationType.UpdateEventSource, eventSource)
     },
     async [ActionTypes.EnableSseWanted]({commit}) {
-        console.log("ActionTypes.EnableSseWanted")
         commit(MutationType.SetSseWanted, true)
     },
     async [ActionTypes.DisableSseWanted]({commit}) {
-        console.log("ActionTypes.DisableSseWanted")
         commit(MutationType.SetSseWanted, false)
     },
-    async [ActionTypes.EnableSseAutoConnect]({commit}, ) {
+    async [ActionTypes.EnableSseAutoConnect]({commit}) {
         commit(MutationType.SetSseAutoConnect, true)
     },
     async [ActionTypes.ClearChatterState]({commit}) {
@@ -118,6 +128,9 @@ export const actions: ActionTree<State, State> & Actions = {
     },
     async [ActionTypes.DisableSseAutoConnect]({commit}) {
         commit(MutationType.SetSseAutoConnect, false)
+    },
+    async [ActionTypes.InstallProfile]({commit}, profile) {
+        commit(MutationType.InstallProfile, profile)
     },
     async [ActionTypes.InstallChatter]({commit}, chatter) {
         commit(MutationType.InstallChatter, chatter)

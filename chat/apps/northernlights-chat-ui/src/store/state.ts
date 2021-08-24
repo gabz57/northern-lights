@@ -1,5 +1,6 @@
 /** UI */
 export type Ui = {
+    online: boolean
     visible: boolean
     selectedConversationId?: ConversationId
     creatingConversation: boolean
@@ -23,6 +24,10 @@ export type Chatter = {
 }
 
 export type Chatters = Map<ChatterId, Chatter>;
+
+
+/** Profile */
+export type Profile = Chatter
 
 /** Conversations */
 export type ConversationId = string
@@ -71,6 +76,7 @@ export type State = {
     ui: Ui,
     sse: Sse,
     chatterId?: ChatterId,
+    profile?: Profile,
     chatters: Chatters,
     conversations: Conversations,
 }

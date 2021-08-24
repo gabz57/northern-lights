@@ -37,29 +37,34 @@ export default class SseChatService {
         }
     }
 
-    static openSse(sseChatKey: string, onOpen: () => void, onReconnection: () => void, onConnectionClosed: () => void): EventSource {
+    static openSse(
+        sseChatKey: string,
+        onOpen: () => void,
+        onReconnection: (e: { target: EventSource }) => void,
+        onConnectionClosed: (e: { target: EventSource }) => void
+    ): EventSource {
         const eventSource = new EventSourcePolyfill("http://localhost:8080/v1/chat/api/sse", {
             headers: {
                 "sse-chat-key": sseChatKey
             }
         });
         eventSource.onopen = (/*e: Event*/) => {
-            console.log('SSE is OPEN');
+            console.log('sse-chat-service> SSE is OPEN');
             onOpen()
         };
         eventSource.onmessage = (e: MessageEvent) => console.log('SSE message', JSON.parse(e.data));
-        eventSource.onerror = (e: any) => {
-            console.log('SSE error', e)
-            switch (e.target.readyState) {
+        eventSource.onerror = (e: { target: EventSource }) => {
+            console.log('sse-chat-service> SSE error', e)
+            switch (e.target?.readyState) {
 
                 case EventSource.CONNECTING:
-                    console.log('Reconnecting...');
-                    onReconnection()
+                    console.log('sse-chat-service> es.onerror', e);
+                    onReconnection(e)
                     break;
 
                 case EventSource.CLOSED:
-                    console.log('Connection failed, will not reconnect');
-                    onConnectionClosed()
+                    console.log('sse-chat-service> Connection failed, will not reconnect');
+                    onConnectionClosed(e)
                     break;
 
             }
@@ -67,10 +72,18 @@ export default class SseChatService {
         return eventSource;
     }
 
-    static bind(eventSource: EventSource, store: Store) {
+    static bind(eventSource: EventSource, store: Store): void {
+
+        // eventSource.addEventListener('PROFILE:INSTALL', (e: any) => {
+        //     const parse = JSON.parse(e.data);
+        //     store.dispatch(ActionTypes.InstallProfile, parse.profile);
+        // }, false);
 
         eventSource.addEventListener('CHATTER:INSTALL', (e: any) => {
             const parse = JSON.parse(e.data);
+            if (parse.chatter?.id == store.state.chatterId) {
+                store.dispatch(ActionTypes.InstallProfile, parse.chatter);
+            }
             store.dispatch(ActionTypes.InstallChatter, parse.chatter);
         }, false);
 
@@ -87,7 +100,6 @@ export default class SseChatService {
         }, false);
 
         eventSource.addEventListener('CONVERS:UPDATE:MESSAGE', (e: any) => {
-            console.log('CONVERS:UPDATE:MESSAGE', e.data)
             const parse = JSON.parse(e.data);
             store.dispatch(ActionTypes.UpdateConversationAddMessage, {
                 conversationId: parse.conversation.id,
@@ -96,7 +108,6 @@ export default class SseChatService {
         }, false);
 
         eventSource.addEventListener('CONVERS:UPDATE:READ_MARKER', (e: any) => {
-            console.log('CONVERS:UPDATE:READ_MARKER')
             const parse = JSON.parse(e.data);
             store.dispatch(ActionTypes.UpdateConversationMarkAsRead, {
                 conversationId: parse.conversation.id,
@@ -105,7 +116,6 @@ export default class SseChatService {
         }, false);
 
         eventSource.addEventListener('CONVERS:UPDATE:ADD_CHATTER', (e: any) => {
-            console.log('CONVERS:UPDATE:ADD_CHATTER')
             const parse = JSON.parse(e.data);
             store.dispatch(ActionTypes.UpdateConversationAddChatter, {
                 conversationId: parse.conversation.id,

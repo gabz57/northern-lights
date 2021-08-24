@@ -7,28 +7,19 @@
 </template>
 
 <script lang="ts">
-import {computed, defineComponent, PropType, toRefs} from "vue";
+import {defineComponent, PropType} from "vue";
 import ConversationListElement from "@/components/chat/ConversationListElement.vue";
-import {Conversation} from "@/store/state";
+import {ConversationId} from "@/store/state";
 
 export default defineComponent({
   name: "ConversationList",
   components: {ConversationListElement},
   props: {
-    conversations: {
-      type: Object as PropType<Conversation[]>,
+    conversationIds: {
+      type: Object as PropType<ConversationId[]>,
       required: true
     },
   },
-  setup(props) {
-    const {conversations} = toRefs(props)
-    const conversationIds = computed(() => conversations.value
-        .filter(conversation => conversation.dialogue === false)
-        .map(c => c.id))
-    return {
-      conversationIds: conversationIds,
-    }
-  }
 });
 
 </script>

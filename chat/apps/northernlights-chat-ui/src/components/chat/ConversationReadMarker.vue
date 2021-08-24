@@ -1,12 +1,6 @@
 <template>
   <div class="conversation-read-marker">
-    {{
-      chatterId === "1" ? "❤️"
-          : chatterId === "2" ? "😎"
-              : chatterId === "3" ? "🐈"
-                  : chatterId === "4" ? "🍃"
-                      : chatterId === "5" ? "🥶"  : "😈"
-    }}
+    {{ face }}
     <div class="conversation-read-marker__tooltip">{{ details.name }}</div>
   </div>
 </template>
@@ -14,6 +8,7 @@
 <script lang="ts">
 import {defineComponent, toRefs} from "vue";
 import useChatter from "@/composables/use-chatter";
+import useChatterFace from "@/composables/use-chatter-face";
 
 export default defineComponent({
   name: "ConversationReadMarker",
@@ -25,9 +20,9 @@ export default defineComponent({
   },
   setup(props) {
     const {chatterId} = toRefs(props)
-    const {details} = useChatter(chatterId)
     return {
-      details
+      ...useChatter(chatterId),
+      ...useChatterFace(chatterId)
     }
   }
 });

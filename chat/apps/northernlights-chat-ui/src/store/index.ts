@@ -7,6 +7,7 @@ import {Getters, getters} from "@/store/getters";
 
 const initialState: State = {
     ui: {
+        online: true,
         visible: true,
         selectedConversationId: undefined,
         editingProfile: false,
@@ -20,6 +21,7 @@ const initialState: State = {
     },
     chatterId: "0",
     chatters: new Map<ChatterId, Chatter>(),
+    profile: undefined,
     conversations: new Map<ConversationId, Conversation>(),
 }
 

@@ -19,7 +19,7 @@
             <div class="conversation-messages__per-day-packs-author"
                  :class="{'conversation-messages__per-day-packs-author--with-new-message': dailyMessagePack[dailyMessagePack.length - 1].watchVisible}">
               <strong>
-                <Chatter :chatter-id="dailyMessagePack[0].from"/>
+                <ChatterLabel :chatter-id="dailyMessagePack[0].from"/>
               </strong> @ {{ $filters.timeToMinutes(dailyMessagePack[0].dateTime * 1000) }}
             </div>
             <div class="conversation-messages__per-day-packs-pack">
@@ -54,7 +54,7 @@ import moment from "moment/moment";
 import {DateTime} from "luxon";
 import {ChatterId, ReadMarkers} from "@/store/state";
 import {useStore} from "@/store";
-import Chatter from "@/components/chat/Chatter.vue";
+import ChatterLabel from "@/components/chat/ChatterLabel.vue";
 import ConversationChatter from "@/components/chat/ConversationChatter.vue";
 import ConversationReadMarkers from "@/components/chat/ConversationReadMarkers.vue";
 import useConversationReadMarkers from "@/composables/use-conversation-read-markers";
@@ -117,7 +117,7 @@ const packSameUserSameBlockOfMessage = (dailyMessages: Array<ConversationDataWit
 
 export default defineComponent({
   name: "ConversationMessages",
-  components: {ConversationReadMarkers, ConversationChatter, Chatter, ConversationMessage},
+  components: {ConversationReadMarkers, ConversationChatter, ChatterLabel, ConversationMessage},
   props: {
     messages: {
       type: Object as PropType<ConversationDataWithMarkers[]>,

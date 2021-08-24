@@ -7,12 +7,13 @@ import {
     Conversation, ConversationChatterData,
     ConversationData,
     ConversationId, ConversationMessageData,
-    ConversationPart,
+    ConversationPart, Profile,
     ReadMarkers,
     State
 } from './state'
 
 export enum MutationType {
+    UpdateNavigatorOnlineStatus = 'UPDATE_NAVIGATOR_ONLINE_STATUS',
     UpdateChatVisibility = 'UPDATE_CHAT_VISIBILITY',
     UpdateSseOpenStatus = 'UPDATE_SSE_OPEN_STATUS',
     UpdateEventSource = 'UPDATE_EVENT_SOURCE',
@@ -23,6 +24,7 @@ export enum MutationType {
     SetSelectedConversationId = 'SET_SELECTED_CONVERSATION_ID',
     SetEditingProfile = 'SET_EDITING_PROFILE',
     SetCreatingConversation = 'SET_CREATING_CONVERSATION',
+    InstallProfile = 'INSTALL_PROFILE',
     InstallChatter = 'INSTALL_CHATTER',
     InstallConversation = 'INSTALL_CONVERSATION',
     InstallConversationPart = 'INSTALL_CONVERSATION_PART',
@@ -32,6 +34,7 @@ export enum MutationType {
 }
 
 export type Mutations = {
+    [MutationType.UpdateNavigatorOnlineStatus](state: State, isOnline: boolean): void
     [MutationType.UpdateChatVisibility](state: State, isVisible: boolean): void
     [MutationType.UpdateSseOpenStatus](state: State, isOpen: boolean): void
     [MutationType.UpdateEventSource](state: State, eventSource: EventSource): void
@@ -39,9 +42,10 @@ export type Mutations = {
     [MutationType.SetSseAutoConnect](state: State, enabled: boolean): void
     [MutationType.ClearChatterState](state: State): void
     [MutationType.SetChatterId](state: State, chatterId: ChatterId): void
-    [MutationType.SetSelectedConversationId](state: State, conversationID: ConversationId): void
+    [MutationType.SetSelectedConversationId](state: State, conversationID: ConversationId | undefined): void
     [MutationType.SetEditingProfile](state: State, enabled: boolean): void
     [MutationType.SetCreatingConversation](state: State, enabled: boolean): void
+    [MutationType.InstallProfile](state: State, profile: Profile): void
     [MutationType.InstallChatter](state: State, chatter: Chatter): void
     [MutationType.InstallConversation](state: State, conversation: Conversation): void
     [MutationType.InstallConversationPart](state: State, conversation: ConversationPart): void
@@ -60,22 +64,31 @@ export type Mutations = {
 }
 
 export const mutations: MutationTree<State> & Mutations = {
+    [MutationType.UpdateNavigatorOnlineStatus](state: State, isOnline: boolean) {
+        console.log("MutationType.UpdateNavigatorOnlineStatus", isOnline)
+        state.ui.online = isOnline
+    },
     [MutationType.UpdateChatVisibility](state: State, isVisible: boolean) {
+        console.log("MutationType.UpdateChatVisibility", isVisible)
         state.ui.visible = isVisible
     },
     [MutationType.UpdateSseOpenStatus](state: State, isOpen: boolean) {
+        console.log("MutationType.UpdateSseOpenStatus", isOpen)
         state.sse.sseOpen = isOpen
     },
     [MutationType.UpdateEventSource](state: State, eventSource: EventSource) {
         state.sse.eventSource = eventSource
     },
     [MutationType.SetSseWanted](state: State, wanted: boolean) {
+        console.log("MutationType.SetSseWanted", wanted)
         state.sse.sseWanted = wanted
     },
     [MutationType.SetSseAutoConnect](state: State, enabled: boolean) {
+        console.log("MutationType.SetSseAutoConnect", enabled)
         state.sse.sseAutoConnect = enabled
     },
     [MutationType.ClearChatterState](state: State) {
+        // state.ui.selectedConversationId = undefined;
         state.chatters.clear();
         state.conversations.clear()
     },
@@ -90,6 +103,9 @@ export const mutations: MutationTree<State> & Mutations = {
     },
     [MutationType.SetCreatingConversation](state, enabled) {
         state.ui.creatingConversation = enabled
+    },
+    [MutationType.InstallProfile](state, profile) {
+        state.profile = profile
     },
     [MutationType.InstallChatter](state, chatter) {
         state.chatters.set(chatter.id, chatter)

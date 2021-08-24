@@ -7,14 +7,13 @@
 <script lang="ts">
 /* eslint-disable no-debugger */
 
-import {getCurrentInstance, ref} from "vue";
+import {ref} from "vue";
 
 export default {
   name: 'ConversationInput',
   emits: ['sendMessage'],
-  setup() {
+  setup(props: any, {emit}: any) {
     const messageToSend = ref("")
-    const {emit} = getCurrentInstance() as NonNullable<ReturnType<typeof getCurrentInstance>>;
     const sendMessage = () => {
       emit('sendMessage', messageToSend.value);
       messageToSend.value = ""
@@ -34,6 +33,7 @@ export default {
   display: flex;
   height: $conversation-input-height;
   padding: 1rem;
+
   input {
     flex-grow: 1;
   }

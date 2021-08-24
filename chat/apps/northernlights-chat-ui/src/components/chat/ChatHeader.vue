@@ -1,49 +1,40 @@
 <template>
   <div class="chat-header">
     <div class="chat-header__connect" style="margin: auto;">
-      <input v-model="userId" @keydown.enter="setChatterId()"/>
-      <button @click="setChatterId()">CONNECT</button>
+      <input v-model="inputChatterId" @keydown.enter="setChatterId(inputChatterId)"/>
+      <button @click="setChatterId(inputChatterId)">CONNECT</button>
       <div class="chat-header__connect-status">
-        &nbsp;{{ sseState.sseOpen ? "\uD83D\uDFE2" : "\u26AA" }}
+        &nbsp;{{ sseStatus.sseOpen ? "\uD83D\uDFE2" : "\u26AA" }}
         <div class="chat-header__connect-status-tooltip">
-          <div>Sse AutoConnect : {{ sseState.sseAutoConnect }}</div>
-          <div>Sse Wanted : {{ sseState.sseWanted }}</div>
-          <div>Sse Open : {{ sseState.sseOpen }}</div>
+          <div>Sse AutoConnect : {{ sseStatus.sseAutoConnect }}</div>
+          <div>Sse Wanted : {{ sseStatus.sseWanted }}</div>
+          <div>Sse Open : {{ sseStatus.sseOpen }}</div>
         </div>
       </div>
-      <span class="chat-header__connect-body" v-if="sseState.sseOpen" @click="toggleEditingProfile">{{"\uD83D\uDC64"}}</span>
+      <div class="chat-header__connect-body" v-if="sseStatus.sseOpen" @click="toggleEditingProfile">{{ "\uD83D\uDC64" }}
+        <div class="chat-header__connect-body-tooltip">
+          <ChatterLabel v-if="profile" :chatter-id="profile?.id"/>
+        </div>
+      </div>
     </div>
   </div>
 </template>
 
 <script lang="ts">
 
-import {computed, defineComponent, ref} from "vue";
-import {useStore} from "@/store";
-import {ActionTypes} from "@/store/actions";
-import useSseState from "@/composables/use-sse-state";
+import {defineComponent, ref} from "vue";
+import ChatterLabel from "@/components/chat/ChatterLabel.vue";
+import useProfile from "@/composables/use-profile";
+import useSseStatus from "@/composables/use-sse-status";
 
 export default defineComponent({
   name: "ChatHeader",
+  components: {ChatterLabel},
   setup() {
-    const store = useStore()
-    const {state: sseState} = useSseState()
-    const userId = ref<string>("")
-
-    const setChatterId = () => {
-      store.dispatch(ActionTypes.SetChatterId, {chatterId: userId.value});
-    }
-    const editingProfile = computed(() => store.state.ui.editingProfile)
-
-    const toggleEditingProfile = () => {
-      store.dispatch(ActionTypes.SetEditingProfile, !editingProfile.value);
-    }
-
     return {
-      sseState,
-      userId,
-      setChatterId,
-      toggleEditingProfile,
+      inputChatterId: ref<string>(""),
+      ...useSseStatus(),
+      ...useProfile(),
     }
   }
 })
@@ -77,9 +68,30 @@ export default defineComponent({
         }
       }
     }
+
     &-body {
-      &:hover {
+      margin: auto;
+      position: relative;
+      display: inline-block;
+
+      &-tooltip {
+        visibility: hidden;
+        width: max-content;
+        background-color: black;
+        color: #fff;
+        text-align: center;
+        padding: 5px;
+        border-radius: 6px;
+        position: absolute;
+        z-index: 1;
+      }
+
+      &:hover & {
         cursor: pointer;
+
+        &-tooltip {
+          visibility: visible;
+        }
       }
     }
   }
