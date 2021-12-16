@@ -20,8 +20,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static java.util.stream.Collectors.toList;
-
 public class InMemoryConversationStore implements ConversationStore {
 
     private final Map<ConversationId, Conversation> conversations = new HashMap<>();
@@ -58,7 +56,7 @@ public class InMemoryConversationStore implements ConversationStore {
         return sinceConversationDataId != null
             ? Mono.just(new Conversation(conversations.get(conversationId).stream()
             .filter(conversationData -> conversationData.getConversationDataId().compareTo(sinceConversationDataId) > 0)
-            .collect(toList())))
+            .toList()))
             : Mono.just(new Conversation(conversations.get(conversationId)));
     }
 

@@ -16,8 +16,6 @@ public interface ChatterStore {
 
     Mono<Void> writeChatterJoined(ChatterJoinedEvent conversationEvent);
 
-//    Mono<Void> writeConversationUpdate(ConversationEvent conversationEvent, List<ChatterId> participants);
-
     Mono<List<ConversationId>> listConversationIds(ChatterId chatterId);
 
     Mono<List<Chatter>> listChatters(List<ChatterId> chatterIds);

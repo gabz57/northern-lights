@@ -1,11 +1,15 @@
 package io.northernlights.chat.api.infrastructure.client.http;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -32,10 +36,32 @@ public class SseChatPayload {
         private String to;
         private Boolean dialogue;
         private List<String> participants;
-        private List<? extends SseChatConversationData> data;
+        private SseChatConversationDataList data;
         private Map<String, String> readMarkers;// ChatterId.id <> ConversationDataId.id
     }
 
+    public static class SseChatConversationDataList extends ArrayList<SseChatConversationData> {
+        public SseChatConversationDataList() {
+            super();
+        }
+
+        public SseChatConversationDataList(Collection<? extends SseChatConversationData> c) {
+            super(c);
+        }
+
+        public static SseChatConversationDataList of(SseChatConversationData data) {
+            return new SseChatConversationDataList(List.of(data));
+        }
+    }
+
+    @JsonTypeInfo(
+        use = JsonTypeInfo.Id.NAME,
+        // include = JsonTypeInfo.As.PROPERTY,
+        property = "type")
+    @JsonSubTypes({
+        @JsonSubTypes.Type(value = SseChatConversationMessageData.class, name = "MESSAGE"),
+        @JsonSubTypes.Type(value = SseChatConversationChatterData.class, name = "CHATTER")
+    })
     public interface SseChatConversationData {
     }
 

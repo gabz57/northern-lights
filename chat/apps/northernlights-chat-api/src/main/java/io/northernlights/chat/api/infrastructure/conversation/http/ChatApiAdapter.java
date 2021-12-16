@@ -12,8 +12,6 @@ import io.northernlights.chat.domain.model.conversation.Message;
 import io.northernlights.chat.domain.model.conversation.data.ConversationDataId;
 import lombok.RequiredArgsConstructor;
 
-import java.util.stream.Collectors;
-
 import static io.northernlights.chat.api.application.conversation.CreateConversationCommand.CreateConversationCommandInput;
 import static io.northernlights.chat.api.application.conversation.CreateConversationCommand.CreateConversationCommandResult;
 import static io.northernlights.chat.api.application.conversation.MarkConversationAsReadCommand.MarkConversationAsReadCommandResult;
@@ -27,7 +25,7 @@ public class ChatApiAdapter {
         return CreateConversationCommandInput.builder()
             .creator(new ChatterId(issuer))
             .conversationName(request.getName())
-            .participants(request.getParticipants().stream().map(ChatterId::new).collect(Collectors.toList()))
+            .participants(request.getParticipants().stream().map(ChatterId::new).toList())
             .dialogue(request.getDialogue())
             .build();
     }

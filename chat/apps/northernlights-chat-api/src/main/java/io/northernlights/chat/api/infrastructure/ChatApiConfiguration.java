@@ -2,7 +2,7 @@ package io.northernlights.chat.api.infrastructure;
 
 import io.northernlights.api.core.infrastructure.security.NorthernLightsPrincipal;
 import io.northernlights.api.core.infrastructure.security.config.SecurityConfiguration;
-import io.northernlights.commons.TimeService;
+import io.northernlights.commons.TimeConfiguration;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -19,41 +19,19 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.util.AntPathMatcher;
-import org.springframework.web.reactive.config.*;
+import org.springframework.web.reactive.config.CorsRegistry;
+import org.springframework.web.reactive.config.EnableWebFlux;
+import org.springframework.web.reactive.config.ViewResolverRegistry;
+import org.springframework.web.reactive.config.WebFluxConfigurer;
 import org.springframework.web.reactive.function.server.*;
-import org.springframework.web.reactive.resource.WebJarsResourceResolver;
 import org.springframework.web.reactive.result.view.HttpMessageWriterView;
 
-import javax.annotation.PostConstruct;
-import java.time.Clock;
-import java.time.ZoneId;
-import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
-
-import static java.util.TimeZone.getTimeZone;
-import static java.util.TimeZone.setDefault;
-import static org.springdoc.core.Constants.CLASSPATH_RESOURCE_LOCATION;
-import static org.springdoc.core.Constants.DEFAULT_WEB_JARS_PREFIX_URL;
-import static org.springframework.util.AntPathMatcher.DEFAULT_PATH_SEPARATOR;
 import static org.springframework.web.reactive.function.server.ServerResponse.ok;
 
-@Import(SecurityConfiguration.class)
+@Import({TimeConfiguration.class, SecurityConfiguration.class})
 @Configuration
 @EnableWebFlux
 public class ChatApiConfiguration implements WebFluxConfigurer {
-
-    private static final ZoneId ZONE_ID = ZoneOffset.UTC;
-    private static final Clock CLOCK = Clock.system(ZONE_ID);
-
-    @PostConstruct
-    public void setUpDefaultZoneId() {
-        setDefault(getTimeZone(ZONE_ID));
-    }
-
-    @Bean
-    public TimeService timeService() {
-        return () -> ZonedDateTime.now(CLOCK);
-    }
 
     @Bean
     public LocalConversationEventFlow localConversationEventFlow() {
@@ -77,7 +55,7 @@ public class ChatApiConfiguration implements WebFluxConfigurer {
         registry.defaultViews(new HttpMessageWriterView(encoder));
     }
 
-//    @Bean
+    //    @Bean
 //    public Jackson2ObjectMapperBuilderCustomizer jackson2ObjectMapperBuilderCustomizer() {
 //        return jacksonObjectMapperBuilder -> jacksonObjectMapperBuilder.featuresToEnable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
 //    }
@@ -92,16 +70,13 @@ public class ChatApiConfiguration implements WebFluxConfigurer {
     }
 
     @Bean
-    public RouterFunction<ServerResponse> indexRouter(
-        @Value("classpath:/static/index.html")
-            Resource indexHtml
-    ) {
-        IndexPageRequestPredicate predicate = new IndexPageRequestPredicate();
-        HandlerFunction<ServerResponse> indexHtmlResponse =
+    public RouterFunction<ServerResponse> indexRouter(@Value("classpath:/static/index.html") Resource indexHtml) {
+        return RouterFunctions.route(
+            new IndexPageRequestPredicate(),
             request -> ok()
                 .contentType(MediaType.TEXT_HTML)
-                .bodyValue(indexHtml);
-        return RouterFunctions.route(predicate, indexHtmlResponse);
+                .bodyValue(indexHtml)
+        );
     }
 
     @Bean
@@ -127,12 +102,6 @@ public class ChatApiConfiguration implements WebFluxConfigurer {
             return !antPathMatcher.match("/v1/chat/api/**", path);
         }
     }
-
-//    @Bean
-//    public RouterFunction<ServerResponse> eventSourcePolyfillRouter(@Value("classpath:/static/eventsource.js") final Resource eventSourceJs) {
-//        return RouterFunctions.route(RequestPredicates.GET("/eventsource.js"),
-//            request -> ok().contentType(MediaType.valueOf("text/javascript")).bodyValue(eventSourceJs));
-//    }
 
     @Override
     public void addCorsMappings(CorsRegistry corsRegistry) {

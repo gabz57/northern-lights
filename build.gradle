@@ -18,7 +18,7 @@ plugins {
     // select the tag to show dependencies versions
     // https://github.com/spring-projects/spring-boot/blob/master/spring-boot-project/spring-boot-dependencies/build.gradle
     id 'io.spring.dependency-management' version '1.0.11.RELEASE'
-    id 'org.springframework.boot' version '2.5.2' apply false
+    id 'org.springframework.boot' version '2.6.1' apply false
     id 'org.springframework.experimental.aot' version '0.10.1-SNAPSHOT' apply false
     id 'org.graalvm.buildtools.native' version '0.9.0' apply false
     id 'com.github.johnrengelman.processes' version '0.5.0' apply false

@@ -32,7 +32,7 @@ public class ChatClient {
         return chatClientStore.loadConversationIds(this.chatClientId)
             .doOnNext(ids -> this.conversationIds = ids)
             .thenMany(Flux.concat(
-                hello(sseChatKey),
+//                hello(sseChatKey),
                 previousData(sseChatKey).doOnComplete(() -> log.info("Connect: Previous Data Completed")),
                 liveData().doOnComplete(() -> log.info("Connect: Live Data Completed"))
             )).doOnComplete(() -> log.info("Connect: COMPLETED..."));
@@ -72,7 +72,10 @@ public class ChatClient {
             .doOnSubscribe(s -> log.info("Subscribed to chatterEventProvider.chatterFlow for " + this.chatClientId))
             .doOnTerminate(() -> log.warn("Subscription to chatterEventProvider.chatterFlow for " + this.chatClientId + " TERMINATED"))
             .subscribe(t -> {
-                // OMG...
+                // OMG, called on each data...
+                //
+                // When someone is invited to a conversation, the invited one may not know all other chatters
+                // we reuse the method and load the whole conversation instead of updating the invited chatter
                 if (t.getChatDataType() == ChatData.ChatDataType.LIVE_UPDATE) {
                     ChatDataUpdate chatDataUpdate = (ChatDataUpdate) t;
                     ChatterAddValue chatterAdd = chatDataUpdate.getChatterAdd();

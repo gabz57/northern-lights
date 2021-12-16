@@ -26,7 +26,7 @@ public class JwtTokenNorthernLightsAuthenticationAdapter {
         return Arrays.stream((jwtToken.readClaim("scope", String.class, "").split(" ")))
             .filter(s -> !s.isEmpty())
             .distinct()
-            .collect(toList());
+            .toList();
     }
 
 }

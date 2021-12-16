@@ -67,7 +67,7 @@ public class SseChatDataAdapter {
             .payload(SseChatPayload.builder()
                 .conversation(SseChatConversation.builder()
                     .id(chatDataUpdate.getConversationId().getId())
-                    .data(List.of(
+                    .data(SseChatPayload.SseChatConversationDataList.of(
                         SseChatPayload.SseChatConversationMessageData.builder()
                             .id(messageValue.getConversationDataId().getId())
                             .dateTime(messageValue.getDateTime().toEpochSecond())
@@ -103,7 +103,7 @@ public class SseChatDataAdapter {
                     .id(chatDataUpdate.getConversationId().getId())
 //                    .participants(List.of(chatterAddValue.getChatterId().getId()))
                     // TO DO: ⬆ or ⬇ or both ??
-                    .data(List.of(
+                    .data(SseChatPayload.SseChatConversationDataList.of(
                         SseChatPayload.SseChatConversationChatterData.builder()
                             .id(chatterAddValue.getConversationDataId().getId())
                             .dateTime(chatterAddValue.getDateTime().toEpochSecond())
@@ -129,11 +129,11 @@ public class SseChatDataAdapter {
 //                                .from(conversationData.get(0).getConversationDataId())
 //                                .to(conversationData.get(conversationData.size() - 1).getConversationDataId())
                     .dialogue(chatDataConversationInstall.getDialogue())
-                    .participants(chatDataConversationInstall.getChatters().stream().map(Chatter::getChatterID).map(ChatterId::getId).collect(Collectors.toList()))
+                    .participants(chatDataConversationInstall.getChatters().stream().map(Chatter::getChatterID).map(ChatterId::getId).toList())
                     .data(chatDataConversationInstall.getConversationData().stream()
                         .map(this::toSseChatConversationData)
                         .filter(Objects::nonNull)
-                        .collect(Collectors.toList()))
+                        .collect(Collectors.toCollection(SseChatPayload.SseChatConversationDataList::new)))
                     .readMarkers(chatDataConversationInstall.getReadMarkers().entrySet().stream().collect(Collectors.toMap(e -> e.getKey().getId(), e -> e.getValue().getId())))
                     .build())
                 .build())
@@ -150,11 +150,11 @@ public class SseChatDataAdapter {
 //                                .from(conversationData.get(0).getConversationDataId())
 //                                .to(conversationData.get(conversationData.size() - 1).getConversationDataId())
 //                    .dialogue(chatDataConversationPartial.getDialogue())
-                    .participants(chatDataConversationPartial.getChatters().stream().map(Chatter::getChatterID).map(ChatterId::getId).collect(Collectors.toList()))
+                    .participants(chatDataConversationPartial.getChatters().stream().map(Chatter::getChatterID).map(ChatterId::getId).toList())
                     .data(chatDataConversationPartial.getConversationData().stream()
                         .map(this::toSseChatConversationData)
                         .filter(Objects::nonNull)
-                        .collect(Collectors.toList()))
+                        .collect(Collectors.toCollection(SseChatPayload.SseChatConversationDataList::new)))
                     .readMarkers(chatDataConversationPartial.getReadMarkers().entrySet().stream().collect(Collectors.toMap(e -> e.getKey().getId(), e -> e.getValue().getId())))
                     .build())
                 .build())

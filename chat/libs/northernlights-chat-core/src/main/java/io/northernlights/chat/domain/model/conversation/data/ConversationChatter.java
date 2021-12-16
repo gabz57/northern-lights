@@ -2,13 +2,11 @@ package io.northernlights.chat.domain.model.conversation.data;
 
 import io.northernlights.chat.domain.model.chatter.ChatterId;
 import io.northernlights.chat.domain.model.conversation.ConversationId;
-import io.northernlights.chat.domain.model.conversation.Message;
 import lombok.Getter;
 
 import java.time.OffsetDateTime;
 
 import static io.northernlights.chat.domain.model.conversation.data.ConversationData.ConversationDataType.CHATTER_ADD;
-import static io.northernlights.chat.domain.model.conversation.data.ConversationData.ConversationDataType.MESSAGE;
 
 @Getter
 public class ConversationChatter extends ConversationData.AbstractConversationData implements ConversationData {
