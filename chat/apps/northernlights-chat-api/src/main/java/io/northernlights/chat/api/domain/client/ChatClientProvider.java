@@ -3,6 +3,7 @@ package io.northernlights.chat.api.domain.client;
 import io.northernlights.chat.api.domain.client.model.ChatClient;
 import io.northernlights.chat.api.domain.client.model.ChatClientID;
 import io.northernlights.chat.domain.model.chatter.ChatterId;
+import io.northernlights.chat.domain.model.ssekey.SseChatKey;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 
@@ -12,7 +13,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @Slf4j
 public class ChatClientProvider {
 
-    private final Map<String, ChatClient> chatClientsById = new ConcurrentHashMap<>();
+    private final Map<SseChatKey, ChatClient> chatClientsById = new ConcurrentHashMap<>();
     private final ChatDataProvider chatDataProvider;
     private final ChatClientStore chatClientStore;
 
@@ -21,13 +22,13 @@ public class ChatClientProvider {
         this.chatClientStore = chatClientStore;
     }
 
-    public ChatClient getOrCreateClient(String sseChatKey, ChatClientID chatClientID) {
+    public ChatClient getOrCreateClient(SseChatKey sseChatKey, ChatClientID chatClientID) {
         return chatClientsById.computeIfAbsent(
             sseChatKey,
             key -> createClient(chatClientID));
     }
 
-    public void stopClient(ChatClientID chatClientID, String sseChatKey) {
+    public void stopClient(ChatClientID chatClientID, SseChatKey sseChatKey) {
         log.info("Stopping client {}", chatClientID);
         chatClientsById.remove(sseChatKey)
             .stop();
@@ -38,7 +39,7 @@ public class ChatClientProvider {
         return new ChatClient(chatClientID, chatDataProvider, chatClientStore);
     }
 
-    public Mono<ChatterId> authenticate(String sseChatKey) {
+    public Mono<ChatterId> authenticate(SseChatKey sseChatKey) {
         return chatClientStore.authenticate(sseChatKey);
     }
 }

@@ -8,7 +8,7 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 
 @DirtiesContext
 //@Import(DBMigrationConfiguration.class)
-//@ExtendWith(MySQLExtension.class)
+//@ExtendWith(PostgreSQLExtension.class)
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 @AutoConfigureWebTestClient
 public class E2ETestBase {

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+    <changeSet author="Arnaud Schwartz" id="conversations-1.0">
+        <createTable tableName="conversation_data_read_marker">
+            <column name="conversation_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+            <column name="conversation_data_id" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="chatter_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="created_at" type="DATETIME">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="DATETIME">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <addUniqueConstraint
+                constraintName="conversation_data_read_marker_unique"
+                tableName="conversation_data_read_marker"
+                columnNames="conversation_id,chatter_id">
+        </addUniqueConstraint>
+    </changeSet>
+</databaseChangeLog> 

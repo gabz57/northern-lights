@@ -12,14 +12,25 @@ springdoc:
     # Disabling the swagger-ui
     #enabled: false
   show-login-endpoint: false
+
+chat-api:
+  chat-store:
+    r2dbc:
+      url: r2dbc:tc:mysql:///databasename?TC_IMAGE_TAG=5.6.23
+      pool:
+        name: chat-api-pool
+        initial-size: 10
+        max-size: 10
+        max-idle-time: 30m
+
 #
 #spring:
 #  liquibase:
 #    enabled: true
-#    #    url: ${PRODUCTS_SQL_DATABASE_URL:jdbc:mysql://${MYSQL_HOST:localhost}:3306/db_example}
-#    #    user: ${PRODUCTS_SQL_DATABASE_USERNAME:sa}
-#    #    password: ${PRODUCTS_SQL_DATABASE_PASSWORD:sa}
-#    change-log: classpath:db/changelog/db.changelog-master.xml
+#    #    url: ${CHATTERS_SQL_DATABASE_URL:jdbc:mysql://${MYSQL_HOST:localhost}:3306/db_example}
+#    #    user: ${CHATTERS_SQL_DATABASE_USERNAME:sa}
+#    #    password: ${CHATTERS_SQL_DATABASE_PASSWORD:sa}
+#    change-log: classpath:/db/changelog/db.changelog-master.xml
 ##    default-schema: ""
 ##    liquibase-tablespace: ""
 #
@@ -31,14 +42,10 @@ springdoc:
 #          r2dbc: DEBUG
 
 #
-#product-api:
-#  store:
-#    r2dbc:
-#      url: r2dbc:tc:mysql:///databasename?TC_IMAGE_TAG=5.6.23
-##    custom-product:
+##    custom-chatter:
 ##      r2dbc:
 ##        url: r2dbc:tc:mysql:///databasename?TC_IMAGE_TAG=5.6.23
-##    product-index:
+##    chatter-index:
 ##      r2dbc:
 ##        url: r2dbc:tc:mysql:///databasename?TC_IMAGE_TAG=5.6.23
 #

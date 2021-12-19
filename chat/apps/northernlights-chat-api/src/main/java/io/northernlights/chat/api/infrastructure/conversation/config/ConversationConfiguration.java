@@ -1,15 +1,17 @@
 package io.northernlights.chat.api.infrastructure.conversation.config;
 
-import io.northernlights.api.core.infrastructure.error.ErrorHandler;
+import io.northernlights.api.core.error.infrastructure.ErrorHandler;
 import io.northernlights.chat.api.application.conversation.ChatCommands;
 import io.northernlights.chat.api.domain.conversation.ConversationEventPublisher;
 import io.northernlights.chat.api.infrastructure.LocalConversationEventFlow;
 import io.northernlights.chat.api.infrastructure.conversation.http.ChatApiAdapter;
 import io.northernlights.chat.api.infrastructure.conversation.http.ChatHandler;
-import io.northernlights.chat.store.chatter.domain.ChatterStore;
-import io.northernlights.chat.store.chatter.infrastructure.ChatterStoreConfiguration;
-import io.northernlights.chat.store.conversation.domain.ConversationStore;
-import io.northernlights.chat.store.conversation.infrastructure.ConversationStoreConfiguration;
+import io.northernlights.chat.store.chatter.ChatterStore;
+import io.northernlights.chat.store.chatter.ChatterStoreConfigurationInMemory;
+import io.northernlights.chat.store.conversation.ConversationStore;
+import io.northernlights.chat.store.conversation.ConversationStoreConfigurationInMemory;
+import io.northernlights.chat.store.ssekey.SseKeyStore;
+import io.northernlights.chat.store.ssekey.SseKeyStoreConfigurationInMemory;
 import io.northernlights.commons.TimeService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -23,8 +25,9 @@ import static org.springframework.web.reactive.function.server.RequestPredicates
 import static org.springframework.web.reactive.function.server.RouterFunctions.route;
 
 @Import({
-    ChatterStoreConfiguration.class,
-    ConversationStoreConfiguration.class
+    ChatterStoreConfigurationInMemory.class, // TODO: switch to R2DBC implementation
+    ConversationStoreConfigurationInMemory.class, // TODO: switch to R2DBC implementation
+    SseKeyStoreConfigurationInMemory.class // TODO: switch to R2DBC implementation
 })
 @Configuration
 public class ConversationConfiguration {
@@ -63,8 +66,9 @@ public class ConversationConfiguration {
     public ChatCommands chatCommands(TimeService timeService,
                                      ChatterStore chatterStore,
                                      ConversationStore conversationStore,
+                                     SseKeyStore sseKeyStore,
                                      ConversationEventPublisher conversationEventPublisher) {
-        return new ChatCommands(timeService, chatterStore, conversationStore, conversationEventPublisher);
+        return new ChatCommands(timeService, chatterStore, conversationStore, sseKeyStore, conversationEventPublisher);
     }
 
     @Bean
@@ -79,11 +83,11 @@ public class ConversationConfiguration {
 
     //
 //    @RouterOperations({
-//        @RouterOperation(method = GET, path = CUSTOM_PRODUCTS + "/{" + PRODUCT_ID + "}", beanClass = ChatHandler.class, beanMethod = "getChat"),// beanMethod = "getAll"
-//        @RouterOperation(method = GET, path = CUSTOM_PRODUCTS + "/count", beanClass = ChatHandler.class, beanMethod = "countChat"),//,// beanMethod = "getById"
-//        @RouterOperation(method = GET, path = CUSTOM_PRODUCTS, beanClass = ChatHandler.class, beanMethod = "listChat"),// beanMethod = "getById"
-//        @RouterOperation(method = PUT, path = CUSTOM_PRODUCTS + "/{" + PRODUCT_ID + "}", beanClass = ChatHandler.class, beanMethod = "updateChat"),// beanMethod = "save"
-//        @RouterOperation(method = POST, path = CUSTOM_PRODUCTS, beanClass = ChatHandler.class, beanMethod = "updateChat") // beanMethod = "delete"
+//        @RouterOperation(method = GET, path = CHAT_CONVERSATION + "/{" + CHATTER_ID + "}", beanClass = ChatHandler.class, beanMethod = "getChat"),// beanMethod = "getAll"
+//        @RouterOperation(method = GET, path = CHAT_CONVERSATION + "/open", beanClass = ChatHandler.class, beanMethod = "countChat"),//,// beanMethod = "getById"
+//        @RouterOperation(method = GET, path = CHAT_CONVERSATION, beanClass = ChatHandler.class, beanMethod = "listChat"),// beanMethod = "getById"
+//        @RouterOperation(method = PUT, path = CHAT_CONVERSATION + "/{" + CHATTER_ID + "}", beanClass = ChatHandler.class, beanMethod = "updateChat"),// beanMethod = "save"
+//        @RouterOperation(method = POST, path = CHAT_CONVERSATION, beanClass = ChatHandler.class, beanMethod = "updateChat") // beanMethod = "delete"
 //    })
     @Bean
     public RouterFunction<ServerResponse> chatRoutes(ChatHandler chatHandler) {

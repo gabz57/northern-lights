@@ -1,0 +1,10 @@
+<databaseChangeLog
+        logicalFilePath="db.changelog-1.0.xml"
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+    <includeAll path="features/chatters" relativeToChangelogFile="true"/>
+    <includeAll path="features/conversations" relativeToChangelogFile="true"/>
+    <includeAll path="features/ssekey" relativeToChangelogFile="true"/>
+</databaseChangeLog>

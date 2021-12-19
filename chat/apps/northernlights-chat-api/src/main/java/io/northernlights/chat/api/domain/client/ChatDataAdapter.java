@@ -11,7 +11,7 @@ import io.northernlights.chat.domain.model.conversation.Conversation;
 import io.northernlights.chat.domain.model.conversation.ConversationId;
 import io.northernlights.chat.domain.model.conversation.data.ConversationCreation;
 import io.northernlights.chat.domain.model.conversation.data.ConversationDataId;
-import io.northernlights.chat.store.chatter.domain.ChatterStore;
+import io.northernlights.chat.store.chatter.ChatterStore;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
 

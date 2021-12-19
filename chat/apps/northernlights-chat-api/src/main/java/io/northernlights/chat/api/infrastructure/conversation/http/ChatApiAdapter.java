@@ -23,9 +23,9 @@ import static java.util.stream.Collectors.toMap;
 public class ChatApiAdapter {
     public CreateConversationCommandInput adapt(CreateConversationRequest request, String issuer) {
         return CreateConversationCommandInput.builder()
-            .creator(new ChatterId(issuer))
+            .creator(ChatterId.of(issuer))
             .conversationName(request.getName())
-            .participants(request.getParticipants().stream().map(ChatterId::new).toList())
+            .participants(request.getParticipants().stream().map(ChatterId::of).toList())
             .dialogue(request.getDialogue())
             .build();
     }
@@ -38,8 +38,8 @@ public class ChatApiAdapter {
 
     public SendMessageCommandInput adapt(SendMessageRequest request, String issuer) {
         return SendMessageCommandInput.builder()
-            .chatterID(new ChatterId(issuer))
-            .conversationID(new ConversationId(request.getConversationId()))
+            .chatterID(ChatterId.of(issuer))
+            .conversationID(ConversationId.of(request.getConversationId()))
             .message(new Message(request.getMessage()))
             .build();
     }
@@ -53,9 +53,9 @@ public class ChatApiAdapter {
 
     public MarkConversationAsReadCommandInput adapt(MarkAsReadRequest request, String issuer) {
         return MarkConversationAsReadCommandInput.builder()
-            .chatterId(new ChatterId(issuer))
-            .conversationId(new ConversationId(request.getConversationId()))
-            .conversationDataId(new ConversationDataId(request.getConversationDataId()))
+            .chatterId(ChatterId.of(issuer))
+            .conversationId(ConversationId.of(request.getConversationId()))
+            .conversationDataId(ConversationDataId.of(request.getConversationDataId()))
             .build();
     }
 
@@ -68,9 +68,9 @@ public class ChatApiAdapter {
 
     public InviteChatterCommandInput adapt(InviteChatterRequest request, String issuer) {
         return InviteChatterCommandInput.builder()
-            .chatterId(new ChatterId(issuer))
-            .conversationId(new ConversationId(request.getConversationId()))
-            .invitedChatterId(new ChatterId(request.getChatterId()))
+            .chatterId(ChatterId.of(issuer))
+            .conversationId(ConversationId.of(request.getConversationId()))
+            .invitedChatterId(ChatterId.of(request.getChatterId()))
             .build();
     }
 
@@ -83,9 +83,9 @@ public class ChatApiAdapter {
 
     public ChatAuthenticationCommandInput adapt(ChatAuthenticationRequest request, String issuer) {
         return ChatAuthenticationCommandInput.builder()
-            .chatterId(new ChatterId(issuer))
+            .chatterId(ChatterId.of(issuer))
             .conversationStatus(request.getConversationStatuses().entrySet().stream()
-                .collect(toMap(e -> new ConversationId(e.getKey()), e -> new ConversationDataId(e.getValue()))))
+                .collect(toMap(e -> ConversationId.of(e.getKey()), e -> ConversationDataId.of(e.getValue()))))
             .build();
     }
 

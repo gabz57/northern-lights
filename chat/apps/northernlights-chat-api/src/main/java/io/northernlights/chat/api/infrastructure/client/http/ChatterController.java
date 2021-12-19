@@ -3,6 +3,7 @@ package io.northernlights.chat.api.infrastructure.client.http;
 import io.northernlights.chat.api.domain.client.ChatClientProvider;
 import io.northernlights.chat.api.domain.client.model.ChatClientID;
 import io.northernlights.chat.api.domain.client.model.ChatData;
+import io.northernlights.chat.domain.model.ssekey.SseChatKey;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
@@ -39,10 +40,11 @@ public class ChatterController {
     @ResponseBody
     @GetMapping(path = "/v1/chat/api/sse", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public Flux<ServerSentEvent<SseChatPayload>> sseChatDataFlow(
-        @RequestHeader(name = "sse-chat-key") String sseChatKey,
+        @RequestHeader(name = "sse-chat-key") String sseChatKeyParameter,
         ServerHttpResponse response
     ) {
         response.getHeaders().add(HttpHeaders.CONNECTION, "keep-alive");
+        SseChatKey sseChatKey = SseChatKey.of(sseChatKeyParameter);
         return chatClientProvider.authenticate(sseChatKey)
             .map(chatterId -> new ChatClientID(chatterId, "laptop"))
             .flatMapMany(chatClientId -> subscribeChatterFlowSince(chatClientId, sseChatKey)
@@ -59,7 +61,7 @@ public class ChatterController {
 //            .build();
 //    }
 
-    private Flux<ChatData> subscribeChatterFlowSince(ChatClientID chatClientID, String sseChatKey) {
+    private Flux<ChatData> subscribeChatterFlowSince(ChatClientID chatClientID, SseChatKey sseChatKey) {
         return chatClientProvider.getOrCreateClient(sseChatKey, chatClientID)
             .connect(sseChatKey);
     }

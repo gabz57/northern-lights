@@ -1,10 +1,3 @@
-buildscript {
-    ext {
-        javaJwtVersion = "3.17.0"
-        springdocOpenapiVersion = '1.5.9'
-    }
-}
-
 apply plugin: 'java'
 apply plugin: 'org.springframework.boot'
 //apply plugin: 'org.springframework.experimental.aot'
@@ -26,49 +19,40 @@ dependencies {
     implementation "org.springframework.boot:spring-boot-starter-actuator"
     implementation "org.springframework.boot:spring-boot-starter-json"
 
-    implementation "com.auth0:java-jwt:${javaJwtVersion}"
+    implementation "org.springframework.data:spring-data-commons"
 
-    // SQL
-//    implementation "org.springframework.boot:spring-boot-starter-data-r2dbc"
-//    implementation 'dev.miku:r2dbc-mysql:0.8.2.RELEASE'
-    // runtimeOnly "io.r2dbc:r2dbc-h2"
-
-    // spring-jdbc for sql migration
-//    implementation "org.springframework.boot:spring-boot-starter-jdbc"
-//    implementation "org.liquibase:liquibase-core"
-//    implementation "mysql:mysql-connector-java:8.0.22"
+    implementation "com.auth0:java-jwt"
 
     implementation project(':chat:libs:northernlights-chat-core')
-    implementation project(':chat:libs:northernlights-api-core')
+    implementation project(':libs:northernlights-security')
+    implementation project(':libs:northernlights-api-core')
 
 //    implementation project(":chat:libs:northernlights-chat-report")
-    implementation project(":chat:libs:northernlights-chat-store-chatter")
-    implementation project(":chat:libs:northernlights-chat-store-conversation")
+    implementation project(":chat:libs:northernlights-chat-store")
+    implementation project(":chat:libs:northernlights-chat-store-r2dbc")
 
 
     // Open Api (note: webflux-ui (Swagger) could run on a separate module)
-    implementation "org.springdoc:springdoc-openapi-webmvc-core:${springdocOpenapiVersion}"
-    implementation "org.springdoc:springdoc-openapi-webflux-ui:${springdocOpenapiVersion}"
-    implementation "org.springdoc:springdoc-openapi-security:${springdocOpenapiVersion}"
-    implementation "org.springdoc:springdoc-openapi-data-rest:${springdocOpenapiVersion}"
+//    implementation "org.springdoc:springdoc-openapi-webflux-ui"
+    implementation "org.springdoc:springdoc-openapi-webflux-core"
+    implementation "org.springdoc:springdoc-openapi-security"
 
     // Test fixtures
 //    testFixturesImplementation "org.springframework.security:spring-security-test"
 //    testFixturesImplementation "com.auth0:java-jwt:${javaJwtVersion}"
-//    testFixturesImplementation testFixtures(project(':chat:libs:northernlights-commons'))
+//    testFixturesImplementation testFixtures(project(':libs:northernlights-commons'))
     testFixturesImplementation "org.apache.commons:commons-lang3"
 
     // Testing
-    testImplementation "net.javacrumbs.json-unit:json-unit-assertj:2.27.0"
-    testImplementation "io.projectreactor:reactor-test"
-//    testImplementation testFixtures(project(':chat:libs:northernlights-commons'))
+    testImplementation "net.javacrumbs.json-unit:json-unit-assertj"
+//    testImplementation testFixtures(project(':libs:northernlights-commons'))
     testImplementation testFixtures(project(':chat:libs:northernlights-chat-core'))
 //    integrationTestImplementation "io.r2dbc:r2dbc-h2"
 //    integrationTestImplementation "com.h2database:h2"
 //
-//    e2eTestImplementation "org.testcontainers:mysql:1.15.3"
-//    e2eTestImplementation "org.testcontainers:r2dbc:1.15.3"
-//    e2eTestImplementation "org.testcontainers:junit-jupiter:1.15.3"
+//    e2eTestImplementation "org.testcontainers:postgresql"
+//    e2eTestImplementation "org.testcontainers:r2dbc"
+//    e2eTestImplementation "org.testcontainers:junit-jupiter"
 }
 
 openApi {

@@ -1,0 +1,8 @@
+apply plugin: 'java'
+apply plugin: 'org.springframework.boot'
+
+archivesBaseName = 'northernlights-multitenant'
+
+dependencies {
+    implementation "org.springframework.boot:spring-boot"
+}

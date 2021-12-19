@@ -1,8 +1,8 @@
 package io.northernlights.chat.api.infrastructure;
 
-import io.northernlights.api.core.infrastructure.security.NorthernLightsPrincipal;
-import io.northernlights.api.core.infrastructure.security.config.SecurityConfiguration;
+import io.northernlights.commons.MdcContextLifterConfiguration;
 import io.northernlights.commons.TimeConfiguration;
+import io.northernlights.security.NorthernLightsPrincipal;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -28,7 +28,7 @@ import org.springframework.web.reactive.result.view.HttpMessageWriterView;
 
 import static org.springframework.web.reactive.function.server.ServerResponse.ok;
 
-@Import({TimeConfiguration.class, SecurityConfiguration.class})
+@Import({MdcContextLifterConfiguration.class, TimeConfiguration.class, SecurityConfiguration.class})
 @Configuration
 @EnableWebFlux
 public class ChatApiConfiguration implements WebFluxConfigurer {

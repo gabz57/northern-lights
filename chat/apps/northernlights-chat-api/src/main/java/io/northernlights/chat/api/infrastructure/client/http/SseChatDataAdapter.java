@@ -12,6 +12,7 @@ import reactor.core.publisher.Flux;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 public class SseChatDataAdapter {
@@ -25,12 +26,6 @@ public class SseChatDataAdapter {
 
     public Flux<SseChatData> mapToSseChatData(ChatData chatData) {
         return switch (chatData.getChatDataType()) {
-            case HELLO -> {
-                ChatDataHello chatDataConversationInstall = (ChatDataHello) chatData;
-                yield Flux.just(SseChatData.builder()
-                    .event("Hello " + chatDataConversationInstall.getSseChatKey())
-                    .build());
-            }
             case INSTALL -> {
                 ChatDataConversationInstall chatDataConversationInstall = (ChatDataConversationInstall) chatData;
                 yield Flux.concat(
@@ -66,12 +61,12 @@ public class SseChatDataAdapter {
             .event(CONVERSATION_UPDATE_MESSAGE)
             .payload(SseChatPayload.builder()
                 .conversation(SseChatConversation.builder()
-                    .id(chatDataUpdate.getConversationId().getId())
+                    .id(chatDataUpdate.getConversationId().getId().toString())
                     .data(SseChatPayload.SseChatConversationDataList.of(
                         SseChatPayload.SseChatConversationMessageData.builder()
-                            .id(messageValue.getConversationDataId().getId())
+                            .id(messageValue.getConversationDataId().getId().toString())
                             .dateTime(messageValue.getDateTime().toEpochSecond())
-                            .from(messageValue.getFrom().getId())
+                            .from(messageValue.getFrom().getId().toString())
                             .message(messageValue.getMessage().getContent())
                             .build()
                     ))
@@ -86,8 +81,8 @@ public class SseChatDataAdapter {
             .event(CONVERSATION_UPDATE_READ_MARKER)
             .payload(SseChatPayload.builder()
                 .conversation(SseChatConversation.builder()
-                    .id(chatDataUpdate.getConversationId().getId())
-                    .readMarkers(Map.of(markedAsReadValue.getBy().getId(), markedAsReadValue.getAt().getId()))
+                    .id(chatDataUpdate.getConversationId().getId().toString())
+                    .readMarkers(Map.of(markedAsReadValue.getBy().getId().toString(), markedAsReadValue.getAt().getId().toString()))
                     .build())
                 .build())
             .build());
@@ -100,15 +95,15 @@ public class SseChatDataAdapter {
             .event(CONVERSATION_ADD_CHATTER)
             .payload(SseChatPayload.builder()
                 .conversation(SseChatConversation.builder()
-                    .id(chatDataUpdate.getConversationId().getId())
+                    .id(chatDataUpdate.getConversationId().getId().toString())
 //                    .participants(List.of(chatterAddValue.getChatterId().getId()))
                     // TO DO: ⬆ or ⬇ or both ??
                     .data(SseChatPayload.SseChatConversationDataList.of(
                         SseChatPayload.SseChatConversationChatterData.builder()
-                            .id(chatterAddValue.getConversationDataId().getId())
+                            .id(chatterAddValue.getConversationDataId().getId().toString())
                             .dateTime(chatterAddValue.getDateTime().toEpochSecond())
-                            .from(chatterAddValue.getFrom().getId())
-                            .chatterId(chatterAddValue.getChatterId().getId())
+                            .from(chatterAddValue.getFrom().getId().toString())
+                            .chatterId(chatterAddValue.getChatterId().getId().toString())
                             .build()
                     ))
                     .build())
@@ -122,19 +117,19 @@ public class SseChatDataAdapter {
             .event(CONVERSATION_INSTALL)
             .payload(SseChatPayload.builder()
                 .conversation(SseChatConversation.builder()
-                    .id(chatDataConversationInstall.getConversationId().getId())
-                    .creator(chatDataConversationInstall.getCreatedBy().getId())
+                    .id(chatDataConversationInstall.getConversationId().getId().toString())
+                    .creator(chatDataConversationInstall.getCreatedBy().getId().toString())
                     .createdAt(chatDataConversationInstall.getCreatedAt().toEpochSecond())
                     .name(chatDataConversationInstall.getName())
 //                                .from(conversationData.get(0).getConversationDataId())
 //                                .to(conversationData.get(conversationData.size() - 1).getConversationDataId())
                     .dialogue(chatDataConversationInstall.getDialogue())
-                    .participants(chatDataConversationInstall.getChatters().stream().map(Chatter::getChatterID).map(ChatterId::getId).toList())
+                    .participants(chatDataConversationInstall.getChatters().stream().map(Chatter::getChatterID).map(ChatterId::getId).map(UUID::toString).toList())
                     .data(chatDataConversationInstall.getConversationData().stream()
                         .map(this::toSseChatConversationData)
                         .filter(Objects::nonNull)
                         .collect(Collectors.toCollection(SseChatPayload.SseChatConversationDataList::new)))
-                    .readMarkers(chatDataConversationInstall.getReadMarkers().entrySet().stream().collect(Collectors.toMap(e -> e.getKey().getId(), e -> e.getValue().getId())))
+                    .readMarkers(chatDataConversationInstall.getReadMarkers().entrySet().stream().collect(Collectors.toMap(e -> e.getKey().getId().toString(), e -> e.getValue().getId().toString())))
                     .build())
                 .build())
             .build());
@@ -146,16 +141,16 @@ public class SseChatDataAdapter {
             .event(CONVERSATION_PARTIAL)
             .payload(SseChatPayload.builder()
                 .conversation(SseChatConversation.builder()
-                    .id(chatDataConversationPartial.getConversationId().getId())
+                    .id(chatDataConversationPartial.getConversationId().getId().toString())
 //                                .from(conversationData.get(0).getConversationDataId())
 //                                .to(conversationData.get(conversationData.size() - 1).getConversationDataId())
 //                    .dialogue(chatDataConversationPartial.getDialogue())
-                    .participants(chatDataConversationPartial.getChatters().stream().map(Chatter::getChatterID).map(ChatterId::getId).toList())
+                    .participants(chatDataConversationPartial.getChatters().stream().map(Chatter::getChatterID).map(ChatterId::getId).map(UUID::toString).toList())
                     .data(chatDataConversationPartial.getConversationData().stream()
                         .map(this::toSseChatConversationData)
                         .filter(Objects::nonNull)
                         .collect(Collectors.toCollection(SseChatPayload.SseChatConversationDataList::new)))
-                    .readMarkers(chatDataConversationPartial.getReadMarkers().entrySet().stream().collect(Collectors.toMap(e -> e.getKey().getId(), e -> e.getValue().getId())))
+                    .readMarkers(chatDataConversationPartial.getReadMarkers().entrySet().stream().collect(Collectors.toMap(e -> e.getKey().getId().toString(), e -> e.getValue().getId().toString())))
                     .build())
                 .build())
             .build());
@@ -168,7 +163,7 @@ public class SseChatDataAdapter {
                 .event(CHATTER_INSTALL)
                 .payload(SseChatPayload.builder()
                     .chatter(SseChatPayload.SseChatChatter.builder()
-                        .id(chatter.getChatterID().getId())
+                        .id(chatter.getChatterID().getId().toString())
                         .name(chatter.getName())
                         .build())
                     .build())
@@ -178,23 +173,24 @@ public class SseChatDataAdapter {
     // COLD .data
     private SseChatPayload.SseChatConversationData toSseChatConversationData(ConversationData conversationData) {
         return switch (conversationData.getConversationDataType()) {
-            case CREATION, READ_MARKER:
+//            case CREATION, READ_MARKER:
+            case CREATION:
                 yield null;
             case MESSAGE:
                 ConversationMessage conversationMessage = (ConversationMessage) conversationData;
                 yield SseChatPayload.SseChatConversationMessageData.builder()
-                    .id(conversationMessage.getConversationDataId().getId())
+                    .id(conversationMessage.getConversationDataId().getId().toString())
                     .dateTime(conversationMessage.getDateTime().toEpochSecond())
-                    .from(conversationMessage.getChatterId().getId())
+                    .from(conversationMessage.getChatterId().getId().toString())
                     .message(conversationMessage.getMessage().getContent())
                     .build();
             case CHATTER_ADD:
                 ConversationChatter conversationChatter = (ConversationChatter) conversationData;
                 yield SseChatPayload.SseChatConversationChatterData.builder()
-                    .id(conversationChatter.getConversationDataId().getId())
+                    .id(conversationChatter.getConversationDataId().getId().toString())
                     .dateTime(conversationChatter.getDateTime().toEpochSecond())
-                    .from(conversationChatter.getInvitedByChatterId().getId())
-                    .chatterId(conversationChatter.getChatterId().getId())
+                    .from(conversationChatter.getInvitedByChatterId().getId().toString())
+                    .chatterId(conversationChatter.getChatterId().getId().toString())
                     .build();
         };
     }

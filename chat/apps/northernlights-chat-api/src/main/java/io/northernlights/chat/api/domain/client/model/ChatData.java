@@ -5,7 +5,6 @@ public interface ChatData {
     ChatDataType getChatDataType();
 
     enum ChatDataType {
-        HELLO,
         INSTALL,
         PARTIAL,
         LIVE_UPDATE

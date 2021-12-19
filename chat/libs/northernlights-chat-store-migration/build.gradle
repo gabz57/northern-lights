@@ -1,0 +1,4 @@
+apply plugin: 'java'
+
+archivesBaseName = 'northernlights-chat-store-migration'
+

@@ -1,0 +1,45 @@
+version: '3'
+services:
+  northernlights-chat-db:
+    container_name: northernlights-chat-db
+    image: postgres:12.10
+    restart: always
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_DB=northernlights-chat
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    volumes:
+      - ./../northernlights-chat-store-r2dbc/src/main/resources/postgresql/data:/var/lib/postgresql/data
+    networks:
+      - northernlights-net
+
+  liquibase:
+    container_name: northernlights-chat-liquibase
+    image: liquibase/liquibase
+    command: --url=jdbc:postgresql://northernlights-chat-db:5432/northernlights-chat?user=postgres&password=postgres --changelogFile=changelog.xml update
+    volumes:
+#      - ./scripts:/liquibase/scripts
+      - ./../northernlights-chat-store-migration/src/main/resources/db.changelog:/liquibase/changelog
+    networks:
+      - northernlights-net
+    depends_on:
+      - northernlights-chat-db
+
+  chat-api:
+    container_name: northernlights-chat-api
+#    build:
+#      context: ./northernlights-chat-api
+#      dockerfile: Dockerfile
+    image: northernlights-chat-api:latest
+    ports:
+      - "8080:8080"
+    networks:
+      - northernlights-net
+networks:
+  northernlights-net:
+
+
+# docker-compose -f docker-compose.database.yml up
+# docker-compose -f docker-compose.liquibase.yml up

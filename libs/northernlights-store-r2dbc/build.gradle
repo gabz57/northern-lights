@@ -1,0 +1,31 @@
+apply plugin: 'java'
+
+archivesBaseName = 'northernlights-store-r2dbc'
+
+dependencies {
+//    api project(':libs:northernlights-multitenant')
+
+//    api project(':libs:northernlights-chat-core')
+//    api project(':chat:libs:northernlights-chat-core')
+
+    api "org.springframework.boot:spring-boot-starter-data-r2dbc"
+    api "io.r2dbc:r2dbc-postgresql"
+    api "io.r2dbc:r2dbc-pool"
+//  api "org.postgresql:r2dbc-postgresql"
+    api "com.fasterxml.jackson.datatype:jackson-datatype-jsr310"
+    api "com.fasterxml.jackson.module:jackson-module-parameter-names"
+
+    // Test fixtures
+    testFixturesApi "org.springframework.boot:spring-boot-starter-data-r2dbc"
+    testFixturesApi "org.springframework.boot:spring-boot-starter-test"
+    testFixturesApi "org.springframework.security:spring-security-test"
+
+    testFixturesApi "org.testcontainers:postgresql"
+    testFixturesApi "org.testcontainers:r2dbc"
+    testFixturesApi "org.testcontainers:junit-jupiter"
+
+    // Testing
+    testImplementation testFixtures(project(':libs:northernlights-commons'))
+    testImplementation testFixtures(project(':chat:libs:northernlights-chat-core'))
+
+}

@@ -1,31 +1,9 @@
-buildscript {
-    ext {
-        commonsIOVersion = "2.6"
-    }
-}
-
 apply plugin: 'java'
 
 archivesBaseName = 'northernlights-chat-store'
 
 dependencies {
     api project(':chat:libs:northernlights-chat-core')
-
-//    api "org.springframework.boot:spring-boot-starter-data-r2dbc"
-    api "org.springframework.boot:spring-boot-starter"
-    api "org.springframework.boot:spring-boot-starter-reactor-netty"
-
-    // Test fixtures
-//    testFixturesApi "org.springframework.boot:spring-boot-starter-data-r2dbc"
-    testFixturesApi "org.springframework.boot:spring-boot-starter-test"
-    testFixturesApi "org.springframework.security:spring-security-test"
-//    testFixturesApi "com.h2database:h2"
-
-    // Testing
-//    testImplementation testFixtures(project(':chat:libs:northernlights-commons'))
-    testImplementation testFixtures(project(':chat:libs:northernlights-chat-core'))
-    testImplementation "io.projectreactor:reactor-test"
-
-//    integrationTestImplementation "io.r2dbc:r2dbc-h2"
-//    integrationTestImplementation "com.h2database:h2"
+    // only to provide in memory implementation
+    implementation "org.springframework.boot:spring-boot"
 }

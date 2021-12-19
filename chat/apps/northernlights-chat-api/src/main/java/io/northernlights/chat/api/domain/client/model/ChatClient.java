@@ -4,6 +4,7 @@ import io.northernlights.chat.api.domain.client.ChatClientStore;
 import io.northernlights.chat.api.domain.client.ChatDataProvider;
 import io.northernlights.chat.api.domain.client.model.ChatDataUpdate.ChatterAddValue;
 import io.northernlights.chat.domain.model.conversation.ConversationId;
+import io.northernlights.chat.domain.model.ssekey.SseChatKey;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.Disposable;
 import reactor.core.publisher.Flux;
@@ -27,7 +28,7 @@ public class ChatClient {
         this.chatClientStore = chatClientStore;
     }
 
-    public Flux<ChatData> connect(String sseChatKey) {
+    public Flux<ChatData> connect(SseChatKey sseChatKey) {
         log.info("ChatClient::connect using sseChatKey " + sseChatKey + " for clientID: " + this.chatClientId);
         return chatClientStore.loadConversationIds(this.chatClientId)
             .doOnNext(ids -> this.conversationIds = ids)
@@ -43,13 +44,7 @@ public class ChatClient {
         disposableChatDataFlow.dispose();
     }
 
-    private Flux<ChatData> hello(String sseChatKey) {
-        return Flux.just(ChatDataHello.builder()
-            .sseChatKey(sseChatKey)
-            .build());
-    }
-
-    private Flux<ChatData> previousData(String sseChatKey) {
+    private Flux<ChatData> previousData(SseChatKey sseChatKey) {
         return chatClientStore.loadPreviousData(this.chatClientId, sseChatKey)
             .doOnSubscribe(s -> log.info("Loading all user previous data ..."))
             .doOnError(e -> log.error("Loading all user previous data FAILED", e))

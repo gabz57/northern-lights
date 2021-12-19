@@ -1,7 +1,8 @@
 pluginManagement {
     repositories {
-        maven { url 'https://repo.spring.io/snapshot' }
         maven { url 'https://repo.spring.io/milestone' }
+        maven { url 'https://repo.spring.io/release' }
+        maven { url 'https://repo.spring.io/snapshot' }
         mavenCentral()
         gradlePluginPortal()
     }
@@ -16,13 +17,18 @@ pluginManagement {
 rootProject.name = 'northern-lights'
 
 // LIBS
-include 'chat:libs:northernlights-commons'
+include 'libs:northernlights-commons'
+include 'libs:northernlights-multitenant'
+include 'libs:northernlights-security'
+include 'libs:northernlights-store-r2dbc'
+include 'libs:northernlights-api-core'
+
 include 'chat:libs:northernlights-chat-core'
-include 'chat:libs:northernlights-api-core'
 include 'chat:libs:northernlights-chat-store'
-include 'chat:libs:northernlights-chat-store-chatter'
-include 'chat:libs:northernlights-chat-store-conversation'
+include 'chat:libs:northernlights-chat-store-migration'
+include 'chat:libs:northernlights-chat-store-r2dbc'
 
 // APPS
-include 'chat:apps:northernlights-chat-ui'
 include 'chat:apps:northernlights-chat-api'
+include 'chat:apps:northernlights-chat-ui'
+

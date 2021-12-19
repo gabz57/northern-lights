@@ -2,7 +2,9 @@ package io.northernlights.chat.domain.model.conversation.data;
 
 import io.northernlights.chat.domain.model.chatter.ChatterId;
 import io.northernlights.chat.domain.model.conversation.ConversationId;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NonNull;
 
 import java.time.OffsetDateTime;
 import java.util.List;
@@ -11,11 +13,22 @@ import static io.northernlights.chat.domain.model.conversation.data.Conversation
 
 @Getter
 public class ConversationCreation extends ConversationData.AbstractConversationData implements ConversationData {
+    @NonNull
     private final String name;
+    @NonNull
     private final List<ChatterId> participants;
+    @NonNull
     private final Boolean dialogue;
 
-    public ConversationCreation(ConversationId conversationId, ConversationDataId conversationDataId, ChatterId chatterId, String name, List<ChatterId> participants, OffsetDateTime dateTime, Boolean dialogue) {
+    @Builder
+    public ConversationCreation(
+        ConversationId conversationId,
+        ConversationDataId conversationDataId,
+        ChatterId chatterId,
+        @NonNull String name,
+        @NonNull List<ChatterId> participants,
+        @NonNull OffsetDateTime dateTime,
+        @NonNull Boolean dialogue) {
         super(CREATION, conversationId, conversationDataId, chatterId, dateTime);
         this.name = name;
         this.participants = participants;

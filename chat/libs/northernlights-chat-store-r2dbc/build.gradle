@@ -1,0 +1,24 @@
+apply plugin: 'java'
+
+archivesBaseName = 'northernlights-chat-store-r2dbc'
+
+dependencies {
+    api project(':chat:libs:northernlights-chat-store')
+    api project(':libs:northernlights-store-r2dbc')
+
+    // Testing
+//    testImplementation testFixtures(project(':libs:northernlights-commons'))
+//    testImplementation testFixtures(project(':libs:northernlights-store-r2dbc'))
+//    integrationTestImplementation testFixtures(project(':chat:libs:northernlights-chat-core'))
+    integrationTestImplementation testFixtures(project(':libs:northernlights-store-r2dbc'))
+
+    // spring-jdbc for sql migration
+    integrationTestImplementation project(':chat:libs:northernlights-chat-store-migration')
+    integrationTestImplementation "org.springframework.boot:spring-boot-starter-jdbc"
+//    integrationTestImplementation "org.springframework:spring-jdbc"
+    integrationTestImplementation "org.liquibase:liquibase-core"
+    integrationTestImplementation "org.postgresql:postgresql"
+
+    //    e2eTestImplementation "org.postgresql:r2dbc-postgresql"
+    //    e2eTestImplementation "io.r2dbc:r2dbc-postgresql"
+}
