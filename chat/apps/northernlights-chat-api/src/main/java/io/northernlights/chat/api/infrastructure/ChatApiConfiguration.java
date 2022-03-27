@@ -28,7 +28,8 @@ import org.springframework.web.reactive.result.view.HttpMessageWriterView;
 
 import static org.springframework.web.reactive.function.server.ServerResponse.ok;
 
-@Import({MdcContextLifterConfiguration.class, TimeConfiguration.class, SecurityConfiguration.class})
+@Import({TimeConfiguration.class, SecurityConfiguration.class})
+//@Import({MdcContextLifterConfiguration.class, TimeConfiguration.class, SecurityConfiguration.class})
 @Configuration
 @EnableWebFlux
 public class ChatApiConfiguration implements WebFluxConfigurer {
@@ -59,15 +60,6 @@ public class ChatApiConfiguration implements WebFluxConfigurer {
 //    public Jackson2ObjectMapperBuilderCustomizer jackson2ObjectMapperBuilderCustomizer() {
 //        return jacksonObjectMapperBuilder -> jacksonObjectMapperBuilder.featuresToEnable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
 //    }
-    @Bean
-    public ReactiveAuditorAware<String> auditorAware() {
-        return () -> ReactiveSecurityContextHolder.getContext()
-            .map(SecurityContext::getAuthentication)
-            .filter(Authentication::isAuthenticated)
-            .map(Authentication::getPrincipal)
-            .cast(NorthernLightsPrincipal.class)
-            .map(NorthernLightsPrincipal::getUid);
-    }
 
     @Bean
     public RouterFunction<ServerResponse> indexRouter(@Value("classpath:/static/index.html") Resource indexHtml) {

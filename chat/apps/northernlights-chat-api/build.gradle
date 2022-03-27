@@ -53,6 +53,15 @@ dependencies {
 //    e2eTestImplementation "org.testcontainers:postgresql"
 //    e2eTestImplementation "org.testcontainers:r2dbc"
 //    e2eTestImplementation "org.testcontainers:junit-jupiter"
+
+    e2eTestImplementation testFixtures(project(':libs:northernlights-store-r2dbc'))
+
+    // spring-jdbc for sql migration
+    e2eTestImplementation project(':chat:libs:northernlights-chat-store-migration')
+    e2eTestImplementation "org.springframework.boot:spring-boot-starter-jdbc"
+//    e2eTestImplementation "org.springframework:spring-jdbc"
+    e2eTestImplementation "org.liquibase:liquibase-core"
+    e2eTestImplementation "org.postgresql:postgresql"
 }
 
 openApi {

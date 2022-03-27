@@ -1,7 +1,10 @@
 spring:
   main:
     allow-bean-definition-overriding: true
+  liquibase:
+    enabled: true
+    change-log: classpath:db/changelog/db.changelog-master.xml
 
 logging:
   level:
-    org.springframework.data.r2dbc: INFO
+    org.springframework.data.r2dbc: DEBUG

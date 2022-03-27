@@ -30,7 +30,7 @@ public class ChatDataUpdate implements ChatData {
     public static class MarkedAsReadValue {
         ConversationDataId conversationDataId;
         ChatterId by;
-        ConversationDataId at;
+//        ConversationDataId at;
     }
 
     @Value

@@ -5,6 +5,7 @@ import io.northernlights.chat.api.domain.client.ChatDataAdapter;
 import io.northernlights.chat.api.domain.client.model.ChatClientID;
 import io.northernlights.chat.api.domain.client.model.ChatData;
 import io.northernlights.chat.domain.model.chatter.ChatterId;
+import io.northernlights.chat.domain.model.conversation.Conversation;
 import io.northernlights.chat.domain.model.conversation.ConversationId;
 import io.northernlights.chat.domain.model.conversation.data.ConversationDataId;
 import io.northernlights.chat.domain.model.ssekey.SseChatKey;
@@ -57,6 +58,7 @@ public class ChatClientStoreImpl implements ChatClientStore {
                     // FIXME: use conversation (3rd param) instead of querying twice conversation
                     conversationStore.conversationCreationData(conversationId),
                     chatterStore.listChatters(chatterIds),
+//                    conversationStore.conversationData(conversationId, null).collectList().map(Conversation::new),
                     conversationStore.conversation(conversationId, null),
                     conversationStore.readMarkers(conversationId).collectMap(Tuple2::getT1, Tuple2::getT2))
                 .map(tuple -> chatDataAdapter.adaptConversationInstallData(

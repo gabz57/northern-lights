@@ -4,7 +4,12 @@
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
             http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
-    <includeAll path="features/chatters" relativeToChangelogFile="true"/>
-    <includeAll path="features/conversations" relativeToChangelogFile="true"/>
-    <includeAll path="features/ssekey" relativeToChangelogFile="true"/>
+    <!--<includeAll path="features/chatters" relativeToChangelogFile="true"/>-->
+    <include file="features/chatters/0001_create-table-chatter.xml" relativeToChangelogFile="true"/>
+    <include file="features/chatters/0002_create-table-chatters-conversations.xml" relativeToChangelogFile="true"/>
+    <!--<includeAll path="features/conversations" relativeToChangelogFile="true"/>-->
+    <include file="features/conversations/0001_create-table-conversation-data.xml" relativeToChangelogFile="true"/>
+    <include file="features/conversations/0002_create-table-conversation-data-read-marker.xml" relativeToChangelogFile="true"/>
+    <!--<includeAll path="features/ssekey" relativeToChangelogFile="true"/>-->
+    <include file="features/ssekey/0001_create-table-sse-chat-key.xml" relativeToChangelogFile="true"/>
 </databaseChangeLog>

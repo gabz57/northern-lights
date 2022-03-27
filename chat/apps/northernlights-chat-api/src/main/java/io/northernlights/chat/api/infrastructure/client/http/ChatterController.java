@@ -45,7 +45,7 @@ public class ChatterController {
     ) {
         response.getHeaders().add(HttpHeaders.CONNECTION, "keep-alive");
         SseChatKey sseChatKey = SseChatKey.of(sseChatKeyParameter);
-        return chatClientProvider.authenticate(sseChatKey)
+        return chatClientProvider.authenticate(sseChatKey)// TODO: handle not found -> Mono.empty()
             .map(chatterId -> new ChatClientID(chatterId, "laptop"))
             .flatMapMany(chatClientId -> subscribeChatterFlowSince(chatClientId, sseChatKey)
                 .flatMap(this::chatDataToServerSentEvent)

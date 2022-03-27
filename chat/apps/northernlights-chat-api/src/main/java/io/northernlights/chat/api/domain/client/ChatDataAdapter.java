@@ -97,7 +97,7 @@ public class ChatDataAdapter {
             .markedAsRead(ChatDataUpdate.MarkedAsReadValue.builder()
                 .conversationDataId(conversationEvent.getConversationDataId())
                 .by(conversationEvent.getMarkedBy())
-                .at(conversationEvent.getMarkedConversationDataId())
+//                .at(conversationEvent.getMarkedConversationDataId())
                 .build())
             .build());
     }

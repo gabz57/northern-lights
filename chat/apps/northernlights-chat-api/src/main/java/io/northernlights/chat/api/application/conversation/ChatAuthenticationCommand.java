@@ -4,6 +4,7 @@ import io.northernlights.chat.api.application.UseCase;
 import io.northernlights.chat.domain.model.chatter.ChatterId;
 import io.northernlights.chat.domain.model.conversation.ConversationId;
 import io.northernlights.chat.domain.model.conversation.data.ConversationDataId;
+import io.northernlights.chat.domain.model.ssekey.SseChatKey;
 import io.northernlights.chat.store.ssekey.SseKeyStore;
 import lombok.Builder;
 import lombok.RequiredArgsConstructor;
@@ -37,6 +38,6 @@ public class ChatAuthenticationCommand implements UseCase<ChatAuthenticationComm
     @Builder
     @RequiredArgsConstructor
     public static class ChatAuthenticationCommandResult {
-        String sseChatKey;
+        SseChatKey sseChatKey;
     }
 }

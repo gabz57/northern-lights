@@ -26,12 +26,9 @@ public class InviteChatterCommand implements UseCase<InviteChatterCommandInput, 
 
     public Mono<InviteChatterCommandResult> execute(InviteChatterCommandInput input) {
         return conversationStore.addChatter(timeService.now().toOffsetDateTime(), input.conversationId, input.chatterId, input.invitedChatterId)
-            .doOnNext(chatterStore::writeChatterJoined)
+            .flatMap(conversationEvent -> chatterStore.writeChatterJoined(conversationEvent)
+                .thenReturn(conversationEvent))
             .doOnNext(conversationEventPublisher::publish)
-//            .flatMap(conversationUpdatedEvent -> conversationStore.markEventAsRead(timeService.now().toOffsetDateTime(), input.conversationId, input.chatterId, conversationUpdatedEvent.getConversationDataId())
-//                .doOnNext(conversationEventPublisher::publish)
-//                .thenReturn(conversationUpdatedEvent)
-//            )
             .map(InviteChatterCommandResult::new);
     }
 

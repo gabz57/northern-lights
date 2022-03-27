@@ -32,7 +32,7 @@ public class ChatApiAdapter {
 
     public CreateConversationResponse adapt(CreateConversationCommandResult result) {
         return CreateConversationResponse.builder()
-            .conversationId(result.getConversationCreatedEvent().getConversationId().getId())
+            .conversationId(result.getConversationCreatedEvent().getConversationId().getId().toString())
             .build();
     }
 
@@ -46,7 +46,7 @@ public class ChatApiAdapter {
 
     public SendMessageResponse adapt(SendMessageCommandResult result) {
         return SendMessageResponse.builder()
-            .conversationId(result.getConversationMessageSentEvent().getConversationId().getId())
+            .conversationId(result.getConversationMessageSentEvent().getConversationId().getId().toString())
             .conversationDataId(result.getConversationMessageSentEvent().getConversationDataId().getId())
             .build();
     }
@@ -61,7 +61,7 @@ public class ChatApiAdapter {
 
     public MarkAsReadResponse adapt(MarkConversationAsReadCommandResult result) {
         return MarkAsReadResponse.builder()
-            .conversationId(result.getConversationMarkedAsReadEvent().getConversationId().getId())
+            .conversationId(result.getConversationMarkedAsReadEvent().getConversationId().getId().toString())
             .conversationDataId(result.getConversationMarkedAsReadEvent().getConversationDataId().getId())
             .build();
     }
@@ -76,7 +76,7 @@ public class ChatApiAdapter {
 
     public InviteChatterResponse adapt(InviteChatterCommandResult result) {
         return InviteChatterResponse.builder()
-            .conversationId(result.getChatterJoinedEvent().getConversationId().getId())
+            .conversationId(result.getChatterJoinedEvent().getConversationId().getId().toString())
             .conversationDataId(result.getChatterJoinedEvent().getConversationDataId().getId())
             .build();
     }
@@ -91,7 +91,7 @@ public class ChatApiAdapter {
 
     public ChatAuthenticationResponse adapt(ChatAuthenticationCommandResult result) {
         return ChatAuthenticationResponse.builder()
-            .sseChatKey(result.getSseChatKey())
+            .sseChatKey(result.getSseChatKey().getId().toString())
             .build();
     }
 }

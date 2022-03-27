@@ -23,32 +23,6 @@ chat-api:
         max-size: 10
         max-idle-time: 30m
 
-#
-#spring:
-#  liquibase:
-#    enabled: true
-#    #    url: ${CHATTERS_SQL_DATABASE_URL:jdbc:mysql://${MYSQL_HOST:localhost}:3306/db_example}
-#    #    user: ${CHATTERS_SQL_DATABASE_USERNAME:sa}
-#    #    password: ${CHATTERS_SQL_DATABASE_PASSWORD:sa}
-#    change-log: classpath:/db/changelog/db.changelog-master.xml
-##    default-schema: ""
-##    liquibase-tablespace: ""
-#
-#logging:
-#  level:
-#    org:
-#      springframework:
-#        data:
-#          r2dbc: DEBUG
-
-#
-##    custom-chatter:
-##      r2dbc:
-##        url: r2dbc:tc:mysql:///databasename?TC_IMAGE_TAG=5.6.23
-##    chatter-index:
-##      r2dbc:
-##        url: r2dbc:tc:mysql:///databasename?TC_IMAGE_TAG=5.6.23
-#
 ### MySQL
 ##  spring.r2dbc.url=r2dbc:pool:mysql://127.0.0.1:3306/demo
 ##  spring.r2dbc.username=user

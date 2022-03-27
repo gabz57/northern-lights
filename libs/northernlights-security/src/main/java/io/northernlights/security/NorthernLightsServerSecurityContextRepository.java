@@ -23,7 +23,8 @@ public class NorthernLightsServerSecurityContextRepository implements ServerSecu
 
     @Override
     public Mono<Void> save(ServerWebExchange swe, SecurityContext sc) {
-        throw new UnsupportedOperationException("Not supported.");
+        return Mono.empty();
+//        throw new UnsupportedOperationException("Not supported.");
     }
 
     @Override

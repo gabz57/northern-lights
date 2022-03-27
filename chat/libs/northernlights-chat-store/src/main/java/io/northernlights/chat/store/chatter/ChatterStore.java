@@ -25,5 +25,5 @@ public interface ChatterStore {
 
     Mono<List<Chatter>> listChatters(List<ChatterId> chatterIds);
 
-    Mono<Chatter> insertChatter(Chatter creator);
+    Mono<Chatter> insertChatter(Chatter chatter);
 }

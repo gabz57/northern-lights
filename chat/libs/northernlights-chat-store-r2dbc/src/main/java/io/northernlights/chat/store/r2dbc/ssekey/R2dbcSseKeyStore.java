@@ -10,12 +10,14 @@ import io.northernlights.chat.store.r2dbc.ssekey.model.SseChatKeyModel;
 import io.northernlights.chat.store.ssekey.SseKeyStore;
 import io.r2dbc.postgresql.codec.Json;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Mono;
 
 import java.util.Map;
 import java.util.stream.Collectors;
 
+@Slf4j
 @RequiredArgsConstructor
 public class R2dbcSseKeyStore implements SseKeyStore {
     private final ObjectMapper r2dbcObjectMapper;

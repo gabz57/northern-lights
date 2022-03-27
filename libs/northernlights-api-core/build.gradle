@@ -6,7 +6,7 @@ dependencies {
     api project(':libs:northernlights-commons')
     api project(':libs:northernlights-multitenant')
     api project(':libs:northernlights-security')
-//    api "org.springframework.boot:spring-boot-starter-webflux"
+    api "org.springframework.boot:spring-boot-starter-webflux"
 //    api "org.springframework.boot:spring-boot-starter-security"
 //
 //    implementation "com.auth0:java-jwt"

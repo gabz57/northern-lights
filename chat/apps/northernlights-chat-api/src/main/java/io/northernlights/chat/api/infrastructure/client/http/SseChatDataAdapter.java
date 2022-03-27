@@ -26,6 +26,12 @@ public class SseChatDataAdapter {
 
     public Flux<SseChatData> mapToSseChatData(ChatData chatData) {
         return switch (chatData.getChatDataType()) {
+            case HELLO -> {
+                ChatDataHello chatDataHello = (ChatDataHello) chatData;
+                yield Flux.just(SseChatData.builder()
+                    .event("Hello " + chatDataHello.getSseChatKey())
+                    .build());
+            }
             case INSTALL -> {
                 ChatDataConversationInstall chatDataConversationInstall = (ChatDataConversationInstall) chatData;
                 yield Flux.concat(
@@ -64,7 +70,7 @@ public class SseChatDataAdapter {
                     .id(chatDataUpdate.getConversationId().getId().toString())
                     .data(SseChatPayload.SseChatConversationDataList.of(
                         SseChatPayload.SseChatConversationMessageData.builder()
-                            .id(messageValue.getConversationDataId().getId().toString())
+                            .id(messageValue.getConversationDataId().getId())
                             .dateTime(messageValue.getDateTime().toEpochSecond())
                             .from(messageValue.getFrom().getId().toString())
                             .message(messageValue.getMessage().getContent())
@@ -82,7 +88,7 @@ public class SseChatDataAdapter {
             .payload(SseChatPayload.builder()
                 .conversation(SseChatConversation.builder()
                     .id(chatDataUpdate.getConversationId().getId().toString())
-                    .readMarkers(Map.of(markedAsReadValue.getBy().getId().toString(), markedAsReadValue.getAt().getId().toString()))
+                    .readMarkers(Map.of(markedAsReadValue.getBy().getId().toString(), markedAsReadValue.getConversationDataId().getId()))
                     .build())
                 .build())
             .build());
@@ -100,7 +106,7 @@ public class SseChatDataAdapter {
                     // TO DO: ⬆ or ⬇ or both ??
                     .data(SseChatPayload.SseChatConversationDataList.of(
                         SseChatPayload.SseChatConversationChatterData.builder()
-                            .id(chatterAddValue.getConversationDataId().getId().toString())
+                            .id(chatterAddValue.getConversationDataId().getId())
                             .dateTime(chatterAddValue.getDateTime().toEpochSecond())
                             .from(chatterAddValue.getFrom().getId().toString())
                             .chatterId(chatterAddValue.getChatterId().getId().toString())
@@ -129,7 +135,7 @@ public class SseChatDataAdapter {
                         .map(this::toSseChatConversationData)
                         .filter(Objects::nonNull)
                         .collect(Collectors.toCollection(SseChatPayload.SseChatConversationDataList::new)))
-                    .readMarkers(chatDataConversationInstall.getReadMarkers().entrySet().stream().collect(Collectors.toMap(e -> e.getKey().getId().toString(), e -> e.getValue().getId().toString())))
+                    .readMarkers(chatDataConversationInstall.getReadMarkers().entrySet().stream().collect(Collectors.toMap(e -> e.getKey().getId().toString(), e -> e.getValue().getId())))
                     .build())
                 .build())
             .build());
@@ -150,7 +156,7 @@ public class SseChatDataAdapter {
                         .map(this::toSseChatConversationData)
                         .filter(Objects::nonNull)
                         .collect(Collectors.toCollection(SseChatPayload.SseChatConversationDataList::new)))
-                    .readMarkers(chatDataConversationPartial.getReadMarkers().entrySet().stream().collect(Collectors.toMap(e -> e.getKey().getId().toString(), e -> e.getValue().getId().toString())))
+                    .readMarkers(chatDataConversationPartial.getReadMarkers().entrySet().stream().collect(Collectors.toMap(e -> e.getKey().getId().toString(), e -> e.getValue().getId())))
                     .build())
                 .build())
             .build());
@@ -179,7 +185,7 @@ public class SseChatDataAdapter {
             case MESSAGE:
                 ConversationMessage conversationMessage = (ConversationMessage) conversationData;
                 yield SseChatPayload.SseChatConversationMessageData.builder()
-                    .id(conversationMessage.getConversationDataId().getId().toString())
+                    .id(conversationMessage.getConversationDataId().getId())
                     .dateTime(conversationMessage.getDateTime().toEpochSecond())
                     .from(conversationMessage.getChatterId().getId().toString())
                     .message(conversationMessage.getMessage().getContent())
@@ -187,10 +193,10 @@ public class SseChatDataAdapter {
             case CHATTER_ADD:
                 ConversationChatter conversationChatter = (ConversationChatter) conversationData;
                 yield SseChatPayload.SseChatConversationChatterData.builder()
-                    .id(conversationChatter.getConversationDataId().getId().toString())
+                    .id(conversationChatter.getConversationDataId().getId())
                     .dateTime(conversationChatter.getDateTime().toEpochSecond())
-                    .from(conversationChatter.getInvitedByChatterId().getId().toString())
-                    .chatterId(conversationChatter.getChatterId().getId().toString())
+                    .from(conversationChatter.getChatterId().getId().toString())
+                    .chatterId(conversationChatter.getInvitedChatterId().getId().toString())
                     .build();
         };
     }

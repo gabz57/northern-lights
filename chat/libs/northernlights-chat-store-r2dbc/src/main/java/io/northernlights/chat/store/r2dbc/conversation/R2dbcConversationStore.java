@@ -20,6 +20,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.util.annotation.Nullable;
 import reactor.util.function.Tuple2;
 import reactor.util.function.Tuples;
 
@@ -52,7 +53,7 @@ public class R2dbcConversationStore implements ConversationStore {
     }
 
     @Transactional(readOnly = true)
-    public Flux<ConversationData> conversationData(ConversationId conversationId, ConversationDataId sinceConversationDataId) {
+    public Flux<ConversationData> conversationData(ConversationId conversationId, @Nullable ConversationDataId sinceConversationDataId) {
         return ofNullable(sinceConversationDataId)
             .map(conversationDataId -> conversationDataRepository.findAllByConversationIdAndConversationDataIdGreaterThan(conversationId.getId(), conversationDataId.getId()))
             .orElseGet(() -> conversationDataRepository.findAllByConversationId(conversationId.getId()))
@@ -60,7 +61,7 @@ public class R2dbcConversationStore implements ConversationStore {
     }
 
     @Transactional(readOnly = true)
-    public Mono<Conversation> conversation(ConversationId conversationId, ConversationDataId sinceConversationDataId) {
+    public Mono<Conversation> conversation(ConversationId conversationId, @Nullable ConversationDataId sinceConversationDataId) {
         return conversationData(conversationId, sinceConversationDataId)
             .collectList()
             .map(Conversation::new);

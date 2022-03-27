@@ -9,6 +9,7 @@ import io.northernlights.chat.store.chatter.ChatterStore;
 import io.northernlights.chat.store.r2dbc.chatter.model.ChatterConversationModel;
 import io.northernlights.chat.store.r2dbc.chatter.model.ChatterModel;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Mono;
 
@@ -16,6 +17,7 @@ import java.util.List;
 
 import static java.util.stream.Collectors.toList;
 
+@Slf4j
 @RequiredArgsConstructor
 public class R2dbcChatterStore implements ChatterStore {
 
@@ -24,6 +26,7 @@ public class R2dbcChatterStore implements ChatterStore {
 
     @Transactional
     public Mono<Void> writeConversationCreated(ConversationCreatedEvent conversationEvent) {
+        log.info("writeConversationCreated {}", conversationEvent);
         return chatterConversationRepository.save(ChatterConversationModel.of(conversationEvent.getCreatedBy(), true, conversationEvent.getConversationId(), conversationEvent.getDateTime()))
             .thenMany(chatterConversationRepository.saveAll(conversationEvent.getParticipants().stream()
                 .map(participant -> ChatterConversationModel.of(participant, false, conversationEvent.getConversationId(), conversationEvent.getDateTime()))
@@ -42,7 +45,8 @@ public class R2dbcChatterStore implements ChatterStore {
         return chatterConversationRepository.findAllByChatterId(chatterId.getId())
             .map(ChatterConversationModel::getConversationId)
             .map(ConversationId::of)
-            .collectList();
+            .collectList()
+            .doOnNext(conversationIds -> log.info("listConversationIds of {}: {}", chatterId, conversationIds));
     }
 
     @Transactional(readOnly = true)
@@ -53,8 +57,8 @@ public class R2dbcChatterStore implements ChatterStore {
     }
 
     @Transactional
-    public Mono<Chatter> insertChatter(Chatter creator) {
-        return chattersRepository.save(ChatterModel.of(creator, true))
+    public Mono<Chatter> insertChatter(Chatter chatter) {
+        return chattersRepository.save(ChatterModel.of(chatter, true))
             .map(ChatterModel::toChatter);
     }
 

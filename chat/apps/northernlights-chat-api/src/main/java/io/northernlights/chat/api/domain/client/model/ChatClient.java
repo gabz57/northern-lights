@@ -33,12 +33,16 @@ public class ChatClient {
         return chatClientStore.loadConversationIds(this.chatClientId)
             .doOnNext(ids -> this.conversationIds = ids)
             .thenMany(Flux.concat(
-//                hello(sseChatKey),
+                hello(sseChatKey.getId().toString()),
                 previousData(sseChatKey).doOnComplete(() -> log.info("Connect: Previous Data Completed")),
                 liveData().doOnComplete(() -> log.info("Connect: Live Data Completed"))
             )).doOnComplete(() -> log.info("Connect: COMPLETED..."));
     }
-
+    private Flux<ChatData> hello(String sseChatKey) {
+        return Flux.just(ChatDataHello.builder()
+            .sseChatKey(sseChatKey)
+            .build());
+    }
     public void stop() {
         log.info("ChatClient::stop clientID: " + this.chatClientId);
         disposableChatDataFlow.dispose();

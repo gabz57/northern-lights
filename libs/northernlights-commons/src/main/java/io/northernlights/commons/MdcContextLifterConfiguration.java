@@ -11,6 +11,7 @@ import reactor.util.context.Context;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -26,7 +27,9 @@ public class MdcContextLifterConfiguration {
 
     @PostConstruct
     public void contextOperatorHook() {
-        Hooks.onEachOperator(MDC_CONTEXT_REACTOR_KEY, Operators.lift((ignored, subscriber) -> new MdcContextLifter<>(subscriber)));
+        Hooks.onEachOperator(MDC_CONTEXT_REACTOR_KEY,
+            Operators.lift((scannable, coreSubscriber) -> new MdcContextLifter<>(coreSubscriber))
+        );
     }
 
     @PreDestroy
@@ -48,13 +51,7 @@ public class MdcContextLifterConfiguration {
 
         @Override
         public void onNext(T t) {
-            Context context = coreSubscriber.currentContext();
-            if (!context.isEmpty()) {
-                MDC.setContextMap(context.stream()
-                    .collect(Collectors.toMap(e -> e.getKey().toString(), e -> e.getValue().toString())));
-            } else {
-                MDC.clear();
-            }
+            copyToMdc(coreSubscriber.currentContext());
             coreSubscriber.onNext(t);
         }
 
@@ -67,6 +64,23 @@ public class MdcContextLifterConfiguration {
         public void onComplete() {
             coreSubscriber.onComplete();
         }
+        /**
+         * Extension function for the Reactor [Context]. Copies the current context to the MDC, if context is empty clears the MDC.
+         * State of the MDC after calling this method should be same as Reactor [Context] state.
+         * One thread-local access only.
+         */
+        private void copyToMdc(Context context) {
+
+            if (!context.isEmpty()) {
+                Map<String, String> map = context.stream()
+                    .collect(Collectors.toMap(e -> e.getKey().toString(), e -> e.getValue().toString()));
+
+                MDC.setContextMap(map);
+            } else {
+                MDC.clear();
+            }
+        }
+
     }
 
 }
