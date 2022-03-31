@@ -11,7 +11,6 @@ import io.northernlights.chat.domain.model.conversation.data.ConversationDataId;
 import io.northernlights.chat.store.conversation.ConversationStore;
 import io.northernlights.chat.domain.model.chatter.ChatterId;
 import io.northernlights.chat.store.r2dbc.ChatStoreIntegrationTestBase;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -151,7 +150,7 @@ class R2dbcConversationStoreTest extends ChatStoreIntegrationTestBase {
 
             // When
             Mono<ConversationCreation> conversationCreation = conversationCreatedEvent
-                .flatMap(event -> conversationStore.conversationCreationData(event.getConversationId()));
+                .flatMap(event -> conversationStore.conversationDetails(event.getConversationId()));
 
             // Then
             conversationCreation.as(StepVerifier::create)

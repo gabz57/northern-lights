@@ -12,6 +12,7 @@ import reactor.core.publisher.Flux;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import static java.util.Optional.ofNullable;
@@ -24,46 +25,22 @@ public class ChatDataDispatcher implements ChatDataProvider {
     private final Flux<ConversationEvent> allConversationEventsFlux;
     private final ChatDataAdapter chatDataAdapter;
 
-    public ChatDataDispatcher(ConversationEventSubscriber conversationEventSubscriber, ChatDataAdapter chatDataAdapter) {
+    public ChatDataDispatcher(ConversationEventSource conversationEventSource, ChatDataAdapter chatDataAdapter) {
         this.chatDataAdapter = chatDataAdapter;
-        this.allConversationEventsFlux = Flux.from(conversationEventSubscriber.subscribe())
+        this.allConversationEventsFlux = Flux.from(conversationEventSource.subscribe())
             .doOnNext(this::updateFollowedConversations)
             .filter(this::followedConversations)
             .share();
         allConversationEventsFlux.subscribe(e -> log.info("Dispatching {}", e.getConversationEventType()));
     }
 
-    private boolean followedConversations(ConversationEvent conversationEvent) {
-        return followedConversations.contains(conversationEvent.getConversationId());
-    }
-
     public Flux<ChatData> chatterFlow(ChatClientID chatClientId, List<ConversationId> conversationIds) {
         followedConversationsByChatterId.put(chatClientId.getChatterId(), conversationIds);
         followedConversations.addAll(conversationIds);
         return allConversationEventsFlux
-            .filter(conversationEvent -> isConversationFollowedByChatter(chatClientId, conversationEvent))
+            .filter(onlyConversationFollowedByChatter(chatClientId))
             .flatMap(chatDataAdapter::adaptLiveData)
             .doOnTerminate(() -> cleanFollowedConversations(chatClientId));
-    }
-
-    private boolean isConversationFollowedByChatter(ChatClientID chatClientId, ConversationEvent conversationEvent) {
-        return followedConversationsByChatterId.get(chatClientId.getChatterId())
-            .contains(conversationEvent.getConversationId());
-    }
-
-    private void cleanFollowedConversations(ChatClientID chatClientId) {
-        List<ConversationId> removedConversationIds = followedConversationsByChatterId.remove(chatClientId.getChatterId());
-        // ⚠️ do not inline above expression, count must be done
-        //    after removal of current chatter conversations
-        Map<ConversationId, Long> nbFollowersByConversationId = followedConversationsByChatterId.values().stream().flatMap(Collection::stream)
-            .collect(Collectors.groupingBy(e -> e, Collectors.counting()));
-
-        // check for each conversation if other chatter are plugged
-        removedConversationIds.forEach(removedConversationId -> {
-            if (nbFollowersByConversationId.getOrDefault(removedConversationId, 0L) == 0L) {
-                followedConversations.remove(removedConversationId);
-            }
-        });
     }
 
     private void updateFollowedConversations(ConversationEvent conversationEvent) {
@@ -92,5 +69,30 @@ public class ChatDataDispatcher implements ChatDataProvider {
             default -> {
             }
         }
+    }
+
+    private boolean followedConversations(ConversationEvent conversationEvent) {
+        return followedConversations.contains(conversationEvent.getConversationId());
+    }
+
+    private Predicate<ConversationEvent> onlyConversationFollowedByChatter(ChatClientID chatClientId) {
+        return conversationEvent -> followedConversationsByChatterId.get(chatClientId.getChatterId())
+            .contains(conversationEvent.getConversationId());
+    }
+
+    private void cleanFollowedConversations(ChatClientID chatClientId) {
+        List<ConversationId> removedConversationIds = followedConversationsByChatterId.remove(chatClientId.getChatterId());
+        // ⚠️ do not inline above expression, count must be done
+        //    after removal of current chatter conversations
+        Map<ConversationId, Long> nbFollowersByConversationId = followedConversationsByChatterId.values().stream()
+            .flatMap(Collection::stream)
+            .collect(Collectors.groupingBy(e -> e, Collectors.counting()));
+
+        // check for each conversation if other chatter are plugged
+        removedConversationIds.forEach(removedConversationId -> {
+            if (nbFollowersByConversationId.getOrDefault(removedConversationId, 0L) == 0L) {
+                followedConversations.remove(removedConversationId);
+            }
+        });
     }
 }

@@ -68,7 +68,7 @@ public class R2dbcConversationStore implements ConversationStore {
     }
 
     @Transactional(readOnly = true)
-    public Mono<ConversationCreation> conversationCreationData(ConversationId conversationId) {
+    public Mono<ConversationCreation> conversationDetails(ConversationId conversationId) {
         return conversationDataRepository.findFirstByConversationIdAndConversationDataType(conversationId.getId(), ConversationDataType.CREATION)
             .map(this::toConversationData)
             .cast(ConversationCreation.class);

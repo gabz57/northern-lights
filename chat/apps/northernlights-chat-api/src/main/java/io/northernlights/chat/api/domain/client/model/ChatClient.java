@@ -38,11 +38,13 @@ public class ChatClient {
                 liveData().doOnComplete(() -> log.info("Connect: Live Data Completed"))
             )).doOnComplete(() -> log.info("Connect: COMPLETED..."));
     }
+
     private Flux<ChatData> hello(String sseChatKey) {
         return Flux.just(ChatDataHello.builder()
             .sseChatKey(sseChatKey)
             .build());
     }
+
     public void stop() {
         log.info("ChatClient::stop clientID: " + this.chatClientId);
         disposableChatDataFlow.dispose();
@@ -60,9 +62,9 @@ public class ChatClient {
 
     private Flux<ChatData> liveData() {
         return chatterDataSink.asFlux()
-            .doOnSubscribe(s -> log.info("Subscribed to chatDataSink ..."))
-            .doOnError(e -> log.error("Error in chatDataSink", e))
-            .doOnComplete(() -> log.info("chatDataSink terminated"));
+            .doOnSubscribe(s -> log.info("ChatterDataSink subscribed"))
+            .doOnError(e -> log.error("ChatterDataSink error", e))
+            .doOnComplete(() -> log.info("ChatterDataSink terminated"));
     }
 
     private void startSendingLiveEvent() {
@@ -80,10 +82,10 @@ public class ChatClient {
                     ChatterAddValue chatterAdd = chatDataUpdate.getChatterAdd();
                     // only invitee is interested, intercept and replace what he receives with previous content
                     if (chatterAdd != null && chatterAdd.getChatterId().equals(this.chatClientId.getChatterId())) {
-                            chatClientStore.loadConversationInstallData(chatDataUpdate.getConversationId())
-                                .doOnNext(chatterDataSink::tryEmitNext)
-                                .subscribe();
-                            return;
+                        chatClientStore.installConversation(chatDataUpdate.getConversationId())
+                            .doOnNext(chatterDataSink::tryEmitNext)
+                            .subscribe();
+                        return;
                     }
                 }
                 chatterDataSink.tryEmitNext(t);

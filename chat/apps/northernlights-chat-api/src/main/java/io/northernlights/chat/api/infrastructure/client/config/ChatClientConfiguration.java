@@ -14,11 +14,6 @@ import org.springframework.context.annotation.Configuration;
 public class ChatClientConfiguration {
 
     @Bean
-    public ConversationEventSubscriber conversationEventSubscriber(LocalConversationEventFlow localConversationEventFlow) {
-        return localConversationEventFlow;
-    }
-
-    @Bean
     public ChatDataAdapter chatDataAdapter(ChatterStore chatterStore) {
         return new ChatDataAdapter(chatterStore);
     }
@@ -29,8 +24,8 @@ public class ChatClientConfiguration {
     }
 
     @Bean
-    public ChatDataProvider chatDataProvider(ConversationEventSubscriber conversationEventSubscriber, ChatDataAdapter chatDataAdapter) {
-        return new ChatDataDispatcher(conversationEventSubscriber, chatDataAdapter);
+    public ChatDataProvider chatDataProvider(ConversationEventSource conversationEventSource, ChatDataAdapter chatDataAdapter) {
+        return new ChatDataDispatcher(conversationEventSource, chatDataAdapter);
     }
 
     @Bean

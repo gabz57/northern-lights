@@ -3,7 +3,6 @@ package io.northernlights.chat.api.infrastructure.conversation.config;
 import io.northernlights.api.core.error.infrastructure.ErrorHandler;
 import io.northernlights.chat.api.application.conversation.ChatCommands;
 import io.northernlights.chat.api.domain.conversation.ConversationEventPublisher;
-import io.northernlights.chat.api.infrastructure.LocalConversationEventFlow;
 import io.northernlights.chat.api.infrastructure.R2dbcAuditAwareConfiguration;
 import io.northernlights.chat.api.infrastructure.conversation.http.ChatApiAdapter;
 import io.northernlights.chat.api.infrastructure.conversation.http.ChatHandler;
@@ -20,7 +19,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.web.reactive.function.server.RouterFunction;
 import org.springframework.web.reactive.function.server.ServerResponse;
-import reactor.core.publisher.Mono;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.web.reactive.function.server.RequestPredicates.*;
@@ -37,14 +35,6 @@ import static org.springframework.web.reactive.function.server.RouterFunctions.r
 public class ConversationConfiguration {
 
     public static final String CHAT_CONVERSATION = "/v1/chat/api";
-
-    @Bean
-    public ConversationEventPublisher conversationEventPublisher(LocalConversationEventFlow localConversationEventFlow) {
-        return e -> {
-            localConversationEventFlow.publish(e);
-            return Mono.empty();
-        };
-    }
 
     @Bean
     public ChatCommands chatCommands(TimeService timeService,

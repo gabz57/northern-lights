@@ -13,10 +13,10 @@ springdoc:
     #enabled: false
   show-login-endpoint: false
 
-chat-api:
-  chat-store:
+chat:
+  store:
     r2dbc:
-      url: r2dbc:tc:mysql:///databasename?TC_IMAGE_TAG=5.6.23
+      url: r2dbc:postgresql://postgres:postgres@localhost:5432/northernlights-chat
       pool:
         name: chat-api-pool
         initial-size: 10

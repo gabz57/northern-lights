@@ -18,7 +18,6 @@ import reactor.util.function.Tuple2;
 
 import java.time.OffsetDateTime;
 import java.util.List;
-import java.util.Map;
 
 public interface ConversationStore {
 
@@ -28,7 +27,7 @@ public interface ConversationStore {
     Mono<Conversation> conversation(ConversationId conversationId, @Nullable ConversationDataId sinceConversationDataId);
     Flux<ConversationData> conversationData(ConversationId conversationId, @Nullable ConversationDataId sinceConversationDataId);
 
-    Mono<ConversationCreation> conversationCreationData(ConversationId conversationId);
+    Mono<ConversationCreation> conversationDetails(ConversationId conversationId);
 
     Flux<Tuple2<ChatterId, ConversationDataId>> readMarkers(ConversationId conversationId);
 

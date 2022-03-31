@@ -23,7 +23,7 @@ import java.util.Map;
 public class ChatDataAdapter {
     private final ChatterStore chatterStore;
 
-    public ChatData adaptConversationInstallData(
+    public ChatData adaptConversationInstall(
         ConversationId conversationId,
         ConversationCreation conversationCreation,
         List<Chatter> chatters,
@@ -42,7 +42,7 @@ public class ChatDataAdapter {
             .build();
     }
 
-    public ChatData adaptPartialColdData(
+    public ChatData adaptConversationUpdate(
         ConversationId conversationId,
         List<Chatter> chatters,
         Conversation conversation,

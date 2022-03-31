@@ -35,11 +35,6 @@ import static org.springframework.web.reactive.function.server.ServerResponse.ok
 public class ChatApiConfiguration implements WebFluxConfigurer {
 
     @Bean
-    public LocalConversationEventFlow localConversationEventFlow() {
-        return new LocalConversationEventFlow();
-    }
-
-    @Bean
     @ConfigurationProperties("chat-api")
     public ChatApiProperties chatApiProperties() {
         return new ChatApiProperties();

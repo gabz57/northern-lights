@@ -1,6 +1,6 @@
 package io.northernlights.chat.api.infrastructure;
 
-import io.northernlights.chat.api.domain.client.ConversationEventSubscriber;
+import io.northernlights.chat.api.domain.client.ConversationEventSource;
 import io.northernlights.chat.api.domain.conversation.ConversationEventPublisher;
 import io.northernlights.chat.domain.event.ConversationEvent;
 import lombok.extern.slf4j.Slf4j;
@@ -9,7 +9,7 @@ import reactor.core.publisher.Mono;
 import reactor.core.publisher.Sinks;
 
 @Slf4j
-public class LocalConversationEventFlow implements ConversationEventPublisher, ConversationEventSubscriber {
+public class LocalConversationEventFlow implements ConversationEventPublisher, ConversationEventSource {
 
     private final Sinks.Many<ConversationEvent> conversationEventSink = Sinks.many().multicast().onBackpressureBuffer();
 

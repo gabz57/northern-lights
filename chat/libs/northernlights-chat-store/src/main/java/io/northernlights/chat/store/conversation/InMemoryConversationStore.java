@@ -75,7 +75,7 @@ public class InMemoryConversationStore implements ConversationStore {
         throw new RuntimeException("NOT YET IMPLEMENTED");
     }
 
-    public Mono<ConversationCreation> conversationCreationData(ConversationId conversationId) {
+    public Mono<ConversationCreation> conversationDetails(ConversationId conversationId) {
         return Mono.just((ConversationCreation) conversations.get(conversationId).get(0));
     }
 

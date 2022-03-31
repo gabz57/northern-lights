@@ -30,5 +30,6 @@ env.sh
 ### VS Code ###
 .vscode/
 
-### Copy from libs to apps (split & avoid duplication) ###
-/apps/northernlights-chat-api/src/main/resources/db/changelog/features/
+# Docker local volumes
+/chat/docker/postgresql/data/
+/chat/apps/northernlights-chat-ui/node_modules_cache/

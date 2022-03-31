@@ -11,17 +11,17 @@ services:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
     volumes:
-      - ./../northernlights-chat-store-r2dbc/src/main/resources/postgresql/data:/var/lib/postgresql/data
+      - ./../docker/postgresql/data:/var/lib/postgresql/data
     networks:
       - northernlights-net
 
   liquibase:
     container_name: northernlights-chat-liquibase
     image: liquibase/liquibase
-    command: --url=jdbc:postgresql://northernlights-chat-db:5432/northernlights-chat?user=postgres&password=postgres --changelogFile=changelog.xml update
+    command: --url=jdbc:postgresql://northernlights-chat-db:5432/northernlights-chat?user=postgres&password=postgres --changelogFile=db.changelog-master.xml update
     volumes:
 #      - ./scripts:/liquibase/scripts
-      - ./../northernlights-chat-store-migration/src/main/resources/db.changelog:/liquibase/changelog
+      - ./../libs/northernlights-chat-store-migration/src/main/resources/db/changelog:/liquibase/changelog
     networks:
       - northernlights-net
     depends_on:

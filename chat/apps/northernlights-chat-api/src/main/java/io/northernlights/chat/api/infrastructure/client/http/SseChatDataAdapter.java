@@ -49,11 +49,11 @@ public class SseChatDataAdapter {
             case LIVE_UPDATE -> {
                 ChatDataUpdate chatDataUpdate = (ChatDataUpdate) chatData;
                 if (chatDataUpdate.getMessage() != null) {
-                    yield updateConversationMessage(chatDataUpdate, chatDataUpdate.getMessage());
+                    yield updateConversationMessage(chatDataUpdate);
                 } else if (chatDataUpdate.getMarkedAsRead() != null) {
-                    yield updateConversationReadMarker(chatDataUpdate, chatDataUpdate.getMarkedAsRead());
+                    yield updateConversationReadMarker(chatDataUpdate);
                 } else if (chatDataUpdate.getChatterAdd() != null) {
-                    yield updateConversationChatter(chatDataUpdate, chatDataUpdate.getChatterAdd());
+                    yield updateConversationChatter(chatDataUpdate);
                 } else {
                     yield Flux.empty();
                 }
@@ -61,7 +61,7 @@ public class SseChatDataAdapter {
         };
     }
 
-    private Flux<SseChatData> updateConversationMessage(ChatDataUpdate chatDataUpdate, ChatDataUpdate.MessageValue messageValue) {
+    private Flux<SseChatData> updateConversationMessage(ChatDataUpdate chatDataUpdate) {
         return Flux.just(SseChatData.builder()
             // .id()
             .event(CONVERSATION_UPDATE_MESSAGE)
@@ -70,10 +70,10 @@ public class SseChatDataAdapter {
                     .id(chatDataUpdate.getConversationId().getId().toString())
                     .data(SseChatPayload.SseChatConversationDataList.of(
                         SseChatPayload.SseChatConversationMessageData.builder()
-                            .id(messageValue.getConversationDataId().getId())
-                            .dateTime(messageValue.getDateTime().toEpochSecond())
-                            .from(messageValue.getFrom().getId().toString())
-                            .message(messageValue.getMessage().getContent())
+                            .id(chatDataUpdate.getMessage().getConversationDataId().getId())
+                            .dateTime(chatDataUpdate.getMessage().getDateTime().toEpochSecond())
+                            .from(chatDataUpdate.getMessage().getFrom().getId().toString())
+                            .message(chatDataUpdate.getMessage().getMessage().getContent())
                             .build()
                     ))
                     .build())
@@ -81,21 +81,21 @@ public class SseChatDataAdapter {
             .build());
     }
 
-    private Flux<SseChatData> updateConversationReadMarker(ChatDataUpdate chatDataUpdate, ChatDataUpdate.MarkedAsReadValue markedAsReadValue) {
+    private Flux<SseChatData> updateConversationReadMarker(ChatDataUpdate chatDataUpdate) {
         return Flux.just(SseChatData.builder()
             // .id()
             .event(CONVERSATION_UPDATE_READ_MARKER)
             .payload(SseChatPayload.builder()
                 .conversation(SseChatConversation.builder()
                     .id(chatDataUpdate.getConversationId().getId().toString())
-                    .readMarkers(Map.of(markedAsReadValue.getBy().getId().toString(), markedAsReadValue.getConversationDataId().getId()))
+                    .readMarkers(Map.of(chatDataUpdate.getMarkedAsRead().getBy().getId().toString(), chatDataUpdate.getMarkedAsRead().getConversationDataId().getId()))
                     .build())
                 .build())
             .build());
     }
 
     // LIVE
-    private Flux<SseChatData> updateConversationChatter(ChatDataUpdate chatDataUpdate, ChatDataUpdate.ChatterAddValue chatterAddValue) {
+    private Flux<SseChatData> updateConversationChatter(ChatDataUpdate chatDataUpdate) {
         return Flux.just(SseChatData.builder()
             // .id()
             .event(CONVERSATION_ADD_CHATTER)
@@ -106,10 +106,10 @@ public class SseChatDataAdapter {
                     // TO DO: ⬆ or ⬇ or both ??
                     .data(SseChatPayload.SseChatConversationDataList.of(
                         SseChatPayload.SseChatConversationChatterData.builder()
-                            .id(chatterAddValue.getConversationDataId().getId())
-                            .dateTime(chatterAddValue.getDateTime().toEpochSecond())
-                            .from(chatterAddValue.getFrom().getId().toString())
-                            .chatterId(chatterAddValue.getChatterId().getId().toString())
+                            .id(chatDataUpdate.getChatterAdd().getConversationDataId().getId())
+                            .dateTime(chatDataUpdate.getChatterAdd().getDateTime().toEpochSecond())
+                            .from(chatDataUpdate.getChatterAdd().getFrom().getId().toString())
+                            .chatterId(chatDataUpdate.getChatterAdd().getChatterId().getId().toString())
                             .build()
                     ))
                     .build())

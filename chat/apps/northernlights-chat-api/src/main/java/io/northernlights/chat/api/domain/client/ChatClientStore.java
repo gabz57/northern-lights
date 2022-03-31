@@ -13,7 +13,7 @@ import java.util.List;
 public interface ChatClientStore {
     Flux<ChatData> loadPreviousData(ChatClientID chatClientId, SseChatKey sseChatKey);
 
-    Mono<ChatData> loadConversationInstallData(ConversationId conversationId);
+    Mono<ChatData> installConversation(ConversationId conversationId);
 
     Mono<List<ConversationId>> loadConversationIds(ChatClientID chatClientId);
 
