@@ -3,6 +3,7 @@ package io.northernlights.chat.api.infrastructure.conversation.config;
 import io.northernlights.api.core.error.infrastructure.ErrorHandler;
 import io.northernlights.chat.api.application.conversation.ChatCommands;
 import io.northernlights.chat.api.domain.conversation.ConversationEventPublisher;
+import io.northernlights.chat.api.infrastructure.LocalStartupListener;
 import io.northernlights.chat.api.infrastructure.R2dbcAuditAwareConfiguration;
 import io.northernlights.chat.api.infrastructure.conversation.http.ChatApiAdapter;
 import io.northernlights.chat.api.infrastructure.conversation.http.ChatHandler;
@@ -17,6 +18,7 @@ import io.northernlights.commons.TimeService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.Profile;
 import org.springframework.web.reactive.function.server.RouterFunction;
 import org.springframework.web.reactive.function.server.ServerResponse;
 
@@ -35,6 +37,12 @@ import static org.springframework.web.reactive.function.server.RouterFunctions.r
 public class ConversationConfiguration {
 
     public static final String CHAT_CONVERSATION = "/v1/chat/api";
+
+    @Profile("local")
+    @Bean
+    public LocalStartupListener localStartupListener(ChatterStore chatterStore, ConversationStore conversationStore) {
+        return new LocalStartupListener(chatterStore, conversationStore);
+    }
 
     @Bean
     public ChatCommands chatCommands(TimeService timeService,

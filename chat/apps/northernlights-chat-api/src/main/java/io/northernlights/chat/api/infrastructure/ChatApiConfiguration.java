@@ -78,7 +78,7 @@ public class ChatApiConfiguration implements WebFluxConfigurer {
         public boolean test(ServerRequest request) {
             String path = request.path();
             return request.method() == HttpMethod.GET
-                && (path.equals("/") || (pathIsNotAFile(path) && pathIsNotApi(path)));
+                   && (path.equals("/") || (pathIsNotAFile(path) && pathIsNotApi(path)));
         }
 
         private boolean pathIsNotAFile(String path) {
