@@ -13,6 +13,7 @@ const initialState: State = {
         editingProfile: false,
         creatingConversation: false,
     },
+    jwt: '',
     sse: {
        eventSource: undefined,
        sseAutoConnect: false,

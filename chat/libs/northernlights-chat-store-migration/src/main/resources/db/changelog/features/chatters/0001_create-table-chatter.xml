@@ -12,6 +12,7 @@
             <column name="name" type="varchar(255)">
                 <constraints nullable="false"/>
             </column>
+            <column name="picture" type="text"/>
 
             <column name="created_at" type="DATETIME">
                 <constraints nullable="false"/>

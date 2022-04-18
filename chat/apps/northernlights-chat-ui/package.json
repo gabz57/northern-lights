@@ -13,6 +13,7 @@
     "event-source-polyfill": "^1.0.24",
     "gsap": "^3.7.1",
     "intersection-observer": "^0.12.0",
+    "jose": "^4.6.0",
     "luxon": "^2.0.1",
     "moment": "^2.29.1",
     "register-service-worker": "^1.7.1",

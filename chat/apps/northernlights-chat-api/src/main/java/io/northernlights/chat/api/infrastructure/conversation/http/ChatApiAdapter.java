@@ -1,7 +1,7 @@
 package io.northernlights.chat.api.infrastructure.conversation.http;
 
-import io.northernlights.chat.api.application.conversation.ChatAuthenticationCommand.ChatAuthenticationCommandInput;
-import io.northernlights.chat.api.application.conversation.ChatAuthenticationCommand.ChatAuthenticationCommandResult;
+import io.northernlights.chat.api.application.conversation.InitializeSseChatCommand.InitializeSseChatCommandInput;
+import io.northernlights.chat.api.application.conversation.InitializeSseChatCommand.InitializeSseChatCommandResult;
 import io.northernlights.chat.api.application.conversation.InviteChatterCommand.InviteChatterCommandInput;
 import io.northernlights.chat.api.application.conversation.InviteChatterCommand.InviteChatterCommandResult;
 import io.northernlights.chat.api.application.conversation.MarkConversationAsReadCommand.MarkConversationAsReadCommandInput;
@@ -10,6 +10,7 @@ import io.northernlights.chat.domain.model.chatter.ChatterId;
 import io.northernlights.chat.domain.model.conversation.ConversationId;
 import io.northernlights.chat.domain.model.conversation.Message;
 import io.northernlights.chat.domain.model.conversation.data.ConversationDataId;
+import io.northernlights.security.NorthernLightsAuthentication;
 import lombok.RequiredArgsConstructor;
 
 import static io.northernlights.chat.api.application.conversation.CreateConversationCommand.CreateConversationCommandInput;
@@ -21,9 +22,9 @@ import static java.util.stream.Collectors.toMap;
 
 @RequiredArgsConstructor
 public class ChatApiAdapter {
-    public CreateConversationCommandInput adapt(CreateConversationRequest request, String issuer) {
+    public CreateConversationCommandInput adapt(CreateConversationRequest request, NorthernLightsAuthentication authentication) {
         return CreateConversationCommandInput.builder()
-            .creator(ChatterId.of(issuer))
+            .creator(authentication.getPrincipal().getChatterId())
             .conversationName(request.getName())
             .participants(request.getParticipants().stream().map(ChatterId::of).toList())
             .dialogue(request.getDialogue())
@@ -36,9 +37,9 @@ public class ChatApiAdapter {
             .build();
     }
 
-    public SendMessageCommandInput adapt(SendMessageRequest request, String issuer) {
+    public SendMessageCommandInput adapt(SendMessageRequest request, NorthernLightsAuthentication authentication) {
         return SendMessageCommandInput.builder()
-            .chatterID(ChatterId.of(issuer))
+            .chatterID(authentication.getPrincipal().getChatterId())
             .conversationID(ConversationId.of(request.getConversationId()))
             .message(new Message(request.getMessage()))
             .build();
@@ -51,9 +52,9 @@ public class ChatApiAdapter {
             .build();
     }
 
-    public MarkConversationAsReadCommandInput adapt(MarkAsReadRequest request, String issuer) {
+    public MarkConversationAsReadCommandInput adapt(MarkAsReadRequest request, NorthernLightsAuthentication authentication) {
         return MarkConversationAsReadCommandInput.builder()
-            .chatterId(ChatterId.of(issuer))
+            .chatterId(authentication.getPrincipal().getChatterId())
             .conversationId(ConversationId.of(request.getConversationId()))
             .conversationDataId(ConversationDataId.of(request.getConversationDataId()))
             .build();
@@ -66,9 +67,9 @@ public class ChatApiAdapter {
             .build();
     }
 
-    public InviteChatterCommandInput adapt(InviteChatterRequest request, String issuer) {
+    public InviteChatterCommandInput adapt(InviteChatterRequest request, NorthernLightsAuthentication authentication) {
         return InviteChatterCommandInput.builder()
-            .chatterId(ChatterId.of(issuer))
+            .chatterId(authentication.getPrincipal().getChatterId())
             .conversationId(ConversationId.of(request.getConversationId()))
             .invitedChatterId(ChatterId.of(request.getChatterId()))
             .build();
@@ -81,16 +82,16 @@ public class ChatApiAdapter {
             .build();
     }
 
-    public ChatAuthenticationCommandInput adapt(ChatAuthenticationRequest request, String issuer) {
-        return ChatAuthenticationCommandInput.builder()
-            .chatterId(ChatterId.of(issuer))
+    public InitializeSseChatCommandInput adapt(InitializeSseChatRequest request, NorthernLightsAuthentication authentication) {
+        return InitializeSseChatCommandInput.builder()
+            .chatterId(authentication.getPrincipal().getChatterId())
             .conversationStatus(request.getConversationStatuses().entrySet().stream()
                 .collect(toMap(e -> ConversationId.of(e.getKey()), e -> ConversationDataId.of(e.getValue()))))
             .build();
     }
 
-    public ChatAuthenticationResponse adapt(ChatAuthenticationCommandResult result) {
-        return ChatAuthenticationResponse.builder()
+    public InitializeSseChatResponse adapt(InitializeSseChatCommandResult result) {
+        return InitializeSseChatResponse.builder()
             .sseChatKey(result.getSseChatKey().getId().toString())
             .build();
     }

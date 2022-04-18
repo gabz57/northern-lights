@@ -16,8 +16,8 @@ public class ChatCommands {
     private final SseKeyStore sseKeyStore;
     private final ConversationEventPublisher conversationEventPublisher;
 
-    public ChatAuthenticationCommand authenticate() {
-        return new ChatAuthenticationCommand(this.sseKeyStore);
+    public InitializeSseChatCommand authenticate() {
+        return new InitializeSseChatCommand(this.sseKeyStore);
     }
 
     public CreateConversationCommand createConversation() {

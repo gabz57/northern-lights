@@ -16,6 +16,8 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.ResponseBody;
 import reactor.core.publisher.Flux;
 
+import static io.northernlights.chat.domain.ApiConstants.CHAT_API;
+import static io.northernlights.chat.domain.ApiConstants.CHAT_API_SSE;
 import static java.time.Duration.ofSeconds;
 
 @Slf4j
@@ -38,7 +40,7 @@ public class ChatterController {
      * </PRE>
      */
     @ResponseBody
-    @GetMapping(path = "/v1/chat/api/sse", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    @GetMapping(path = CHAT_API_SSE, produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public Flux<ServerSentEvent<SseChatPayload>> sseChatDataFlow(
         @RequestHeader(name = "sse-chat-key") String sseChatKeyParameter,
         ServerHttpResponse response

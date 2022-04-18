@@ -16,6 +16,7 @@ dependencies {
     api "com.fasterxml.jackson.module:jackson-module-parameter-names"
 
     // Test fixtures
+    testFixturesApi "io.projectreactor:reactor-test"
     testFixturesApi "org.springframework.boot:spring-boot-starter-data-r2dbc"
     testFixturesApi "org.springframework.boot:spring-boot-starter-test"
     testFixturesApi "org.springframework.security:spring-security-test"

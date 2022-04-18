@@ -1,8 +1,13 @@
 package io.northernlights.chat.api.infrastructure;
 
+import io.northernlights.chat.store.user.UserStore;
 import io.northernlights.commons.TimeService;
-import io.northernlights.security.DummyNorthernLightsAuthenticationManager;
+import io.northernlights.security.NorthernLightsAuthenticationConverter;
+import io.northernlights.security.NorthernLightsAuthenticationManager;
 import io.northernlights.security.NorthernLightsServerSecurityContextRepository;
+import io.northernlights.security.jwt.JwtProvider;
+import io.northernlights.security.jwt.auth0.Auth0GoogleJwtProvider;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -22,14 +27,15 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.TimeZone;
 
+import static io.northernlights.chat.domain.ApiConstants.*;
+import static io.northernlights.security.NorthernLightsRoles.RoleType.CHATTER;
+import static org.springframework.http.HttpHeaders.ACCESS_CONTROL_ALLOW_HEADERS;
 import static org.springframework.http.HttpMethod.GET;
 import static org.springframework.http.HttpMethod.OPTIONS;
 
 @EnableWebFluxSecurity
 @Configuration
 public class SecurityConfiguration {
-
-    public static final String CHAT_CONVERSATION = "/v1/chat/api";
 
     private static final ZoneId ZONE_ID = ZoneOffset.UTC;
     private static final Clock CLOCK = Clock.system(ZONE_ID);
@@ -63,22 +69,27 @@ public class SecurityConfiguration {
             .authorizeExchange(authorize -> authorize
                 .pathMatchers("/", "/favicon.ico", "/index.html", "/eventsource.js", "/css/**", "/webjars/**", "/webjars/swagger-ui/**", "/api-docs/**", "/swagger-ui.html").permitAll()
                 .pathMatchers(OPTIONS).permitAll()
-                .pathMatchers(GET, CHAT_CONVERSATION + "/sse").permitAll()
-                .pathMatchers(CHAT_CONVERSATION + "/**").authenticated()
-                .anyExchange().permitAll())
+                .pathMatchers(GET, CHAT_API_SSE).hasRole(CHATTER.type)
+                .pathMatchers(CHAT_API_ALL).hasRole(CHATTER.type)
+                .pathMatchers(USER_API_INFO).hasRole(CHATTER.type)
+                .pathMatchers(USER_API_SUBSCRIBE).authenticated()
+                .anyExchange().authenticated())
             .build();
     }
 
     @Bean
-    public ReactiveAuthenticationManager reactiveAuthenticationManager(TimeService timeService) {
-//        TokenProvider tokenProvider = new Auth0TokenProvider();
-//      return new NorthernLightsAuthenticationManager(tokenProvider, timeService);
-        return new DummyNorthernLightsAuthenticationManager();
+    public JwtProvider jwtProvider(TimeService timeService, @Value("${chat.api.google-client-id}") String googleClientId) {
+        return new Auth0GoogleJwtProvider(timeService, googleClientId);
+    }
+
+    @Bean
+    public ReactiveAuthenticationManager reactiveAuthenticationManager(UserStore userStore, JwtProvider jwtProvider) {
+        return new NorthernLightsAuthenticationManager(jwtProvider, userStore);
     }
 
     @Bean
     public ServerSecurityContextRepository securityContextRepository(ReactiveAuthenticationManager reactiveAuthenticationManager) {
-        return new NorthernLightsServerSecurityContextRepository(reactiveAuthenticationManager);
+        return new NorthernLightsServerSecurityContextRepository(reactiveAuthenticationManager, new NorthernLightsAuthenticationConverter());
     }
 
     @Bean
@@ -86,7 +97,7 @@ public class SecurityConfiguration {
         return (ServerWebExchange exchange, WebFilterChain chain) -> {
             exchange.getResponse()
                 .getHeaders()
-                .add("Access-Control-Allow-Headers", "*");
+                .add(ACCESS_CONTROL_ALLOW_HEADERS, "*");
             return chain.filter(exchange);
         };
     }

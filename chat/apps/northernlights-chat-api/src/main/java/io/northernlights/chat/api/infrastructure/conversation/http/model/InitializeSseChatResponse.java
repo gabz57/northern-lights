@@ -5,12 +5,10 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Map;
-
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ChatAuthenticationRequest {
-    private Map<String, String> conversationStatuses;
+public class InitializeSseChatResponse {
+    private String sseChatKey;
 }

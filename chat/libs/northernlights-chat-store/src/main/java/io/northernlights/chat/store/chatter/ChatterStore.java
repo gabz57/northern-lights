@@ -10,12 +10,6 @@ import reactor.core.publisher.Mono;
 import java.util.List;
 
 public interface ChatterStore {
-    //    // COLD
-    //@table: CHATTERS key ChatterId (uuid)
-    //  Map<ChatterId, Chatter> chattersByChatterId = new HashMap<>();
-
-    //@table: CHATTERS_CONVERSATIONS key ChatterId (uuid)
-    //  Map<ChatterId, Set<ConversationId>> conversationsIdByChatterId = new HashMap<>();
 
     Mono<Void> writeConversationCreated(ConversationCreatedEvent conversationEvent);
 

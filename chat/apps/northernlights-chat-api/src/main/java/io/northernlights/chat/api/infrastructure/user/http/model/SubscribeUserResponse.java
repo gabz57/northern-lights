@@ -1,4 +1,4 @@
-package io.northernlights.chat.api.infrastructure.conversation.http.model;
+package io.northernlights.chat.api.infrastructure.user.http.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,6 +9,6 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ChatAuthenticationResponse {
-    private String sseChatKey;
+public class SubscribeUserResponse {
+    String chatterId;
 }

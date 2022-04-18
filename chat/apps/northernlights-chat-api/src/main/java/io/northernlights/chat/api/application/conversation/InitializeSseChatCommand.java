@@ -6,30 +6,34 @@ import io.northernlights.chat.domain.model.conversation.ConversationId;
 import io.northernlights.chat.domain.model.conversation.data.ConversationDataId;
 import io.northernlights.chat.domain.model.ssekey.SseChatKey;
 import io.northernlights.chat.store.ssekey.SseKeyStore;
+import io.northernlights.security.NorthernLightsPrincipal;
 import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 import lombok.Value;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.ReactiveSecurityContextHolder;
+import org.springframework.security.core.context.SecurityContext;
 import reactor.core.publisher.Mono;
 
 import java.util.Map;
 
-import static io.northernlights.chat.api.application.conversation.ChatAuthenticationCommand.ChatAuthenticationCommandInput;
-import static io.northernlights.chat.api.application.conversation.ChatAuthenticationCommand.ChatAuthenticationCommandResult;
+import static io.northernlights.chat.api.application.conversation.InitializeSseChatCommand.InitializeSseChatCommandInput;
+import static io.northernlights.chat.api.application.conversation.InitializeSseChatCommand.InitializeSseChatCommandResult;
 
 @RequiredArgsConstructor
-public class ChatAuthenticationCommand implements UseCase<ChatAuthenticationCommandInput, ChatAuthenticationCommandResult> {
+public class InitializeSseChatCommand implements UseCase<InitializeSseChatCommandInput, InitializeSseChatCommandResult> {
 
     private final SseKeyStore sseKeyStore;
 
-    public Mono<ChatAuthenticationCommandResult> execute(ChatAuthenticationCommandInput input) {
+    public Mono<InitializeSseChatCommandResult> execute(InitializeSseChatCommandInput input) {
         return sseKeyStore.storeStatusAndGenerateSseChatKey(input.getChatterId(), input.getConversationStatus())
-            .map(ChatAuthenticationCommandResult::new);
+            .map(InitializeSseChatCommandResult::new);
     }
 
     @Value
     @Builder
     @RequiredArgsConstructor
-    public static class ChatAuthenticationCommandInput {
+    public static class InitializeSseChatCommandInput {
         ChatterId chatterId;
         Map<ConversationId, ConversationDataId> conversationStatus;
     }
@@ -37,7 +41,7 @@ public class ChatAuthenticationCommand implements UseCase<ChatAuthenticationComm
     @Value
     @Builder
     @RequiredArgsConstructor
-    public static class ChatAuthenticationCommandResult {
+    public static class InitializeSseChatCommandResult {
         SseChatKey sseChatKey;
     }
 }

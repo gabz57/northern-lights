@@ -22,6 +22,7 @@ dependencies {
     implementation "org.springframework.data:spring-data-commons"
 
     implementation "com.auth0:java-jwt"
+    implementation "com.auth0:jwks-rsa"
 
     implementation project(':chat:libs:northernlights-chat-core')
     implementation project(':libs:northernlights-security')
@@ -47,7 +48,7 @@ dependencies {
 
     // Testing
     testImplementation "net.javacrumbs.json-unit:json-unit-assertj"
-//    testImplementation testFixtures(project(':libs:northernlights-commons'))
+    testImplementation testFixtures(project(':libs:northernlights-commons'))
     testImplementation testFixtures(project(':chat:libs:northernlights-chat-core'))
 //    integrationTestImplementation "io.r2dbc:r2dbc-h2"
 //    integrationTestImplementation "com.h2database:h2"
@@ -57,6 +58,7 @@ dependencies {
 //    e2eTestImplementation "org.testcontainers:junit-jupiter"
 
     e2eTestImplementation testFixtures(project(':libs:northernlights-store-r2dbc'))
+    e2eTestImplementation testFixtures(project(':chat:libs:northernlights-chat-store-r2dbc'))
 
     // spring-jdbc for sql migration
     e2eTestImplementation project(':chat:libs:northernlights-chat-store-migration')

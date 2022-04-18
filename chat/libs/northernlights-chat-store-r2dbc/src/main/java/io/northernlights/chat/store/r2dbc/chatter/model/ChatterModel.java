@@ -34,6 +34,7 @@ public class ChatterModel implements Persistable<UUID> {
     @Id
     private UUID id;
     private String name;
+    private String picture;
     @CreatedDate
     @Column("created_at")
     private LocalDateTime createdAt;
@@ -52,11 +53,12 @@ public class ChatterModel implements Persistable<UUID> {
     }
 
     public Chatter toChatter() {
-        return new Chatter(ChatterId.of(id), name);
+        return new Chatter(ChatterId.of(id), name, picture);
     }
     public static ChatterModel of(Chatter chatter, boolean isNew) {
         return ChatterModel.builder()
             .name(chatter.getName())
+            .picture(chatter.getPicture())
             .id(chatter.getChatterID().getId())
             .isNew(isNew)
             .build();

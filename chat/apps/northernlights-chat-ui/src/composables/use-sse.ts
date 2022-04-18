@@ -15,6 +15,7 @@ export default function useSse(): {
 
     const store = useStore()
     const {sseStatus} = useSseStatus()
+    const jwtRef = computed(() => store.state.jwt)
     const chatterIdRef = computed(() => store.state.chatterId)
     const enableSseWanted = () => store.dispatch(ActionTypes.EnableSseWanted)
     const disableSseWanted = () => store.dispatch(ActionTypes.DisableSseWanted)
@@ -23,9 +24,25 @@ export default function useSse(): {
     const storeSseOpenStatus = (isOpen: boolean) => store.dispatch(ActionTypes.StoreSseOpenStatus, isOpen)
     const storeEventSource = (eventSource: EventSource | undefined) => store.dispatch(ActionTypes.StoreEventSource, eventSource);
 
-    const switchSseChatter = async (chatterId: ChatterId | undefined, prevChatterId: ChatterId | undefined) => {
-        console.log("use-sse> switchSseChatter ", prevChatterId, " -> ", chatterId)
-        if (prevChatterId !== undefined && prevChatterId !== "0") {
+    // const switchSseChatter = async (chatterId: ChatterId | undefined, prevChatterId: ChatterId | undefined) => {
+    //     console.log("use-sse> switchSseChatter ", prevChatterId, " -> ", chatterId)
+    //     if (prevChatterId !== undefined && prevChatterId !== "0") {
+    //         store.dispatch(ActionTypes.DeselectConversationId)
+    //         await nextTick(() => {
+    //             store.dispatch(ActionTypes.ClearChatterState)
+    //         })
+    //         await nextTick(() => {
+    //             disconnect();
+    //         })
+    //     }
+    //     if (chatterId !== undefined && chatterId !== "" && chatterId !== "0") {
+    //         await connect();
+    //     }
+    // }
+    // watch(chatterIdRef, switchSseChatter)
+    const onJwtChange = async (jwt: string | undefined, previousJwt: string | undefined) => {
+        console.log("use-sse> onJwtChange ", previousJwt, " -> ", jwt)
+        if (previousJwt !== undefined && previousJwt !== "0") {
             store.dispatch(ActionTypes.DeselectConversationId)
             await nextTick(() => {
                 store.dispatch(ActionTypes.ClearChatterState)
@@ -34,11 +51,11 @@ export default function useSse(): {
                 disconnect();
             })
         }
-        if (chatterId !== undefined && chatterId !== "" && chatterId !== "0") {
+        if (jwt !== undefined && jwt !== "" && jwt !== "0") {
             await connect();
         }
     }
-    watch(chatterIdRef, switchSseChatter)
+    watch(jwtRef, onJwtChange)
 
     const eventSource = computed(() => store.state.sse.eventSource)
 
@@ -58,7 +75,7 @@ export default function useSse(): {
         }
     }
 
-    const doConnect = async (chatterId: ChatterId) => {
+    const doConnect = async () => {
         const onOpen = async () => {
             console.log('use-sse> SSE opened');
             storeSseOpenStatus(true)
@@ -82,7 +99,9 @@ export default function useSse(): {
             })
             return statuses
         }
-        const sseChatKey = await chatApiClient.authent(chatterId, conversationStatuses);
+
+        const sseChatKey = await chatApiClient.authent(conversationStatuses);
+
         try {
             const sseEventSource = SseChatService.openSse(sseChatKey, onOpen, onReconnection, onConnectionClosed);
             storeEventSource(sseEventSource)
@@ -103,8 +122,8 @@ export default function useSse(): {
         console.log("state.sseWanted", prevSseWanted, " -> ", sseWanted)
         if (sseWanted !== prevSseWanted) {
             if (sseWanted) {
-                if (chatterIdRef.value) {
-                    await doConnect(chatterIdRef.value)
+                if (jwtRef.value) {
+                    await doConnect()
                 }
             } else {
                 if (eventSource.value) {
@@ -133,8 +152,8 @@ export default function useSse(): {
     const sseWantedRef = computed(() => sseStatus.sseWanted)
     watch(() => sseStatus.sseOpen, async (sseOpen: boolean, prevSseOpen: boolean) => {
         console.log("state.sseOpen", prevSseOpen, " -> ", sseOpen)
-        if (prevSseOpen && !sseOpen && sseWantedRef.value && chatterIdRef.value) {
-            await doConnect(chatterIdRef.value)
+        if (prevSseOpen && !sseOpen && sseWantedRef.value && jwtRef.value) {
+            await doConnect()
         }
     })
 

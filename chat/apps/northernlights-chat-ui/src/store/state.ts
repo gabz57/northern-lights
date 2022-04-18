@@ -75,6 +75,7 @@ export type Conversations = Map<ConversationId, Conversation>;
 export type State = {
     ui: Ui,
     sse: Sse,
+    jwt: string,
     chatterId?: ChatterId,
     profile?: Profile,
     chatters: Chatters,

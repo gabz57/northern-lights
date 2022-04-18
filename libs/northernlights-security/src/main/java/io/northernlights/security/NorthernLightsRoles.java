@@ -1,30 +1,29 @@
 package io.northernlights.security;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
-public class NorthernLightsRoles extends ArrayList<NorthernLightsRoles.NorthernLightsRole> {
-    public static final NorthernLightsRoleType ROLE_CHATTER = NorthernLightsRoleType.CHATTER;
+import static io.northernlights.security.NorthernLightsRoles.*;
+
+public class NorthernLightsRoles extends ArrayList<Role> {
+    public static final RoleType ROLE_CHATTER = RoleType.CHATTER;
 
     public NorthernLightsRoles() {
     }
 
-    public NorthernLightsRoles(Collection<? extends NorthernLightsRole> c) {
+    public NorthernLightsRoles(Collection<? extends Role> c) {
         super(c);
     }
 
-    public enum NorthernLightsRoleType {
-        CHATTER("chatter");//, ADMIN("admin")
+    @Getter
+    public enum RoleType {
+        CHATTER("CHATTER");//, ADMIN("admin")
 
         public final String type;
 
-        NorthernLightsRoleType(String type) {
+        RoleType(String type) {
             this.type = type;
         }
     }
@@ -33,17 +32,17 @@ public class NorthernLightsRoles extends ArrayList<NorthernLightsRoles.NorthernL
     @NoArgsConstructor
     @AllArgsConstructor
     @Data
-    public static class NorthernLightsRole {
-        private String type;
-        private List<String> permissions;
-        private NorthernLightsProfile profile;
+    public static class Role {
+        private RoleType type;
+//        private List<String> permissions;
+//        private NorthernLightsProfile profile;
     }
 
-    @Builder
-    @NoArgsConstructor
-    @AllArgsConstructor
-    @Data
-    public static class NorthernLightsProfile {
-        private String uid;
-    }
+//    @Builder
+//    @NoArgsConstructor
+//    @AllArgsConstructor
+//    @Data
+//    public static class NorthernLightsProfile {
+//        private String uid;
+//    }
 }

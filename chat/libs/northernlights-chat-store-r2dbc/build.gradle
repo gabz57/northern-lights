@@ -8,7 +8,8 @@ dependencies {
 
     // Testing
 //    testImplementation testFixtures(project(':libs:northernlights-commons'))
-//    testImplementation testFixtures(project(':libs:northernlights-store-r2dbc'))
+    testFixturesApi testFixtures(project(':libs:northernlights-store-r2dbc'))
+
 //    integrationTestImplementation testFixtures(project(':chat:libs:northernlights-chat-core'))
     integrationTestImplementation testFixtures(project(':libs:northernlights-store-r2dbc'))
 

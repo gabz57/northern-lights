@@ -7,6 +7,6 @@ dependencies {
     implementation "org.springframework.boot:spring-boot"
 //    implementation "commons-io:commons-io"
 
-    testFixturesApi "org.springframework.boot:spring-boot"
+    testFixturesApi "org.springframework.boot:spring-boot-test"
     testFixturesApi "commons-io:commons-io"
 }

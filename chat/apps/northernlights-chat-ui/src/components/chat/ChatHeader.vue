@@ -16,6 +16,7 @@
           <ChatterLabel v-if="profile" :chatter-id="profile?.id"/>
         </div>
       </div>
+      <GoogleAuthSignIn />
     </div>
   </div>
 </template>
@@ -26,10 +27,11 @@ import {defineComponent, ref} from "vue";
 import ChatterLabel from "@/components/chat/ChatterLabel.vue";
 import useProfile from "@/composables/use-profile";
 import useSseStatus from "@/composables/use-sse-status";
+import GoogleAuthSignIn from "@/components/GoogleAuthSignIn.vue";
 
 export default defineComponent({
   name: "ChatHeader",
-  components: {ChatterLabel},
+  components: {ChatterLabel, GoogleAuthSignIn},
   setup() {
     return {
       inputChatterId: ref<string>(""),

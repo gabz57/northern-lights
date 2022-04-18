@@ -1,8 +1,6 @@
 package io.northernlights.chat.api.infrastructure;
 
-import io.northernlights.commons.MdcContextLifterConfiguration;
 import io.northernlights.commons.TimeConfiguration;
-import io.northernlights.security.NorthernLightsPrincipal;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -10,14 +8,10 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
-import org.springframework.data.domain.ReactiveAuditorAware;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.codec.ServerCodecConfigurer;
 import org.springframework.http.codec.json.Jackson2JsonEncoder;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.ReactiveSecurityContextHolder;
-import org.springframework.security.core.context.SecurityContext;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.web.reactive.config.CorsRegistry;
 import org.springframework.web.reactive.config.EnableWebFlux;
@@ -26,13 +20,15 @@ import org.springframework.web.reactive.config.WebFluxConfigurer;
 import org.springframework.web.reactive.function.server.*;
 import org.springframework.web.reactive.result.view.HttpMessageWriterView;
 
+import static io.northernlights.chat.domain.ApiConstants.CHAT_API;
+import static io.northernlights.chat.domain.ApiConstants.USER_API;
 import static org.springframework.web.reactive.function.server.ServerResponse.ok;
 
 @Import({TimeConfiguration.class, SecurityConfiguration.class})
 //@Import({MdcContextLifterConfiguration.class, TimeConfiguration.class, SecurityConfiguration.class})
 @Configuration
 @EnableWebFlux
-public class ChatApiConfiguration implements WebFluxConfigurer {
+public class ChatApiHttpConfiguration implements WebFluxConfigurer {
 
     @Bean
     @ConfigurationProperties("chat-api")
@@ -86,7 +82,7 @@ public class ChatApiConfiguration implements WebFluxConfigurer {
         }
 
         private boolean pathIsNotApi(String path) {
-            return !antPathMatcher.match("/v1/chat/api/**", path);
+            return !antPathMatcher.match(CHAT_API + "/**", path) && !antPathMatcher.match(USER_API + "/**", path);
         }
     }
 

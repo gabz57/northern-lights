@@ -39,6 +39,7 @@ export enum ActionTypes {
     UpdateConversationAddChatter = 'UPDATE_CONVERSATION_ADD_CHATTER',
     UpdateConversationMarkAsRead = 'UPDATE_CONVERSATION_MARKER_AS_READ',
     // USER
+    SetJwt = 'SET_JWT',
     SetChatterId = 'SET_CHATTER_ID',
     SendMessage = 'SEND_MESSAGE',
     MarkAsRead = 'MARK_AS_READ',
@@ -77,6 +78,7 @@ export type Actions = {
     [ActionTypes.UpdateConversationAddChatter](context: ActionAugments, value: { conversationId: ConversationId, conversationChatterData: ConversationChatterData }): void
     [ActionTypes.UpdateConversationMarkAsRead](context: ActionAugments, value: { conversationId: ConversationId, readMarkers: ReadMarkers }): void
     // USER
+    [ActionTypes.SetJwt](context: ActionAugments, value: { jwt: string }): void
     [ActionTypes.SetChatterId](context: ActionAugments, value: { chatterId: ChatterId }): void
     [ActionTypes.SendMessage](context: ActionAugments, value: { chatterId: ChatterId, conversationId: ConversationId, message: string }): void
     [ActionTypes.MarkAsRead](context: ActionAugments, value: { chatterId: ChatterId, conversationId: ConversationId, conversationDataId: ConversationDataId }): void
@@ -155,6 +157,9 @@ export const actions: ActionTree<State, State> & Actions = {
     },
     async [ActionTypes.UpdateConversationMarkAsRead]({commit}, {conversationId, readMarkers}) {
         commit(MutationType.UpdateConversationMarkerAsRead, {conversationId, readMarkers})
+    },
+    async [ActionTypes.SetJwt](context, {jwt}) {
+        chatApiClient.setJwt(jwt)
     },
     async [ActionTypes.SetChatterId]({commit}, {chatterId}) {
         commit(MutationType.SetChatterId, chatterId)

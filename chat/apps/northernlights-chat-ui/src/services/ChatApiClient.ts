@@ -13,16 +13,21 @@ const debounceFetch = <Params extends never[]>(func: (...args: Params) => Promis
 class ChatApiClient {
 
     private lastEmittedConversationDataIdPerConversationId = new Map<string, string>();
+    private jwt = "";
 
-    async authent(userId: string, conversationStatuses: () => Map<ConversationId, ConversationDataId>): Promise<string> {
+    setJwt(jwt: string) {
+        this.jwt = jwt
+    }
+
+    async authent(conversationStatuses: () => Map<ConversationId, ConversationDataId>): Promise<string> {
         this.lastEmittedConversationDataIdPerConversationId.clear();
-        return (await (await ChatApiClient.fetch(userId, "auth", {
+        return (await (await ChatApiClient.fetch(this.jwt, "auth", {
             conversationStatuses: conversationStatuses()
         })).json()).sseChatKey
     }
 
     async createConversation(userId: string, name: string, participants: string[], dialogue: boolean): Promise<void> {
-        await ChatApiClient.fetch(userId, "open", {
+        await ChatApiClient.fetch(this.jwt, "open", {
             name,
             participants,
             dialogue
@@ -30,7 +35,7 @@ class ChatApiClient {
     }
 
     async sendMessage(userId: string, conversationId: string, message: string): Promise<void> {
-        await ChatApiClient.fetch(userId, "message", {
+        await ChatApiClient.fetch(this.jwt, "message", {
             conversationId,
             message
         })
@@ -41,7 +46,7 @@ class ChatApiClient {
         if (lastEmittedConversationDataId === undefined || lastEmittedConversationDataId < conversationDataId) {
             this.lastEmittedConversationDataIdPerConversationId.set(conversationId, conversationDataId)
         }
-        debounceFetch(() => ChatApiClient.fetch(userId, "mark-as-read", {
+        debounceFetch(() => ChatApiClient.fetch(this.jwt, "mark-as-read", {
                 conversationId,
                 conversationDataId
             }),
@@ -50,18 +55,18 @@ class ChatApiClient {
     }
 
     async inviteChatter(userId: string, conversationId: string, invitedChatterId: string): Promise<void> {
-        await ChatApiClient.fetch(userId, "invite-chatter", {
+        await ChatApiClient.fetch(this.jwt, "invite-chatter", {
             conversationId,
             chatterId: invitedChatterId
         })
     }
 
-    private static async fetch(userId: string, endpoint: string, payload: unknown): Promise<Response> {
+    private static async fetch(jwt: string, endpoint: string, payload: unknown): Promise<Response> {
         return fetch("http://localhost:8080/v1/chat/api/" + endpoint, {
             method: 'POST',
             body: JSON.stringify(payload), // string or object
             headers: new Headers({
-                "Authorization": 'Bearer ' + userId,
+                "Authorization": 'Bearer ' + jwt,
                 "Accept": "application/json",
                 "Content-Type": "application/json",
             })

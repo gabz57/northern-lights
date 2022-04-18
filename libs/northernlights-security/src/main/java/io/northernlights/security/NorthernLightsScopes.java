@@ -1,5 +1,8 @@
 package io.northernlights.security;
 
+import lombok.Getter;
+
+@Getter
 public enum NorthernLightsScopes {
 
     // Chatter scopes

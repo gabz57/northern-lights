@@ -5,7 +5,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-public class ChatterStoreConfigurationR2bdc {
+public class ChatterStoreConfigurationR2dbc {
 
     @Bean
     public ChatterStore chatterStore(ChattersRepository chattersRepository, ChatterConversationRepository chatterConversationRepository) {

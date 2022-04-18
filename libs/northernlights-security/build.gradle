@@ -4,9 +4,13 @@ archivesBaseName = 'northernlights-security'
 
 dependencies {
     api project(':libs:northernlights-commons')
+
+    api project(':chat:libs:northernlights-chat-core')
+    api project(':chat:libs:northernlights-chat-store')
     api project(':libs:northernlights-multitenant')
 //    api "org.springframework.boot:spring-boot-starter-webflux"
     api "org.springframework.boot:spring-boot-starter-security"
 
     implementation "com.auth0:java-jwt"
+    implementation "com.auth0:jwks-rsa"
 }
