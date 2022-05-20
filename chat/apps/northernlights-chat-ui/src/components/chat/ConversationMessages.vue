@@ -46,7 +46,6 @@
 </template>
 
 <script lang="ts">
-/* eslint-disable no-debugger */
 import {computed, defineComponent, nextTick, onBeforeUpdate, onMounted, PropType, ref, toRefs, watch} from "vue";
 import {ConversationDataWithMarkers} from "@/composables/use-conversation";
 import ConversationMessage from "@/components/chat/ConversationMessage.vue";

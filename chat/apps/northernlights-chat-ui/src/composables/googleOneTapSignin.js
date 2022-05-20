@@ -59,51 +59,7 @@ export default function() {
             jwt.value = res.credential
             const claims = jose.decodeJwt(res.credential);
             console.log(claims);
-            // jose.jwtDecrypt(res.credential, {
-            //     "n": "1YWUM8Y5UExSfXsBrF6oACI48nITxDf07CiYKn_VTbLRlpXX1AfNtQhrjm-jPjC16qXnGCBhdlZHdCycfezoMg8svo41U7YIVLP5G5H6f7VxAEglmV5IGc0kj35__qmqy3t1Eug_iqxCOyRlcDELQ75MNOhYFQtjeEtLuw4ErpPpOeYVX71vOH3Q9epItMM0n18FXW5Dd6BkCiHvMkb5eSHOH07J0h-MkRF133R-YSPPgDlqLeRxdjDo2rwqKFsOa68edzconVcETWR2YSoFtangVd-IBhzFrax8gyVsntKpmbg8XyJZU2vtgMiTdP0wAjAe8gy78Dg1WIOVOe58lQ",
-            //     "use": "sig",
-            //     "alg": "RS256",
-            //     "kty": "RSA",
-            //     "kid": "cec13debf4b96479683736205082466c14797bd0",
-            //     "e": "AQAB"
-            // }, {
-            //     issuer: 'urn:example:issuer',
-            //     audience: 'urn:example:audience'
-            // }).then(({ payload, protectedHeader })=> {
-            //     userData.value = payload.data
-
-                userData.value = claims
-
-            // })
-
-
-            // userData.value = res.data
-
-            // // Send response to server
-            // // console.log(res);
-            //
-            // // Google One-Tap Signin sends a POST request which must be sent to a server to be processed.
-            // fetch("https://gabzio.freeboxos.fr:9090" + "/verify-token", {
-            //     method: 'POST',
-            //     // body: JSON.stringify(res), // string or object
-            //     body: res, // string or object
-            //     headers: new Headers({
-            //         // "Accept": "application/json",
-            //         // "Content-Type": "application/json",
-            //         // Access-Control-Allow-Origin is mandatory as this is a "Complex" request.
-            //         // This must match the "origin" in the CorsOptions in the backend, or it will fail the preflight.
-            //         "Access-Control-Allow-Origin": CLIENT_URL
-            //     })
-            // })
-            //     .then(res => {
-            //         // Continue Auth Flow with data from response.data
-            //         console.log(res);
-            //         userData.value = res.data
-            //     })
-            //     .catch(error => {
-            //         console.log(error);
-            //     });
-
+            userData.value = claims
         });
     }
 

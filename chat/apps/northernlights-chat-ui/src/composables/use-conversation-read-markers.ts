@@ -1,5 +1,3 @@
-/* eslint-disable no-debugger */
-
 import {nextTick, Ref, ref} from 'vue';
 import {ChatterId, ReadMarkers,} from "@/store/state";
 import {ComponentPublicInstance} from "@vue/runtime-core";

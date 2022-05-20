@@ -5,8 +5,6 @@
   </div>
 </template>
 <script lang="ts">
-/* eslint-disable no-debugger */
-
 import {ref} from "vue";
 
 export default {

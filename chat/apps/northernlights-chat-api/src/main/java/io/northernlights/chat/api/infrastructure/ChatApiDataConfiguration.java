@@ -7,12 +7,14 @@ import io.northernlights.chat.store.r2dbc.chatter.ChatterStoreConfigurationR2dbc
 import io.northernlights.chat.store.r2dbc.conversation.ConversationStoreConfigurationR2dbc;
 import io.northernlights.chat.store.r2dbc.ssekey.SseKeyStoreConfigurationR2dbc;
 import io.northernlights.chat.store.r2dbc.user.UserStoreConfigurationR2dbc;
+import io.northernlights.commons.TimeConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Profile;
 
 @Import({
+    TimeConfiguration.class,
     R2dbcAuditAwareConfiguration.class,
     R2dbcChatStoreConfiguration.class,
     UserStoreConfigurationR2dbc.class,

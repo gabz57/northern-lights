@@ -1,12 +1,14 @@
 <template>
   <div class="chatter-list">
+    <h3>- Connus -</h3>
     <ChatterListElement v-for="(chatterId) in chatterIds" :key="chatterId" :chatter-id="chatterId"/>
+    <h3>- Connectés -</h3>
+
+
   </div>
 </template>
 
 <script lang="ts">
-/* eslint-disable no-debugger */
-
 import {defineComponent, PropType} from "vue";
 import ChatterListElement from "@/components/chat/ChatterListElement.vue";
 import {ChatterId} from "@/store/state";

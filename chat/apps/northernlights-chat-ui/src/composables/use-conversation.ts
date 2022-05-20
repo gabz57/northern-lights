@@ -1,5 +1,3 @@
-/* eslint-disable no-debugger */
-
 import {computed, onMounted, ref, Ref, watch} from 'vue';
 import {
     ChatterId,

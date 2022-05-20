@@ -37,8 +37,7 @@ export default defineComponent({
 </script>
 
 <style scoped lang="scss">
-@import "/src/variables.scss";
-
+@import "src/variables";
 .conversation {
   display: flex;
   flex-direction: row;

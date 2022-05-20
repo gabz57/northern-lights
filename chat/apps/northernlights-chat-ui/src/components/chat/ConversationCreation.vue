@@ -22,8 +22,6 @@
 </template>
 
 <script lang="ts">
-/* eslint-disable no-debugger */
-
 import {defineComponent, ref, watch} from "vue";
 import {Chatter, ChatterId} from "@/store/state";
 import {useStore} from "@/store";

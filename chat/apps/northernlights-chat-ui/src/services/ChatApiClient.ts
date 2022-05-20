@@ -1,5 +1,3 @@
-/* eslint-disable no-debugger */
-
 import {ConversationDataId, ConversationId} from "@/store/state";
 
 const debounceFetch = <Params extends never[]>(func: (...args: Params) => Promise<Response>, timeout = 300): (...args: Params) => void => {
@@ -19,9 +17,9 @@ class ChatApiClient {
         this.jwt = jwt
     }
 
-    async authent(conversationStatuses: () => Map<ConversationId, ConversationDataId>): Promise<string> {
+    async initSse(conversationStatuses: () => Map<ConversationId, ConversationDataId>): Promise<string> {
         this.lastEmittedConversationDataIdPerConversationId.clear();
-        return (await (await ChatApiClient.fetch(this.jwt, "auth", {
+        return (await (await ChatApiClient.fetch(this.jwt, "init-sse", {
             conversationStatuses: conversationStatuses()
         })).json()).sseChatKey
     }

@@ -1,5 +1,3 @@
-/* eslint-disable no-debugger */
-
 import {Store} from "@/store";
 import {EventSourcePolyfill} from "event-source-polyfill";
 import {ActionTypes} from "@/store/actions";
@@ -39,13 +37,15 @@ export default class SseChatService {
 
     static openSse(
         sseChatKey: string,
+        jwt: string,
         onOpen: () => void,
         onReconnection: (e: { target: EventSource }) => void,
         onConnectionClosed: (e: { target: EventSource }) => void
     ): EventSource {
         const eventSource = new EventSourcePolyfill("http://localhost:8080/v1/chat/api/sse", {
             headers: {
-                "sse-chat-key": sseChatKey
+                "sse-chat-key": sseChatKey,
+                "Authorization": "Bearer " + jwt
             }
         });
         eventSource.onopen = (/*e: Event*/) => {

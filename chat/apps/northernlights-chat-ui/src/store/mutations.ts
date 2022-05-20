@@ -1,5 +1,3 @@
-/* eslint-disable no-debugger */
-
 import {MutationTree} from 'vuex'
 import {
     Chatter,
@@ -20,6 +18,7 @@ export enum MutationType {
     SetSseWanted = 'SET_SSE_WANTED',
     SetSseAutoConnect = 'SET_SSE_AUTO_CONNECT',
     ClearChatterState = 'CLEAR_CHATTER_STATE',
+    SetJwt = 'SET_JWT',
     SetChatterId = 'SET_CHATTER_ID',
     SetSelectedConversationId = 'SET_SELECTED_CONVERSATION_ID',
     SetEditingProfile = 'SET_EDITING_PROFILE',
@@ -41,6 +40,7 @@ export type Mutations = {
     [MutationType.SetSseWanted](state: State, enabled: boolean): void
     [MutationType.SetSseAutoConnect](state: State, enabled: boolean): void
     [MutationType.ClearChatterState](state: State): void
+    [MutationType.SetJwt](state: State, jwt: string): void
     [MutationType.SetChatterId](state: State, chatterId: ChatterId): void
     [MutationType.SetSelectedConversationId](state: State, conversationID: ConversationId | undefined): void
     [MutationType.SetEditingProfile](state: State, enabled: boolean): void
@@ -94,6 +94,9 @@ export const mutations: MutationTree<State> & Mutations = {
     },
     [MutationType.SetChatterId](state, chatterId) {
         state.chatterId = chatterId
+    },
+    [MutationType.SetJwt](state, jwt) {
+        state.jwt = jwt
     },
     [MutationType.SetSelectedConversationId](state, conversationId) {
         state.ui.selectedConversationId = conversationId

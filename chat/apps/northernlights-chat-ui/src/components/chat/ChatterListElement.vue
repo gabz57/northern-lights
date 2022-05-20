@@ -10,8 +10,6 @@
 </template>
 
 <script lang="ts">
-/* eslint-disable no-debugger */
-
 import {defineComponent, toRef} from "vue";
 import ChatterLabel from "@/components/chat/ChatterLabel.vue";
 import useChatterConversationDetails from "@/composables/use-chatter-conversation-details";

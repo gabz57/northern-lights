@@ -3,13 +3,13 @@
 <!--  <button @click="signOut">log out</button>-->
 <!--  <div>{{ googleUserData }}</div>-->
   <div>
-    <h3>Google Profile Information</h3>
-    <p>This information will populate after the Google One-Tap Signin is completed.</p>
-    <img :title="googleUserData.name" :src="googleUserData.picture" alt="User's Profile Picture">
-    <p>Name: {{ googleUserData.name}}</p>
-    <p>Email: {{ googleUserData.email }}</p>
-    <p>Email Verified: {{ googleUserData.email_verified }}</p>
-    <p>Sub: {{ googleUserData.sub }}</p>
+<!--    <h3>Google Profile Information</h3>-->
+<!--    <p>This information will populate after the Google One-Tap Signin is completed.</p>-->
+<!--    <img :title="googleUserData.name" :src="googleUserData.picture" alt="User's Profile Picture">-->
+<!--    <p>Name: {{ googleUserData.name}}</p>-->
+<!--    <p>Email: {{ googleUserData.email }}</p>-->
+<!--    <p>Email Verified: {{ googleUserData.email_verified }}</p>-->
+<!--    <p>Sub: {{ googleUserData.sub }}</p>-->
   </div>
 </template>
 

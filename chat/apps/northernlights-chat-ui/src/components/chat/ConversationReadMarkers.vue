@@ -17,8 +17,6 @@
 </template>
 
 <script lang="ts">
-/* eslint-disable no-debugger */
-
 import {defineComponent, PropType, ref, toRefs, watch} from "vue";
 import ConversationReadMarker from "@/components/chat/ConversationReadMarker.vue";
 import {gsap} from "gsap";

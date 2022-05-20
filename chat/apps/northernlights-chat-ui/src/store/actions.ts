@@ -13,6 +13,7 @@ import {
     State
 } from './state'
 import {chatApiClient} from "@/services/ChatApiClient";
+import {userApiClient} from "@/services/UserApiClient";
 
 export enum ActionTypes {
     // UI status
@@ -158,8 +159,10 @@ export const actions: ActionTree<State, State> & Actions = {
     async [ActionTypes.UpdateConversationMarkAsRead]({commit}, {conversationId, readMarkers}) {
         commit(MutationType.UpdateConversationMarkerAsRead, {conversationId, readMarkers})
     },
-    async [ActionTypes.SetJwt](context, {jwt}) {
+    async [ActionTypes.SetJwt]({commit}, {jwt}) {
+        userApiClient.setJwt(jwt)
         chatApiClient.setJwt(jwt)
+        commit(MutationType.SetJwt, jwt)
     },
     async [ActionTypes.SetChatterId]({commit}, {chatterId}) {
         commit(MutationType.SetChatterId, chatterId)

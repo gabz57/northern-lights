@@ -1,30 +1,9 @@
 import {InjectionKey} from 'vue'
-import {Chatter, ChatterId, Conversation, ConversationId, State} from './state'
+import {initialState, State} from './state'
 import {CommitOptions, createStore, DispatchOptions, Store as VuexStore, useStore as baseUseStore} from 'vuex'
 import {Mutations, mutations} from "@/store/mutations";
 import {Actions, actions} from "@/store/actions";
 import {Getters, getters} from "@/store/getters";
-
-const initialState: State = {
-    ui: {
-        online: true,
-        visible: true,
-        selectedConversationId: undefined,
-        editingProfile: false,
-        creatingConversation: false,
-    },
-    jwt: '',
-    sse: {
-       eventSource: undefined,
-       sseAutoConnect: false,
-       sseWanted: false,
-       sseOpen: false,
-    },
-    chatterId: "0",
-    chatters: new Map<ChatterId, Chatter>(),
-    profile: undefined,
-    conversations: new Map<ConversationId, Conversation>(),
-}
 
 const getDefaultState = () => {
     return initialState

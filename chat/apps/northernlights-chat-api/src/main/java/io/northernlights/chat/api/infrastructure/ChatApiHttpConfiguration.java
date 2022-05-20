@@ -1,6 +1,5 @@
 package io.northernlights.chat.api.infrastructure;
 
-import io.northernlights.commons.TimeConfiguration;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -24,7 +23,7 @@ import static io.northernlights.chat.domain.ApiConstants.CHAT_API;
 import static io.northernlights.chat.domain.ApiConstants.USER_API;
 import static org.springframework.web.reactive.function.server.ServerResponse.ok;
 
-@Import({TimeConfiguration.class, SecurityConfiguration.class})
+@Import({SecurityConfiguration.class})
 //@Import({MdcContextLifterConfiguration.class, TimeConfiguration.class, SecurityConfiguration.class})
 @Configuration
 @EnableWebFlux

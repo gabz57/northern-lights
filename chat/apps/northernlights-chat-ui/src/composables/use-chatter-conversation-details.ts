@@ -1,5 +1,3 @@
-/* eslint-disable no-debugger */
-
 import {computed, reactive, Ref} from 'vue';
 import {ChatterId, Conversation, ConversationDataId, ConversationId,} from "@/store/state";
 import {useStore} from "@/store";
