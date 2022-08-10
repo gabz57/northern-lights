@@ -20,7 +20,7 @@ import ChatContent from "@/components/chat/ChatContent.vue";
 import useSse from "@/composables/use-sse";
 
 export default defineComponent({
-  name: "Chat",
+  name: "ChatApp",
   components: {
     ChatHeader,
     ChatContent,

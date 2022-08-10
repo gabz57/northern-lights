@@ -19,7 +19,7 @@ import ConversationDetails from "@/components/chat/ConversationDetails.vue";
 import ConversationInput from "@/components/chat/ConversationInput.vue";
 
 export default defineComponent({
-  name: "Conversation",
+  name: "ConversationWrapper",
   components: {ConversationMessages, ConversationInput, ConversationDetails},
   props: {
     conversationId: {

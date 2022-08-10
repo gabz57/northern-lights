@@ -68,7 +68,7 @@ export default defineComponent({
         invitableChatters.value = []
       } else {
         // TODO: use chatter search
-        for (let chatter of store.state.chatters.values()) {
+        for (const chatter of store.state.chatters.values()) {
           if (chatter.name.includes(chatterName)) {
             nextSelectableChatters.push(chatter)
           }

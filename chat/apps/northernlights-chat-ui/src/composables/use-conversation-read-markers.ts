@@ -1,6 +1,6 @@
 import {nextTick, Ref, ref} from 'vue';
 import {ChatterId, ReadMarkers,} from "@/store/state";
-import {ComponentPublicInstance} from "@vue/runtime-core";
+import {ComponentPublicInstance} from "vue";
 import {ConversationDataWithMarkers} from "@/composables/use-conversation";
 
 export type PositionedReadMarker = {

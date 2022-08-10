@@ -7,7 +7,7 @@ export type ChatterDetails = {
     name?: string,
 }
 
-export default function useChatter(chatterIdRef: Ref<ChatterId | undefined>): {
+export default function useChatter(chatterIdRef: Ref<ChatterId>): {
     details: ChatterDetails;
 } {
     const store = useStore()

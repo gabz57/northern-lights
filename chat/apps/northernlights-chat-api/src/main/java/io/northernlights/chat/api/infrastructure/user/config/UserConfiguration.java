@@ -36,9 +36,8 @@ public class UserConfiguration {
     }
 
     @Bean
-
     public RouterFunction<ServerResponse> userRoutes(UserHandler userHandler) {
-        return route(GET(USER_API_INFO).and(accept(APPLICATION_JSON)).and(contentType(APPLICATION_JSON)), userHandler::userInfo)
+        return route(POST(USER_API_INFO).and(accept(APPLICATION_JSON)).and(contentType(APPLICATION_JSON)), userHandler::userInfo)
             .andRoute(POST(USER_API_SUBSCRIBE).and(accept(APPLICATION_JSON)).and(contentType(APPLICATION_JSON)), userHandler::subscribeUser)
             .filter(new ErrorHandler());
     }

@@ -18,9 +18,8 @@ services:
   liquibase:
     container_name: northernlights-chat-liquibase
     image: liquibase/liquibase
-    command: --url=jdbc:postgresql://northernlights-chat-db:5432/northernlights-chat?user=postgres&password=postgres --changelogFile=db.changelog-master.xml update
+    command: "--url='jdbc:postgresql://northernlights-chat-db:5432/northernlights-chat?user=postgres&password=postgres' --changelog-file='db.changelog-master.xml' update"
     volumes:
-#      - ./scripts:/liquibase/scripts
       - ./../libs/northernlights-chat-store-migration/src/main/resources/db/changelog:/liquibase/changelog
     networks:
       - northernlights-net
@@ -39,7 +38,3 @@ services:
       - northernlights-net
 networks:
   northernlights-net:
-
-
-# docker-compose -f docker-compose.database.yml up
-# docker-compose -f docker-compose.liquibase.yml up

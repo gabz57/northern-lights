@@ -2,7 +2,7 @@
   <div class="chat-content">
     <ChatterProfile v-if="editingProfile"/>
     <ConversationCreation v-else-if="creatingConversation"/>
-    <Conversation v-else-if="selectedConversationId" :conversation-id="selectedConversationId"/>
+    <ConversationWrapper v-else-if="selectedConversationId" :conversation-id="selectedConversationId"/>
     <div v-else style="display: flex; height: 100%">
       <div style="margin: auto">Connect,<br/><br/>then<br/><br/>Select a conversation ... or create a new one</div>
     </div>
@@ -12,14 +12,14 @@
 <script lang="ts">
 import {useStore} from "@/store";
 import {computed, defineComponent} from "vue";
-import Conversation from "@/components/chat/Conversation.vue";
+import ConversationWrapper from "@/components/chat/Conversation.vue";
 import ConversationCreation from "@/components/chat/ConversationCreation.vue";
 import ChatterProfile from "@/components/chat/ChatterProfile.vue";
 
 export default defineComponent({
   name: "ChatContent",
   components: {
-    ChatterProfile, ConversationCreation, Conversation
+    ChatterProfile, ConversationCreation, ConversationWrapper
   },
   setup() {
     const store = useStore()
