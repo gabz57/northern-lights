@@ -2,8 +2,8 @@ package io.northernlights.chat.api.infrastructure;
 
 import io.northernlights.chat.domain.model.chatter.Chatter;
 import io.northernlights.chat.domain.model.chatter.ChatterId;
-import io.northernlights.chat.store.chatter.ChatterStore;
-import io.northernlights.chat.store.conversation.ConversationStore;
+import io.northernlights.chat.domain.store.chatter.ChatterStore;
+import io.northernlights.chat.domain.store.conversation.ConversationStore;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationListener;
@@ -40,7 +40,7 @@ public class LocalStartupListener implements ApplicationListener<ContextRefreshe
 
     private void initChatters() {
         log.info("Creating chatters");
-        boolean empty = chatterStore.listChatters(DUMMY_CHATTERS.values().stream().map(Chatter::getChatterID).toList()).block().isEmpty();
+        boolean empty = chatterStore.listChatters(DUMMY_CHATTERS.values().stream().map(Chatter::getChatterId).toList()).block().isEmpty();
         if (empty) {
             Mono.empty()
                 .then(chatterStore.insertChatter(DUMMY_CHATTERS.get("Alpha")))
@@ -53,28 +53,28 @@ public class LocalStartupListener implements ApplicationListener<ContextRefreshe
 
     private void initConversations() {
         log.info("Creating conversations");
-        boolean empty = chatterStore.listConversationIds(DUMMY_CHATTERS.get("Alpha").getChatterID()).block().isEmpty();
+        boolean empty = conversationStore.listConversationIds(DUMMY_CHATTERS.get("Alpha").getChatterId()).block().isEmpty();
         if (empty) {
             Mono.empty()
                 .then(conversationStore.create(CREATION_DATE_TIME,
-                    DUMMY_CHATTERS.get("Alpha").getChatterID(),
+                    DUMMY_CHATTERS.get("Alpha").getChatterId(),
                     "First conversation ! Yay !!",
                     List.of(
-                        DUMMY_CHATTERS.get("Beta").getChatterID(),
-                        DUMMY_CHATTERS.get("Gamma").getChatterID(),
-                        DUMMY_CHATTERS.get("Delta").getChatterID()
+                        DUMMY_CHATTERS.get("Beta").getChatterId(),
+                        DUMMY_CHATTERS.get("Gamma").getChatterId(),
+                        DUMMY_CHATTERS.get("Delta").getChatterId()
                     ),
                     false))
-                .flatMap(chatterStore::writeConversationCreated)
+//                .flatMap(chatterStore::writeConversationCreated)
 
                 .then(conversationStore.create(CREATION_DATE_TIME,
-                    DUMMY_CHATTERS.get("Alpha").getChatterID(),
+                    DUMMY_CHATTERS.get("Alpha").getChatterId(),
                     "One On One",
                     List.of(
-                        DUMMY_CHATTERS.get("Beta").getChatterID()
+                        DUMMY_CHATTERS.get("Beta").getChatterId()
                     ),
                     true))
-                .flatMap(chatterStore::writeConversationCreated)
+//                .flatMap(chatterStore::writeConversationCreated)
 
                 .subscribe();
         }

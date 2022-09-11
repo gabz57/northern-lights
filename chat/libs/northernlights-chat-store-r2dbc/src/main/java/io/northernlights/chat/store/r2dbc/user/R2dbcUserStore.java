@@ -4,7 +4,7 @@ import io.northernlights.chat.domain.model.chatter.ChatterId;
 import io.northernlights.chat.domain.model.user.AuthOrigin;
 import io.northernlights.chat.domain.model.user.NorthernLightsUser;
 import io.northernlights.chat.store.r2dbc.user.model.UserModel;
-import io.northernlights.chat.store.user.UserStore;
+import io.northernlights.chat.domain.store.user.UserStore;
 import lombok.RequiredArgsConstructor;
 import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Mono;

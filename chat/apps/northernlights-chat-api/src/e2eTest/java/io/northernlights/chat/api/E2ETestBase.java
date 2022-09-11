@@ -1,6 +1,7 @@
 package io.northernlights.chat.api;
 
 import io.northernlights.chat.store.r2dbc.StoreCleaner;
+import io.northernlights.chat.store.r2dbc.TestableStoreConfiguration;
 import io.northernlights.commons.TestableTimeConfiguration;
 import io.northernlights.commons.TestableTimeConfiguration.TestTimeService;
 import io.northernlights.store.r2dbc.DBMigrationTestConfiguration;
@@ -23,7 +24,8 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 @DirtiesContext
 @ExtendWith(NorthernLightsR2dbcExtension.class)
 @Import({DBMigrationTestConfiguration.class})
-@SpringBootTest(webEnvironment = RANDOM_PORT, classes = {TestableTimeConfiguration.class, TestableJwtConfiguration.class, TestableStoreConfiguration.class})
+@SpringBootTest(webEnvironment = RANDOM_PORT, classes = {
+    TestableTimeConfiguration.class, TestableJwtConfiguration.class, TestableStoreConfiguration.class})
 @AutoConfigureWebTestClient
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class E2ETestBase {

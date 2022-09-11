@@ -1,0 +1,15 @@
+apply plugin: 'java'
+
+archivesBaseName = 'northernlights-store-redis'
+
+dependencies {
+//    api "com.fasterxml.jackson.datatype:jackson-datatype-jsr310"
+//    api "com.fasterxml.jackson.module:jackson-module-parameter-names"
+    api "org.springframework.data:spring-data-redis"
+    api "io.lettuce:lettuce-core"
+
+    // Test fixtures
+//    testFixturesApi "io.projectreactor:reactor-test"
+    testFixturesApi "org.springframework.boot:spring-boot-starter-test"
+    testFixturesApi "org.testcontainers:junit-jupiter"
+}

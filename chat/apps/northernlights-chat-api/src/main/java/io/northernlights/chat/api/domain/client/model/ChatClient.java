@@ -72,6 +72,7 @@ public class ChatClient {
         disposableChatDataFlow = chatDataProvider.chatterFlow(this.chatClientId, this.conversationIds)
             .doOnSubscribe(s -> log.info("Subscribed to chatterEventProvider.chatterFlow for " + this.chatClientId))
             .doOnTerminate(() -> log.warn("Subscription to chatterEventProvider.chatterFlow for " + this.chatClientId + " TERMINATED"))
+            .doOnNext(n -> log.info("LIVE user DATA :> {}", n.getChatDataType()))
             .subscribe(t -> {
                 // OMG, called on each data...
                 //

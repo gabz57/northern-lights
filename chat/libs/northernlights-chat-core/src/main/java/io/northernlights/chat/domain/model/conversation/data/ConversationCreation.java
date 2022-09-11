@@ -22,14 +22,14 @@ public class ConversationCreation extends ConversationData.AbstractConversationD
 
     @Builder
     public ConversationCreation(
-        ConversationId conversationId,
+//        ConversationId conversationId,
         ConversationDataId conversationDataId,
         ChatterId chatterId,
         @NonNull String name,
         @NonNull List<ChatterId> participants,
         @NonNull OffsetDateTime dateTime,
         @NonNull Boolean dialogue) {
-        super(CREATION, conversationId, conversationDataId, chatterId, dateTime);
+        super(CREATION, /*conversationId,*/ conversationDataId, chatterId, dateTime);
         this.name = name;
         this.participants = participants;
         this.dialogue = dialogue;

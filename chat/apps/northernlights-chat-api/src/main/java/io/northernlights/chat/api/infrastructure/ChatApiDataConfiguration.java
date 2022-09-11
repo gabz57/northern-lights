@@ -1,10 +1,11 @@
 package io.northernlights.chat.api.infrastructure;
 
-import io.northernlights.chat.store.chatter.ChatterStore;
-import io.northernlights.chat.store.conversation.ConversationStore;
+import io.northernlights.chat.domain.store.chatter.ChatterStore;
+import io.northernlights.chat.domain.store.conversation.ConversationStore;
 import io.northernlights.chat.store.r2dbc.R2dbcChatStoreConfiguration;
 import io.northernlights.chat.store.r2dbc.chatter.ChatterStoreConfigurationR2dbc;
 import io.northernlights.chat.store.r2dbc.conversation.ConversationStoreConfigurationR2dbc;
+import io.northernlights.chat.store.r2dbc.event.ChatEventStoreConfigurationR2dbc;
 import io.northernlights.chat.store.r2dbc.ssekey.SseKeyStoreConfigurationR2dbc;
 import io.northernlights.chat.store.r2dbc.user.UserStoreConfigurationR2dbc;
 import io.northernlights.commons.TimeConfiguration;
@@ -20,7 +21,8 @@ import org.springframework.context.annotation.Profile;
     UserStoreConfigurationR2dbc.class,
     ChatterStoreConfigurationR2dbc.class,
     ConversationStoreConfigurationR2dbc.class,
-    SseKeyStoreConfigurationR2dbc.class
+    SseKeyStoreConfigurationR2dbc.class,
+    ChatEventStoreConfigurationR2dbc.class
 })
 @Configuration
 public class ChatApiDataConfiguration {

@@ -1,0 +1,12 @@
+apply plugin: 'java'
+
+archivesBaseName = 'northernlights-chat-events'
+
+dependencies {
+    implementation "org.springframework:spring-web"
+//    api project(':libs:northernlights-commons')
+    implementation "com.fasterxml.jackson.core:jackson-annotations"
+    implementation "com.fasterxml.jackson.core:jackson-databind"
+    implementation "com.fasterxml.jackson.datatype:jackson-datatype-jdk8"
+    implementation "com.fasterxml.jackson.datatype:jackson-datatype-jsr310"
+}

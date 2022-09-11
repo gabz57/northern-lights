@@ -3,6 +3,7 @@ services:
   northernlights-chat-db:
     container_name: northernlights-chat-db
     image: postgres:12.10
+    command: [ "postgres", "-c", "wal_level=logical" ]
     restart: always
     ports:
       - "5432:5432"

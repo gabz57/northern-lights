@@ -32,8 +32,8 @@ public class ChatterConversationModel {
     private UUID chatterId;
     @Column("conversation_id")
     private UUID conversationId;
-    @Column("is_creator")
-    private Boolean creator;
+//    @Column("is_creator")
+//    private Boolean creator;
     @Column("joined_at")
     private LocalDateTime joinedAt;
 
@@ -44,11 +44,11 @@ public class ChatterConversationModel {
     @Column("updated_at")
     private LocalDateTime updatedAt;
 
-    public static ChatterConversationModel of(ChatterId chatterId, boolean isCreator, ConversationId conversationId, OffsetDateTime dateTime) {
+    public static ChatterConversationModel of(ChatterId chatterId, ConversationId conversationId, OffsetDateTime dateTime) {
         return ChatterConversationModel.builder()
             .conversationId(conversationId.getId())
             .chatterId(chatterId.getId())
-            .creator(isCreator)
+//            .creator(isCreator)
             .joinedAt(dateTime.toLocalDateTime())
             .build();
     }

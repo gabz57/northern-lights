@@ -1,14 +1,13 @@
 package io.northernlights.chat.api.infrastructure.user.http;
 
-import io.northernlights.chat.api.application.user.SubscribeUserCommand.SubscribeUserCommandInput;
-import io.northernlights.chat.api.application.user.UserInfoQuery.UserInfoQueryInput;
-import io.northernlights.chat.api.application.user.UserInfoQuery.UserInfoQueryResult;
+import io.northernlights.chat.domain.application.user.SubscribeUserCommand;
+import io.northernlights.chat.domain.application.user.SubscribeUserCommand.SubscribeUserCommandInput;
+import io.northernlights.chat.domain.application.user.UserInfoQuery.UserInfoQueryInput;
+import io.northernlights.chat.domain.application.user.UserInfoQuery.UserInfoQueryResult;
 import io.northernlights.chat.api.infrastructure.user.http.model.SubscribeUserResponse;
 import io.northernlights.chat.api.infrastructure.user.http.model.UserInfoResponse;
 import io.northernlights.security.NorthernLightsAuthentication;
 import lombok.RequiredArgsConstructor;
-
-import static io.northernlights.chat.api.application.user.SubscribeUserCommand.*;
 
 @RequiredArgsConstructor
 public class UserApiAdapter {
@@ -22,7 +21,7 @@ public class UserApiAdapter {
             .build();
     }
 
-    public SubscribeUserResponse adapt(SubscribeUserCommandResult result) {
+    public SubscribeUserResponse adapt(SubscribeUserCommand.SubscribeUserCommandResult result) {
         return SubscribeUserResponse.builder()
             .chatterId(result.getChatterId().getId().toString())
             .build();

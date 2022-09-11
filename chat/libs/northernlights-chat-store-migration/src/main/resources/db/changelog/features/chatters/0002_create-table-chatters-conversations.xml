@@ -15,9 +15,9 @@
             <column name="conversation_id" type="UUID">
                 <constraints nullable="false"/>
             </column>
-            <column name="is_creator" type="BOOLEAN">
-                <constraints nullable="false"/>
-            </column>
+<!--            <column name="is_creator" type="BOOLEAN">-->
+<!--                <constraints nullable="false"/>-->
+<!--            </column>-->
             <column name="joined_at" type="DATETIME">
                 <constraints nullable="false"/>
             </column>

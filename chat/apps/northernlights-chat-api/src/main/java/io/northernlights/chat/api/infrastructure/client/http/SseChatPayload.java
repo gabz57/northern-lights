@@ -34,7 +34,7 @@ public class SseChatPayload {
         private Long createdAt;
         private String from;
         private String to;
-        private Boolean dialogue;
+        private Boolean dialogue;// todo: rename is_private
         private List<String> participants;
         private SseChatConversationDataList data;
         private Map<String, String> readMarkers;// ChatterId.id <> ConversationDataId.id
@@ -60,7 +60,8 @@ public class SseChatPayload {
         property = "type")
     @JsonSubTypes({
         @JsonSubTypes.Type(value = SseChatConversationMessageData.class, name = "MESSAGE"),
-        @JsonSubTypes.Type(value = SseChatConversationChatterData.class, name = "CHATTER")
+//        @JsonSubTypes.Type(value = SseChatConversationMessageData.class, name = "MESSAGE_UPDATE"),
+        @JsonSubTypes.Type(value = SseChatConversationChatterData.class, name = "CHATTER") // TODO: rename CHATTER_JOINED
     })
     public interface SseChatConversationData {
     }
@@ -97,6 +98,6 @@ public class SseChatPayload {
     @AllArgsConstructor
     public static class SseChatChatter {
         private String id;
-        private String name;
+//        private String name;
     }
 }

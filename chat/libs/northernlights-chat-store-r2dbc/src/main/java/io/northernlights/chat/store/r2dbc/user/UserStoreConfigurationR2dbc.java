@@ -1,6 +1,6 @@
 package io.northernlights.chat.store.r2dbc.user;
 
-import io.northernlights.chat.store.user.UserStore;
+import io.northernlights.chat.domain.store.user.UserStore;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 

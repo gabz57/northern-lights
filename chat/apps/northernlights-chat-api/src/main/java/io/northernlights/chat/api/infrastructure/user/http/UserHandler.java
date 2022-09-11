@@ -1,6 +1,6 @@
 package io.northernlights.chat.api.infrastructure.user.http;
 
-import io.northernlights.chat.api.application.user.UserCommands;
+import io.northernlights.chat.domain.application.user.UserCommands;
 import io.northernlights.chat.api.infrastructure.user.http.model.SubscribeUserResponse;
 import io.northernlights.chat.api.infrastructure.user.http.model.UserInfoResponse;
 import io.northernlights.security.NorthernLightsAuthentication;

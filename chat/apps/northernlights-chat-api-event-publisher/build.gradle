@@ -1,0 +1,29 @@
+apply plugin: 'java'
+apply plugin: 'org.springframework.boot'
+
+dependencies {
+    implementation "org.springframework.boot:spring-boot-starter"
+    // implementation "org.springframework.boot:spring-boot-starter-json"
+
+    implementation "io.debezium:debezium-embedded"
+    implementation "io.debezium:debezium-connector-postgres"
+
+    implementation project(':chat:libs:northernlights-chat-events')
+    implementation project(':chat:libs:northernlights-chat-events-redis')
+
+
+    e2eTestRuntimeOnly "io.netty:netty-resolver-dns-native-macos:4.1.80.Final:osx-aarch_64"
+    e2eTestImplementation testFixtures(project(':libs:northernlights-commons'))
+    e2eTestImplementation testFixtures(project(':libs:northernlights-store-redis'))
+    e2eTestImplementation testFixtures(project(':libs:northernlights-store-r2dbc'))
+    e2eTestImplementation testFixtures(project(':chat:libs:northernlights-chat-store-r2dbc'))
+
+    // spring-jdbc for sql migration
+    e2eTestImplementation project(':chat:libs:northernlights-chat-store-migration')
+    e2eTestImplementation "org.springframework.boot:spring-boot-starter-jdbc"
+    e2eTestImplementation "org.liquibase:liquibase-core"
+    e2eTestImplementation "org.postgresql:postgresql"
+
+    e2eTestImplementation "org.awaitility:awaitility:3.1.6"
+    e2eTestImplementation "org.awaitility:awaitility-proxy:3.1.6"
+}

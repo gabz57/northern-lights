@@ -129,8 +129,8 @@ public class SseChatDataAdapter {
                     .name(chatDataConversationInstall.getName())
 //                                .from(conversationData.get(0).getConversationDataId())
 //                                .to(conversationData.get(conversationData.size() - 1).getConversationDataId())
-                    .dialogue(chatDataConversationInstall.getDialogue())
-                    .participants(chatDataConversationInstall.getChatters().stream().map(Chatter::getChatterID).map(ChatterId::getId).map(UUID::toString).toList())
+                    .dialogue(chatDataConversationInstall.getIsPrivate())
+                    .participants(chatDataConversationInstall.getChatters().stream().map(ChatterId::getId).map(UUID::toString).toList())
                     .data(chatDataConversationInstall.getConversationData().stream()
                         .map(this::toSseChatConversationData)
                         .filter(Objects::nonNull)
@@ -151,7 +151,7 @@ public class SseChatDataAdapter {
 //                                .from(conversationData.get(0).getConversationDataId())
 //                                .to(conversationData.get(conversationData.size() - 1).getConversationDataId())
 //                    .dialogue(chatDataConversationPartial.getDialogue())
-                    .participants(chatDataConversationPartial.getChatters().stream().map(Chatter::getChatterID).map(ChatterId::getId).map(UUID::toString).toList())
+                    .participants(chatDataConversationPartial.getChatters().stream().map(ChatterId::getId).map(UUID::toString).toList())
                     .data(chatDataConversationPartial.getConversationData().stream()
                         .map(this::toSseChatConversationData)
                         .filter(Objects::nonNull)
@@ -162,15 +162,15 @@ public class SseChatDataAdapter {
             .build());
     }
 
-    private Flux<SseChatData> installChatters(List<Chatter> chatters) {
+    private Flux<SseChatData> installChatters(List<ChatterId> chatters) {
         return Flux.fromIterable(chatters)
-            .map(chatter -> SseChatData.builder()
+            .map(chatterId -> SseChatData.builder()
                 // .id()
                 .event(CHATTER_INSTALL)
                 .payload(SseChatPayload.builder()
                     .chatter(SseChatPayload.SseChatChatter.builder()
-                        .id(chatter.getChatterID().getId().toString())
-                        .name(chatter.getName())
+                        .id(chatterId.getId().toString())
+//                        .name(chatter.getName())
                         .build())
                     .build())
                 .build());

@@ -1,18 +1,26 @@
 package io.northernlights.store.r2dbc;
 
 import org.testcontainers.containers.PostgreSQLContainer;
+import org.testcontainers.utility.DockerImageName;
 
 public class NorthernLightsPostgreSQLContainer extends PostgreSQLContainer<NorthernLightsPostgreSQLContainer> {
 
     public NorthernLightsPostgreSQLContainer() {
-        super("postgres:12.10");
-        withDatabaseName("northernlights-chat");
-        withUrlParam("TC_IMAGE_TAG", "12.10");
-        withUrlParam("TC_DAEMON", "true");
-        withUsername("postgres");
-        withPassword("postgres");
-        withEnv("POSTGRES_HOST_AUTH_METHOD", "trust");
-//        withInitScript("db/setup.sql");
+        super(DockerImageName.parse("debezium/postgres:12-alpine")
+            .asCompatibleSubstituteFor("postgres"));
+        withUrlParam("TC_IMAGE_TAG", "12.10")
+            .withUrlParam("TC_DAEMON", "true");
+        withDatabaseName("northernlights-chat")
+            .withUsername("postgres")
+            .withPassword("postgres")
+            .withEnv("POSTGRES_HOST_AUTH_METHOD", "trust");
+        // To enable 'logical' WAL level
+        // super("postgres:12.10");
+        // withCommand("postgres -c wal_level=logical")
+        // withCopyFileToContainer(MountableFile.forClasspathResource("postgresql.conf"), "/etc/postgresql/postgresql.conf");
+
+        // To complete with additional script(s)
+        // withInitScript("db/setup.sql");
     }
 
     @Override
@@ -23,6 +31,12 @@ public class NorthernLightsPostgreSQLContainer extends PostgreSQLContainer<North
         System.setProperty("chat.store.r2dbc.url", "r2dbc:postgresql://" + getUsername() + "@" + getHost() + ":" + getFirstMappedPort() + "/" + getDatabaseName());
         System.setProperty("chat.store.r2dbc.username", getUsername());
         System.setProperty("chat.store.r2dbc.password", getPassword());
+
+        // Re-exposing properties for Debezium
+        System.setProperty("database.hostname", getHost());
+        System.setProperty("database.port", getFirstMappedPort().toString());
+        System.setProperty("offset.storage.file.filename", "");
+        System.setProperty("database.history.file.filename", "");
     }
 
     @Override

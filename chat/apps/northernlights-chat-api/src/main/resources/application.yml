@@ -22,3 +22,10 @@ chat:
         initial-size: 10
         max-size: 10
         max-idle-time: 30m
+  redis:
+    hostname: northernlights-chat-redis
+    port: 6379
+    workspace: norhternlights
+
+  api:
+    google-client-id: 183144544565-6pc3gk5er5419mo4gj0a4d8ev87iigkg

@@ -1,13 +1,13 @@
 package io.northernlights.chat.store.r2dbc.ssekey;
 
-import io.northernlights.chat.domain.event.ConversationCreatedEvent;
+import io.northernlights.chat.domain.model.conversation.data.ConversationDataRef;
 import io.northernlights.chat.domain.model.chatter.ChatterId;
 import io.northernlights.chat.domain.model.conversation.ConversationId;
 import io.northernlights.chat.domain.model.conversation.data.ConversationDataId;
 import io.northernlights.chat.domain.model.ssekey.SseChatKey;
-import io.northernlights.chat.store.conversation.ConversationStore;
+import io.northernlights.chat.domain.store.conversation.ConversationStore;
 import io.northernlights.chat.store.r2dbc.ChatStoreIntegrationTestBase;
-import io.northernlights.chat.store.ssekey.SseKeyStore;
+import io.northernlights.chat.domain.store.ssekey.SseKeyStore;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,7 +52,7 @@ public class R2dbcSseKeyStoreTest extends ChatStoreIntegrationTestBase {
         @Test
         void should_return_inserted_line_with_existing_conversation() {
             // Given
-            Mono<ConversationCreatedEvent> conversation = createChatterAndConversation();
+            Mono<ConversationDataRef> conversation = createChatterAndConversation();
 
             // When
             Mono<SseChatKey> sseChatKeyMono = conversation
@@ -133,12 +133,12 @@ public class R2dbcSseKeyStoreTest extends ChatStoreIntegrationTestBase {
         }
     }
 
-    private Mono<ConversationCreatedEvent> createChatterAndConversation() {
+    private Mono<ConversationDataRef> createChatterAndConversation() {
         return createChatter(CONVERSATION_CREATOR_CHATTER_ID)
             .then(createConversation());
     }
 
-    private Mono<ConversationCreatedEvent> createConversation() {
+    private Mono<ConversationDataRef> createConversation() {
         conversationDataId = null;
         conversationId = null;
         return conversationStore.create(

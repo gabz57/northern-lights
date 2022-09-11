@@ -4,6 +4,11 @@ archivesBaseName = 'northernlights-chat-core'
 
 dependencies {
     api project(':libs:northernlights-commons')
+    api project(':chat:libs:northernlights-chat-events')
+
+    // only to provide in memory implementation
+    implementation "org.springframework.boot:spring-boot"
+
 
 //    // @Nullable annotation
 //    implementation "org.springframework.boot:spring-boot"

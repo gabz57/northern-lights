@@ -10,8 +10,9 @@
     <include file="features/chatters/0001_create-table-chatter.xml" relativeToChangelogFile="true"/>
     <include file="features/chatters/0002_create-table-chatters-conversations.xml" relativeToChangelogFile="true"/>
     <!-- features/conversations -->
-    <include file="features/conversations/0001_create-table-conversation-data.xml" relativeToChangelogFile="true"/>
-    <include file="features/conversations/0002_create-table-conversation-data-read-marker.xml" relativeToChangelogFile="true"/>
+    <include file="features/conversations/0001_create-table-conversations.xml" relativeToChangelogFile="true"/>
     <!-- features/ssekey -->
     <include file="features/ssekey/0001_create-table-sse-chat-key.xml" relativeToChangelogFile="true"/>
+    <!-- features/outbox -->
+    <include file="features/outbox/0001_create-table-chat-outbox.xml" relativeToChangelogFile="true"/>
 </databaseChangeLog>

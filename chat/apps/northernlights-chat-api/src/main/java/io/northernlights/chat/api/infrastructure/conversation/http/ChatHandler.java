@@ -1,6 +1,6 @@
 package io.northernlights.chat.api.infrastructure.conversation.http;
 
-import io.northernlights.chat.api.application.conversation.ChatCommands;
+import io.northernlights.chat.domain.application.conversation.ChatCommands;
 import io.northernlights.chat.api.infrastructure.conversation.http.model.*;
 import io.northernlights.security.NorthernLightsAuthentication;
 import lombok.RequiredArgsConstructor;

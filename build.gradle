@@ -1,9 +1,8 @@
 import org.springframework.boot.gradle.plugin.SpringBootPlugin
-import org.apache.tools.ant.filters.ReplaceTokens
-
-//import org.springframework.cloud.contract.verifier.plugin.SpringCloudContractVerifierGradlePlugin
 
 import static org.owasp.dependencycheck.reporting.ReportGenerator.Format
+
+//import org.springframework.cloud.contract.verifier.plugin.SpringCloudContractVerifierGradlePlugin
 
 buildscript {
     dependencies {
@@ -107,6 +106,9 @@ allprojects { project ->
                 dependency "org.postgresql:r2dbc-postgresql:0.9.1.RELEASE"
                 // sql driver for liquibase migration during test
                 dependency "org.postgresql:postgresql:42.3.3"
+
+                dependency "io.debezium:debezium-embedded:1.9.5.Final"
+                dependency "io.debezium:debezium-connector-postgres:1.9.5.Final"
 
                 dependency "net.javacrumbs.json-unit:json-unit-assertj:2.27.0"
                 dependency "org.testcontainers:postgresql:1.16.2"

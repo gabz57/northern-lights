@@ -1,21 +1,19 @@
 package io.northernlights.chat.api.infrastructure.conversation.store;
 
 import io.northernlights.chat.api.domain.client.ChatClientStore;
-import io.northernlights.chat.api.domain.client.ChatDataAdapter;
+import io.northernlights.chat.api.domain.client.ChatEventDataAdapter;
 import io.northernlights.chat.api.domain.client.model.ChatClientID;
 import io.northernlights.chat.api.domain.client.model.ChatData;
 import io.northernlights.chat.domain.model.chatter.ChatterId;
 import io.northernlights.chat.domain.model.conversation.ConversationId;
 import io.northernlights.chat.domain.model.conversation.data.ConversationDataId;
 import io.northernlights.chat.domain.model.ssekey.SseChatKey;
-import io.northernlights.chat.store.chatter.ChatterStore;
-import io.northernlights.chat.store.conversation.ConversationStore;
-import io.northernlights.chat.store.ssekey.SseKeyStore;
+import io.northernlights.chat.domain.store.conversation.ConversationStore;
+import io.northernlights.chat.domain.store.ssekey.SseKeyStore;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.util.function.Tuple2;
 
 import java.util.List;
 import java.util.Map;
@@ -25,16 +23,14 @@ import static java.util.Optional.ofNullable;
 @Slf4j
 @RequiredArgsConstructor
 public class ChatClientStoreImpl implements ChatClientStore {
-
-    private final ChatterStore chatterStore;
     private final ConversationStore conversationStore;
     private final SseKeyStore sseKeyStore;
-    private final ChatDataAdapter chatDataAdapter;
+    private final ChatEventDataAdapter chatEventDataAdapter;
 
     public Flux<ChatData> loadPreviousData(ChatClientID chatClientId, SseChatKey sseChatKey) {
         return sseKeyStore.useConversationStatusesBySseChatKey(sseChatKey)
             // when empty, let Mono.empty() to skip previous data
-            .zipWith(chatterStore.listConversationIds(chatClientId.getChatterId()))
+            .zipWith(conversationStore.listConversationIds(chatClientId.getChatterId()))
             .flatMapMany(t -> loadConversationsUsingMarkers(t.getT2(), t.getT1()));
     }
 
@@ -56,11 +52,11 @@ public class ChatClientStoreImpl implements ChatClientStore {
                 .zip(
                     // FIXME: use conversation (3rd param) instead of querying twice conversation
                     conversationStore.conversationDetails(conversationId),
-                    chatterStore.listChatters(chatterIds), // TODO: only send ids ?? (what if many ids ?)
+                    Mono.just(chatterIds),
 //                    conversationStore.conversationData(conversationId, null).collectList().map(Conversation::new),
                     conversationStore.conversation(conversationId, null), // TODO: limit to 100 messages ? (don't fetch all history)
-                    conversationStore.readMarkers(conversationId).collectMap(Tuple2::getT1, Tuple2::getT2))
-                .map(tuple -> chatDataAdapter.adaptConversationInstall(
+                    conversationStore.readMarkers(conversationId).collectList())
+                .map(tuple -> chatEventDataAdapter.adaptConversationInstall(
                     conversationId, tuple.getT1(), tuple.getT2(), tuple.getT3(), tuple.getT4()))
                 .onErrorContinue((e, o) -> log.error("Failed to load chat install data content with object : "
                     + ofNullable(o).map(Object::toString).orElse(""), e))
@@ -77,10 +73,10 @@ public class ChatClientStoreImpl implements ChatClientStore {
         return conversationStore.participants(conversationId)
             .flatMap(chatterIds -> Mono
                 .zip(
-                    chatterStore.listChatters(chatterIds), // TODO: only send ids ?? (what if many ids ?)
+                    Mono.just(chatterIds),
                     conversationStore.conversation(conversationId, conversationStatuses.get(conversationId)),
-                    conversationStore.readMarkers(conversationId).collectMap(Tuple2::getT1, Tuple2::getT2))
-                .map(tuple -> chatDataAdapter.adaptConversationUpdate(
+                    conversationStore.readMarkers(conversationId).collectList())
+                .map(tuple -> chatEventDataAdapter.adaptConversationUpdate(
                     conversationId, tuple.getT1(), tuple.getT2(), tuple.getT3()))
                 .onErrorContinue((e, o) -> log.error("Failed to load chat install data content with object : "
                     + ofNullable(o).map(Object::toString).orElse(""), e))
@@ -88,7 +84,7 @@ public class ChatClientStoreImpl implements ChatClientStore {
     }
 
     public Mono<List<ConversationId>> loadConversationIds(ChatClientID chatClientId) {
-        return chatterStore.listConversationIds(chatClientId.getChatterId());
+        return conversationStore.listConversationIds(chatClientId.getChatterId());
     }
 
     public Mono<ChatterId> authenticate(SseChatKey sseChatKey) {

@@ -21,14 +21,20 @@ include 'libs:northernlights-commons'
 include 'libs:northernlights-multitenant'
 include 'libs:northernlights-security'
 include 'libs:northernlights-store-r2dbc'
+include 'libs:northernlights-store-redis'
 include 'libs:northernlights-api-core'
 
 include 'chat:libs:northernlights-chat-core'
-include 'chat:libs:northernlights-chat-store'
+include 'chat:libs:northernlights-chat-events'
+include 'chat:libs:northernlights-chat-events-redis'
+//include 'chat:libs:northernlights-chat-events-store'
+//include 'chat:libs:northernlights-chat-events-store-redis'
 include 'chat:libs:northernlights-chat-store-migration'
 include 'chat:libs:northernlights-chat-store-r2dbc'
 
 // APPS
 include 'chat:apps:northernlights-chat-api'
+include 'chat:apps:northernlights-chat-api-event-publisher'
+include 'chat:apps:northernlights-chat-api-sse'
 include 'chat:apps:northernlights-chat-ui'
 

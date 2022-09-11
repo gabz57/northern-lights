@@ -10,7 +10,7 @@ import java.time.OffsetDateTime;
 public interface ConversationData {
     ConversationDataType getConversationDataType();
 
-    ConversationId getConversationId();
+//    ConversationId getConversationId();
 
     ConversationDataId getConversationDataId();
 
@@ -26,9 +26,8 @@ public interface ConversationData {
     abstract class AbstractConversationData {
         @NonNull
         private final ConversationDataType conversationDataType;
-        @NonNull
-        private final ConversationId conversationId;
-        @NonNull
+//        @NonNull
+//        private final ConversationId conversationId;
         private final ConversationDataId conversationDataId;
         @NonNull
         private final ChatterId chatterId;
@@ -37,12 +36,12 @@ public interface ConversationData {
 
         protected AbstractConversationData(
                @NonNull ConversationDataType conversationDataType,
-               @NonNull ConversationId conversationId,
-               @NonNull ConversationDataId conversationDataId,
+//               @NonNull ConversationId conversationId,
+               ConversationDataId conversationDataId,
                @NonNull ChatterId chatterId,
                @NonNull OffsetDateTime dateTime) {
             this.conversationDataType = conversationDataType;
-            this.conversationId = conversationId;
+//            this.conversationId = conversationId;
             this.conversationDataId = conversationDataId;
             this.chatterId = chatterId;
             this.dateTime = dateTime;

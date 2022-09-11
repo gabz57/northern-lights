@@ -16,7 +16,7 @@ import java.util.Map;
 public class ChatDataConversationPartial implements ChatData {
     ConversationId conversationId;
     Conversation conversationData;
-    List<Chatter> chatters;
+    List<ChatterId> chatters;
     Map<ChatterId, ConversationDataId> readMarkers;
 
     public ChatDataType getChatDataType() {

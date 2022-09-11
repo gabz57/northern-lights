@@ -1,7 +1,7 @@
 package io.northernlights.security;
 
 import io.northernlights.chat.domain.model.user.AuthOrigin;
-import io.northernlights.chat.store.user.UserStore;
+import io.northernlights.chat.domain.store.user.UserStore;
 import io.northernlights.security.jwt.JwtToken;
 import io.northernlights.security.jwt.JwtTokenNorthernLightsAuthenticationAdapter;
 import io.northernlights.security.jwt.JwtProvider;

@@ -1,11 +1,11 @@
 package io.northernlights.chat.api.infrastructure.user.config;
 
 import io.northernlights.api.core.error.infrastructure.ErrorHandler;
-import io.northernlights.chat.api.application.user.UserCommands;
+import io.northernlights.chat.domain.application.user.UserCommands;
 import io.northernlights.chat.api.infrastructure.user.http.UserApiAdapter;
 import io.northernlights.chat.api.infrastructure.user.http.UserHandler;
-import io.northernlights.chat.store.chatter.ChatterStore;
-import io.northernlights.chat.store.user.UserStore;
+import io.northernlights.chat.domain.store.chatter.ChatterStore;
+import io.northernlights.chat.domain.store.user.UserStore;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.reactive.function.server.RouterFunction;
@@ -37,7 +37,7 @@ public class UserConfiguration {
 
     @Bean
     public RouterFunction<ServerResponse> userRoutes(UserHandler userHandler) {
-        return route(POST(USER_API_INFO).and(accept(APPLICATION_JSON)).and(contentType(APPLICATION_JSON)), userHandler::userInfo)
+        return route(GET(USER_API_INFO).and(accept(APPLICATION_JSON)), userHandler::userInfo)
             .andRoute(POST(USER_API_SUBSCRIBE).and(accept(APPLICATION_JSON)).and(contentType(APPLICATION_JSON)), userHandler::subscribeUser)
             .filter(new ErrorHandler());
     }

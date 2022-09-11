@@ -2,7 +2,6 @@ package io.northernlights.chat.store.r2dbc.chatter.model;
 
 import io.northernlights.chat.domain.model.chatter.Chatter;
 import io.northernlights.chat.domain.model.chatter.ChatterId;
-import io.northernlights.chat.domain.model.conversation.ConversationId;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -17,7 +16,6 @@ import org.springframework.data.relational.core.mapping.Table;
 import org.springframework.lang.Nullable;
 
 import java.time.LocalDateTime;
-import java.time.OffsetDateTime;
 import java.util.UUID;
 
 /**
@@ -59,7 +57,7 @@ public class ChatterModel implements Persistable<UUID> {
         return ChatterModel.builder()
             .name(chatter.getName())
             .picture(chatter.getPicture())
-            .id(chatter.getChatterID().getId())
+            .id(chatter.getChatterId().getId())
             .isNew(isNew)
             .build();
     }

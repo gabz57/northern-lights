@@ -17,12 +17,11 @@ public class ConversationChatter extends ConversationData.AbstractConversationDa
 
     @Builder
     public ConversationChatter(
-        ConversationId conversationId,
         ConversationDataId conversationDataId,
         ChatterId chatterId,
         OffsetDateTime dateTime,
         @NonNull ChatterId invitedChatterId) {
-        super(CHATTER_ADD, conversationId, conversationDataId, chatterId, dateTime);
+        super(CHATTER_ADD, conversationDataId, chatterId, dateTime);
         this.invitedChatterId = invitedChatterId;
     }
 

@@ -1,6 +1,6 @@
 package io.northernlights.chat.store.r2dbc.ssekey;
 
-import io.northernlights.chat.store.ssekey.SseKeyStore;
+import io.northernlights.chat.domain.store.ssekey.SseKeyStore;
 import io.northernlights.store.r2dbc.converter.R2dbcConverters;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

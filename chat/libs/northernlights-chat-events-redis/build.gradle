@@ -1,0 +1,20 @@
+apply plugin: 'java'
+
+archivesBaseName = 'northernlights-chat-event-redis'
+
+dependencies {
+//    api "com.fasterxml.jackson.datatype:jackson-datatype-jsr310"
+//    api "com.fasterxml.jackson.module:jackson-module-parameter-names"
+    api project(':libs:northernlights-store-redis')
+    api project(':chat:libs:northernlights-chat-events')
+
+    // Test fixtures
+//    testFixturesApi "io.projectreactor:reactor-test"
+    testFixturesApi "org.springframework.boot:spring-boot-starter-test"
+    testFixturesApi "org.testcontainers:junit-jupiter"
+
+    // Testing
+//    testImplementation testFixtures(project(':libs:northernlights-commons'))
+//    testImplementation testFixtures(project(':chat:libs:northernlights-chat-events'))
+
+}

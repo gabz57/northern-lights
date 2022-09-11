@@ -1,10 +1,10 @@
 package io.northernlights.chat.api.infrastructure.conversation.http;
 
-import io.northernlights.chat.api.application.conversation.InitializeSseChatCommand.InitializeSseChatCommandInput;
-import io.northernlights.chat.api.application.conversation.InitializeSseChatCommand.InitializeSseChatCommandResult;
-import io.northernlights.chat.api.application.conversation.InviteChatterCommand.InviteChatterCommandInput;
-import io.northernlights.chat.api.application.conversation.InviteChatterCommand.InviteChatterCommandResult;
-import io.northernlights.chat.api.application.conversation.MarkConversationAsReadCommand.MarkConversationAsReadCommandInput;
+import io.northernlights.chat.domain.application.conversation.InitializeSseChatCommand.InitializeSseChatCommandInput;
+import io.northernlights.chat.domain.application.conversation.InitializeSseChatCommand.InitializeSseChatCommandResult;
+import io.northernlights.chat.domain.application.conversation.InviteChatterCommand.InviteChatterCommandInput;
+import io.northernlights.chat.domain.application.conversation.InviteChatterCommand.InviteChatterCommandResult;
+import io.northernlights.chat.domain.application.conversation.MarkConversationAsReadCommand.MarkConversationAsReadCommandInput;
 import io.northernlights.chat.api.infrastructure.conversation.http.model.*;
 import io.northernlights.chat.domain.model.chatter.ChatterId;
 import io.northernlights.chat.domain.model.conversation.ConversationId;
@@ -13,11 +13,11 @@ import io.northernlights.chat.domain.model.conversation.data.ConversationDataId;
 import io.northernlights.security.NorthernLightsAuthentication;
 import lombok.RequiredArgsConstructor;
 
-import static io.northernlights.chat.api.application.conversation.CreateConversationCommand.CreateConversationCommandInput;
-import static io.northernlights.chat.api.application.conversation.CreateConversationCommand.CreateConversationCommandResult;
-import static io.northernlights.chat.api.application.conversation.MarkConversationAsReadCommand.MarkConversationAsReadCommandResult;
-import static io.northernlights.chat.api.application.conversation.SendMessageCommand.SendMessageCommandInput;
-import static io.northernlights.chat.api.application.conversation.SendMessageCommand.SendMessageCommandResult;
+import static io.northernlights.chat.domain.application.conversation.CreateConversationCommand.CreateConversationCommandInput;
+import static io.northernlights.chat.domain.application.conversation.CreateConversationCommand.CreateConversationCommandResult;
+import static io.northernlights.chat.domain.application.conversation.MarkConversationAsReadCommand.MarkConversationAsReadCommandResult;
+import static io.northernlights.chat.domain.application.conversation.SendMessageCommand.SendMessageCommandInput;
+import static io.northernlights.chat.domain.application.conversation.SendMessageCommand.SendMessageCommandResult;
 import static java.util.stream.Collectors.toMap;
 
 @RequiredArgsConstructor
@@ -27,13 +27,13 @@ public class ChatApiAdapter {
             .creator(authentication.getPrincipal().getChatterId())
             .conversationName(request.getName())
             .participants(request.getParticipants().stream().map(ChatterId::of).toList())
-            .dialogue(request.getDialogue())
+            .isPrivate(request.getDialogue())
             .build();
     }
 
     public CreateConversationResponse adapt(CreateConversationCommandResult result) {
         return CreateConversationResponse.builder()
-            .conversationId(result.getConversationCreatedEvent().getConversationId().getId().toString())
+            .conversationId(result.getConversationId().getId().toString())
             .build();
     }
 
@@ -47,8 +47,8 @@ public class ChatApiAdapter {
 
     public SendMessageResponse adapt(SendMessageCommandResult result) {
         return SendMessageResponse.builder()
-            .conversationId(result.getConversationMessageSentEvent().getConversationId().getId().toString())
-            .conversationDataId(result.getConversationMessageSentEvent().getConversationDataId().getId())
+            .conversationId(result.getConversationId().getId().toString())
+            .conversationDataId(result.getConversationDataId().getId())
             .build();
     }
 
@@ -62,8 +62,8 @@ public class ChatApiAdapter {
 
     public MarkAsReadResponse adapt(MarkConversationAsReadCommandResult result) {
         return MarkAsReadResponse.builder()
-            .conversationId(result.getConversationMarkedAsReadEvent().getConversationId().getId().toString())
-            .conversationDataId(result.getConversationMarkedAsReadEvent().getConversationDataId().getId())
+            .conversationId(result.getConversationId().getId().toString())
+            .conversationDataId(result.getConversationDataId().getId())
             .build();
     }
 
@@ -77,8 +77,8 @@ public class ChatApiAdapter {
 
     public InviteChatterResponse adapt(InviteChatterCommandResult result) {
         return InviteChatterResponse.builder()
-            .conversationId(result.getChatterJoinedEvent().getConversationId().getId().toString())
-            .conversationDataId(result.getChatterJoinedEvent().getConversationDataId().getId())
+            .conversationId(result.getConversationId().getId().toString())
+            .conversationDataId(result.getConversationDataId().getId())
             .build();
     }
 

@@ -1,13 +1,11 @@
 package io.northernlights.chat.api.infrastructure.conversation.config;
 
 import io.northernlights.api.core.error.infrastructure.ErrorHandler;
-import io.northernlights.chat.api.application.conversation.ChatCommands;
-import io.northernlights.chat.api.domain.conversation.ConversationEventPublisher;
+import io.northernlights.chat.domain.application.conversation.ChatCommands;
 import io.northernlights.chat.api.infrastructure.conversation.http.ChatApiAdapter;
 import io.northernlights.chat.api.infrastructure.conversation.http.ChatHandler;
-import io.northernlights.chat.store.chatter.ChatterStore;
-import io.northernlights.chat.store.conversation.ConversationStore;
-import io.northernlights.chat.store.ssekey.SseKeyStore;
+import io.northernlights.chat.domain.store.conversation.ConversationStore;
+import io.northernlights.chat.domain.store.ssekey.SseKeyStore;
 import io.northernlights.commons.TimeService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -23,12 +21,8 @@ import static org.springframework.web.reactive.function.server.RouterFunctions.r
 public class ConversationConfiguration {
 
     @Bean
-    public ChatCommands chatCommands(TimeService timeService,
-                                     ChatterStore chatterStore,
-                                     ConversationStore conversationStore,
-                                     SseKeyStore sseKeyStore,
-                                     ConversationEventPublisher conversationEventPublisher) {
-        return new ChatCommands(timeService, chatterStore, conversationStore, sseKeyStore, conversationEventPublisher);
+    public ChatCommands chatCommands(TimeService timeService, ConversationStore conversationStore, SseKeyStore sseKeyStore) {
+        return new ChatCommands(timeService,  conversationStore, sseKeyStore);
     }
 
     @Bean

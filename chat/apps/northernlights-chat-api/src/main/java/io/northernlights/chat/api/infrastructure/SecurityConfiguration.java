@@ -1,6 +1,6 @@
 package io.northernlights.chat.api.infrastructure;
 
-import io.northernlights.chat.store.user.UserStore;
+import io.northernlights.chat.domain.store.user.UserStore;
 import io.northernlights.commons.TimeService;
 import io.northernlights.security.NorthernLightsAuthenticationConverter;
 import io.northernlights.security.NorthernLightsAuthenticationManager;
@@ -11,7 +11,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
@@ -71,15 +70,21 @@ public class SecurityConfiguration {
 //        .and()
 
             .authorizeExchange(authorize -> authorize
+                // static content
                 .pathMatchers(GET, "/", "/favicon.ico", "/manifest.json", "/index.html").permitAll()
                 .pathMatchers(GET, "/service-worker.js","/precache-manifest.*", "/eventsource.js").permitAll()
                 .pathMatchers(GET, "/css/**", "/js/**", "/img/**").permitAll()
                 .pathMatchers(GET, "/webjars/**", "/webjars/swagger-ui/**", "/api-docs/**", "/swagger-ui.html").permitAll()
+                // preflight...
                 .pathMatchers(OPTIONS).permitAll()
-                .pathMatchers(GET, CHAT_API_SSE).hasRole(CHATTER.type)
-                .pathMatchers(CHAT_API_ALL).hasRole(CHATTER.type)
-                .pathMatchers(GET, USER_API_INFO).hasRole(CHATTER.type)
+                // api/subscribe
                 .pathMatchers(POST, USER_API_SUBSCRIBE).authenticated()
+                // api/info
+                .pathMatchers(GET, USER_API_INFO).hasRole(CHATTER.type)
+                // api/sse
+                .pathMatchers(GET, CHAT_API_SSE).hasRole(CHATTER.type)
+                // api/*
+                .pathMatchers(CHAT_API_ALL).hasRole(CHATTER.type)
                 .anyExchange().authenticated())
             .build();
     }

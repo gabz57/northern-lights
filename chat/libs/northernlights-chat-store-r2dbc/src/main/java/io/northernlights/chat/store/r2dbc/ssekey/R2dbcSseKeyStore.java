@@ -7,7 +7,7 @@ import io.northernlights.chat.domain.model.conversation.ConversationId;
 import io.northernlights.chat.domain.model.conversation.data.*;
 import io.northernlights.chat.domain.model.ssekey.SseChatKey;
 import io.northernlights.chat.store.r2dbc.ssekey.model.SseChatKeyModel;
-import io.northernlights.chat.store.ssekey.SseKeyStore;
+import io.northernlights.chat.domain.store.ssekey.SseKeyStore;
 import io.r2dbc.postgresql.codec.Json;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

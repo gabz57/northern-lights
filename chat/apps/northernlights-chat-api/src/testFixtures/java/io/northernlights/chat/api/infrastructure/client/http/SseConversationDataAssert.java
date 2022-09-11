@@ -31,11 +31,11 @@ public class SseConversationDataAssert extends AbstractAssert<SseConversationDat
         return this;
     }
 
-    public SseConversationDataAssert hasDialogue(Boolean dialogue) {
+    public SseConversationDataAssert isPrivate(Boolean isPrivate) {
         isNotNull();
-        if (!Objects.equals(this.actual.getDialogue(), dialogue)) {
+        if (!Objects.equals(this.actual.getDialogue(), isPrivate)) {
             failWithMessage("Expected conversation to have dialogue %s but was %s",
-                dialogue, this.actual.getDialogue());
+                isPrivate, this.actual.getDialogue());
         }
         return this;
     }

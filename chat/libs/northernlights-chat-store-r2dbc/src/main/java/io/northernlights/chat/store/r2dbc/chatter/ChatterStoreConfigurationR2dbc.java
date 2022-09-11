@@ -1,6 +1,6 @@
 package io.northernlights.chat.store.r2dbc.chatter;
 
-import io.northernlights.chat.store.chatter.ChatterStore;
+import io.northernlights.chat.domain.store.chatter.ChatterStore;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -8,7 +8,7 @@ import org.springframework.context.annotation.Configuration;
 public class ChatterStoreConfigurationR2dbc {
 
     @Bean
-    public ChatterStore chatterStore(ChattersRepository chattersRepository, ChatterConversationRepository chatterConversationRepository) {
-        return new R2dbcChatterStore(chattersRepository, chatterConversationRepository);
+    public ChatterStore chatterStore(ChattersRepository chattersRepository) {
+        return new R2dbcChatterStore(chattersRepository);
     }
 }

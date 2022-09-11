@@ -1,5 +1,6 @@
 package io.northernlights.chat.api.infrastructure.client.http;
 
+import io.northernlights.chat.domain.model.chatter.ChatterId;
 import org.assertj.core.api.AbstractAssert;
 
 import java.util.Objects;
@@ -14,20 +15,19 @@ public class SseChatterDataAssert extends AbstractAssert<SseChatterDataAssert, S
         super(actual, SseChatterDataAssert.class);
     }
 
-    public SseChatterDataAssert hasName(String name) {
-        isNotNull();
-        if (!Objects.equals(this.actual.getName(), name)) {
-            failWithMessage("Expected chatter to have name %s but was %s",
-                name, this.actual.getName());
-        }
-        return this;
-    }
-
     public SseChatterDataAssert hasId(String id) {
         isNotNull();
         if (!Objects.equals(this.actual.getId(), id)) {
             failWithMessage("Expected chatter to have id %s but was %s",
-                id, this.actual.getName());
+                id, this.actual.getId());
+        }
+        return this;
+    }
+    public SseChatterDataAssert hasId(ChatterId id) {
+        isNotNull();
+        if (!Objects.equals(this.actual.getId(), id.getId().toString())) {
+            failWithMessage("Expected chatter to have id %s but was %s",
+                id, this.actual.getId());
         }
         return this;
     }

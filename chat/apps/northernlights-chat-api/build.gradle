@@ -28,9 +28,10 @@ dependencies {
     implementation project(':libs:northernlights-security')
     implementation project(':libs:northernlights-api-core')
 
-//    implementation project(":chat:libs:northernlights-chat-report")
-    implementation project(":chat:libs:northernlights-chat-store")
     implementation project(":chat:libs:northernlights-chat-store-r2dbc")
+
+    implementation "org.springframework.data:spring-data-redis"
+    implementation project(':chat:libs:northernlights-chat-events-redis')
 
 
     // Open Api (note: webflux-ui (Swagger) could run on a separate module)
@@ -39,6 +40,7 @@ dependencies {
     implementation "org.springdoc:springdoc-openapi-security"
 
     // Test fixtures
+    testFixturesImplementation project(':chat:libs:northernlights-chat-core')
 //    testFixturesImplementation "org.springframework.security:spring-security-test"
 //    testFixturesImplementation "com.auth0:java-jwt:${javaJwtVersion}"
 //    testFixturesImplementation testFixtures(project(':libs:northernlights-commons'))

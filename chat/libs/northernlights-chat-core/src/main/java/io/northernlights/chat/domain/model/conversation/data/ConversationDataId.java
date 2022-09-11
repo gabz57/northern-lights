@@ -6,6 +6,9 @@ import lombok.Value;
 public class ConversationDataId implements Comparable<ConversationDataId> {
     String id;
 
+    public static ConversationDataId of(Long id) {
+        return new ConversationDataId(id.toString());
+    }
     public static ConversationDataId of(String id) {
         return new ConversationDataId(id);
     }

@@ -2,7 +2,10 @@ package io.northernlights.chat.store.r2dbc.conversation.model;
 
 import io.northernlights.chat.domain.model.chatter.ChatterId;
 import io.northernlights.chat.domain.model.conversation.ConversationId;
-import io.northernlights.chat.domain.model.conversation.data.*;
+import io.northernlights.chat.domain.model.conversation.data.ConversationChatter;
+import io.northernlights.chat.domain.model.conversation.data.ConversationCreation;
+import io.northernlights.chat.domain.model.conversation.data.ConversationDataId;
+import io.northernlights.chat.domain.model.conversation.data.ConversationMessage;
 import io.r2dbc.postgresql.codec.Json;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
@@ -12,7 +15,6 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.domain.Persistable;
 import org.springframework.data.relational.core.mapping.Column;
-import org.springframework.data.relational.core.mapping.Table;
 import org.springframework.lang.Nullable;
 
 import java.time.LocalDateTime;
@@ -27,15 +29,15 @@ import java.util.stream.Collectors;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table("conversation_data")
-public class ConversationDataModel implements Persistable<String> {
+//@Table("conversation_data")
+public class ConversationDataModel implements Persistable<Long> {
     @Transient
     private boolean isNew;
     @Id
     @Column("id")
-    private String conversationDataId;
-    @Column("conversation_id")
-    private UUID conversationId;
+    private Long conversationDataId;
+//    @Column("conversation_id")
+//    private UUID conversationId;
     @Column("type")
     private ConversationDataType conversationDataType;
     @Column("data")
@@ -51,7 +53,7 @@ public class ConversationDataModel implements Persistable<String> {
 
     @Nullable
     @Transient
-    public String getId() {
+    public Long getId() {
         return conversationDataId;
     }
 
@@ -81,7 +83,7 @@ public class ConversationDataModel implements Persistable<String> {
 
         public ConversationCreation fromJsonValue(ConversationDataModel model) {
             return ConversationCreation.builder()
-                .conversationId(ConversationId.of(model.conversationId))
+//                .conversationId(ConversationId.of(model.conversationId))
                 .conversationDataId(ConversationDataId.of(model.conversationDataId))
                 .chatterId(ChatterId.of(model.chatterId))
                 .dateTime(model.dateTime.atOffset(ZoneOffset.UTC))
@@ -118,7 +120,7 @@ public class ConversationDataModel implements Persistable<String> {
 
         public ConversationMessage fromJsonValue(ConversationDataModel model) {
             return ConversationMessage.builder()
-                .conversationId(ConversationId.of(model.conversationId))
+//                .conversationId(ConversationId.of(model.conversationId))
                 .conversationDataId(ConversationDataId.of(model.conversationDataId))
                 .chatterId(ChatterId.of(model.chatterId))
                 .dateTime(model.dateTime.atOffset(ZoneOffset.UTC))
@@ -144,7 +146,7 @@ public class ConversationDataModel implements Persistable<String> {
 
         public ConversationChatter fromJsonValue(ConversationDataModel model) {
             return ConversationChatter.builder()
-                .conversationId(ConversationId.of(model.conversationId))
+//                .conversationId(ConversationId.of(model.conversationId))
                 .conversationDataId(ConversationDataId.of(model.conversationDataId))
                 .chatterId(ChatterId.of(model.chatterId))
                 .dateTime(model.dateTime.atOffset(ZoneOffset.UTC))

@@ -3,12 +3,13 @@ package io.northernlights.chat.api;
 import io.northernlights.chat.api.infrastructure.client.http.SseChatPayload;
 import io.northernlights.chat.api.infrastructure.conversation.http.model.InitializeSseChatResponse;
 import io.northernlights.chat.api.infrastructure.conversation.http.model.CreateConversationResponse;
+import io.northernlights.chat.api.infrastructure.conversation.http.model.MarkAsReadResponse;
 import io.northernlights.chat.api.infrastructure.conversation.http.model.SendMessageResponse;
 import io.northernlights.chat.api.infrastructure.user.http.model.SubscribeUserResponse;
 import io.northernlights.chat.api.infrastructure.user.http.model.UserInfoResponse;
 import io.northernlights.chat.domain.model.chatter.Chatter;
 import io.northernlights.chat.domain.model.chatter.ChatterId;
-import io.northernlights.chat.store.chatter.ChatterStore;
+import io.northernlights.chat.domain.store.chatter.ChatterStore;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
@@ -25,12 +26,14 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static io.northernlights.chat.api.infrastructure.client.http.ServerSentEventAssert.assertThat;
 import static io.northernlights.chat.domain.ApiConstants.*;
+import static java.util.stream.Collectors.joining;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @Slf4j
@@ -121,6 +124,7 @@ class ChatApiApplicationTest extends E2ETestBase {
         String sseChatKey = initSse(chatterId);
 
         AtomicReference<String> firstConversationId = new AtomicReference<>();
+        AtomicReference<String> firstConversationDataId = new AtomicReference<>();
         openSseClient(token, sseChatKey)
             .exchange()
             .expectStatus().isOk()
@@ -130,24 +134,34 @@ class ChatApiApplicationTest extends E2ETestBase {
             .expectSubscription()
             .consumeNextWith(n -> assertThat(n.event()).isEqualTo("Hello " + sseChatKey))
 
-            .then(() -> createConversation(token, "SSE TEST !!", DUMMY_CHATTERS.get("Beta").getChatterID())
+            .then(() -> createConversation(token, "SSE TEST !!", List.of(chatterId.get(), DUMMY_CHATTERS.get("Beta").getChatterId()))
                 .exchange()
                 .expectStatus().is2xxSuccessful()
                 .expectBody(CreateConversationResponse.class)
                 .value(r -> assertThat(r.getConversationId()).isNotNull())
                 .value(response -> firstConversationId.set(response.getConversationId()))
             )
-            .consumeNextWith(n -> assertThat(n).hasEvent("CHATTER:INSTALL").hasData().withChatterData().hasName("Beta"))
-            .consumeNextWith(n -> assertThat(n).hasEvent("CHATTER:INSTALL").hasData().withChatterData().hasId(chatterId.get().getId().toString()))
-            .consumeNextWith(n -> assertThat(n).hasEvent("CONVERS:INSTALL").hasData().withConversationData().hasName("SSE TEST !!").hasDialogue(true))
+            .consumeNextWith(n -> assertThat(n).hasEvent("CHATTER:INSTALL").hasData().withChatterData().hasId(chatterId.get()))
+            .consumeNextWith(n -> assertThat(n).hasEvent("CHATTER:INSTALL").hasData().withChatterData().hasId(DUMMY_CHATTERS.get("Beta").getChatterId()))
+            .consumeNextWith(n -> assertThat(n).hasEvent("CONVERS:INSTALL").hasData().withConversationData().hasName("SSE TEST !!").isPrivate(true))
 
             .then(() -> sendMessage(token, firstConversationId.get(), "Hello SSE world !!")
                 .exchange()
                 .expectStatus().is2xxSuccessful()
                 .expectBody(SendMessageResponse.class)
-                .value(r -> assertThat(r.getConversationDataId()).isNotNull()))
+                .value(r -> {
+                    assertThat(r.getConversationDataId()).isNotNull();
+                    firstConversationDataId.set(r.getConversationDataId());
+                }))
             .consumeNextWith(n -> assertThat(n).hasEvent("CONVERS:UPDATE:MESSAGE").hasData().withConversationData())
+
+            .then(() -> markAsRead(token, firstConversationId.get(), firstConversationDataId.get())
+                .exchange()
+                .expectStatus().is2xxSuccessful()
+                .expectBody(MarkAsReadResponse.class)
+                .value(r -> assertThat(r.getConversationDataId()).isNotNull()))
             .consumeNextWith(n -> assertThat(n).hasEvent("CONVERS:UPDATE:READ_MARKER").hasData().withConversationData().withReadMarkers())
+
             .thenCancel()
             .verify();
     }
@@ -202,11 +216,10 @@ class ChatApiApplicationTest extends E2ETestBase {
 
     private WebTestClient.RequestHeadersSpec<?> userInfo(String token) {
         System.out.println("USER INFO");
-        return this.client.post()
+        return this.client.get()
             .uri(USER_API_INFO)
             .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
-            .accept(MediaType.APPLICATION_JSON)
-            .contentType(MediaType.APPLICATION_JSON);
+            .accept(MediaType.APPLICATION_JSON);
     }
 
     private WebTestClient.RequestHeadersSpec<?> initializeSse(String token) {
@@ -231,7 +244,7 @@ class ChatApiApplicationTest extends E2ETestBase {
             .accept(MediaType.TEXT_EVENT_STREAM);
     }
 
-    private WebTestClient.RequestHeadersSpec<?> createConversation(String token, String conversationName, ChatterId invited) {
+    private WebTestClient.RequestHeadersSpec<?> createConversation(String token, String conversationName, List<ChatterId> inviteds) {
         System.out.println("CREATE CONVERSATION");
         return this.client.post()
             .uri(CHAT_API_OPEN)
@@ -240,7 +253,7 @@ class ChatApiApplicationTest extends E2ETestBase {
             .contentType(MediaType.APPLICATION_JSON)
             .bodyValue("{\n" +
                        "    \"name\": \"" + conversationName + "\",\n" +
-                       "    \"participants\": [\"" + invited.getId().toString() + "\"],\n" +
+                       "    \"participants\": [\"" + inviteds.stream().map(ChatterId::getId).map(UUID::toString).collect(joining("\",\"")) + "\"],\n" +
                        "    \"dialogue\": true\n" +
                        "}");
     }
@@ -259,5 +272,20 @@ class ChatApiApplicationTest extends E2ETestBase {
                 }"""
                 .replace("CONVERSATION_ID", conversationId)
                 .replace("MESSAGE", message));
+    }
+    private WebTestClient.RequestHeadersSpec<?> markAsRead(String token, String conversationId, String conversationDataId) {
+        System.out.println("MARK AS READ");
+        return this.client.post()
+            .uri(CHAT_API_MARK_AS_READ)
+            .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
+            .accept(MediaType.APPLICATION_JSON)
+            .contentType(MediaType.APPLICATION_JSON)
+            .bodyValue("""
+                {
+                    "conversationId": "CONVERSATION_ID",
+                    "conversationDataId": "CONVERSATION_DATA_ID"
+                }"""
+                .replace("CONVERSATION_ID", conversationId)
+                .replace("CONVERSATION_DATA_ID", conversationDataId));
     }
 }
