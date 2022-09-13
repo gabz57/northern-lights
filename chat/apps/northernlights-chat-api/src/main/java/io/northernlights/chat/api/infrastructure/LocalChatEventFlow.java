@@ -8,6 +8,11 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.publisher.Sinks;
 
+/**
+ * Bypass Debezium instance and directly (only locally) forwards "stored" events to ChatEventSource.
+ * Using {@link io.northernlights.chat.api.infrastructure.client.config.ChatEventConfiguration.LocalChatEventConfiguration},
+ * {@link io.northernlights.chat.domain.event.store.ChatEventStore} is overridden to serve this instance instead.
+ */
 @Slf4j
 public class LocalChatEventFlow implements ChatEventPublisher, ChatEventSource {
 

@@ -12,7 +12,7 @@ public class NorthernLightsR2dbcExtension implements Extension, BeforeAllCallbac
     public void beforeAll(ExtensionContext context) {
         postgreSQLContainer.start();
 
-        // Specific for initiating DB provided by TestContainer
+        // Specific for initiating DB provided by TestContainer using Liquibase
         System.setProperty("spring.liquibase.enabled", "true");
         System.setProperty("spring.liquibase.change-log", "classpath:/db/changelog/db.changelog-master.xml");
         System.setProperty("spring.datasource.url", postgreSQLContainer.getJdbcUrl());

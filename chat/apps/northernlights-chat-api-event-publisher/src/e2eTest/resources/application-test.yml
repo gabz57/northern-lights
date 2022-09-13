@@ -8,3 +8,19 @@ spring:
 logging:
   level:
     org.springframework.data.r2dbc: DEBUG
+
+## Debezium configuration
+database:
+#  hostname: northernlights-chat-db
+#  port: 5432
+#  dbname: northernlights-chat
+#  user: postgres
+#  password: postgres
+  server.name: nl_chat_dbz
+
+
+## Redis Information (bypassed using "local" spring profile)
+#chat.redis:
+##  hostname: northernlights-chat-redis
+##  port: 6379
+#  workspace: northernlights

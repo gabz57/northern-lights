@@ -14,7 +14,7 @@ public class NorthernLightsPostgreSQLContainer extends PostgreSQLContainer<North
             .withUsername("postgres")
             .withPassword("postgres")
             .withEnv("POSTGRES_HOST_AUTH_METHOD", "trust");
-        // To enable 'logical' WAL level
+        // To enable 'logical' WAL level on 'postgres:12.10'
         // super("postgres:12.10");
         // withCommand("postgres -c wal_level=logical")
         // withCopyFileToContainer(MountableFile.forClasspathResource("postgresql.conf"), "/etc/postgresql/postgresql.conf");
@@ -35,6 +35,9 @@ public class NorthernLightsPostgreSQLContainer extends PostgreSQLContainer<North
         // Re-exposing properties for Debezium
         System.setProperty("database.hostname", getHost());
         System.setProperty("database.port", getFirstMappedPort().toString());
+        System.setProperty("database.user", getUsername());
+        System.setProperty("database.password", getPassword());
+        System.setProperty("database.dbname", getDatabaseName());
         System.setProperty("offset.storage.file.filename", "");
         System.setProperty("database.history.file.filename", "");
     }

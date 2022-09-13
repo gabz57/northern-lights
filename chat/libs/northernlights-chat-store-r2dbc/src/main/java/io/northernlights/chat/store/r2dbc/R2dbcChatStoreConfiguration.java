@@ -25,9 +25,11 @@ import org.springframework.r2dbc.core.DatabaseClient;
 import org.springframework.transaction.ReactiveTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
+import java.time.Duration;
 import java.util.List;
 
 import static io.northernlights.store.r2dbc.converter.R2dbcConverters.*;
+import static io.r2dbc.spi.ConnectionFactoryOptions.*;
 
 @Slf4j
 @Configuration
@@ -70,34 +72,34 @@ public class R2dbcChatStoreConfiguration extends AbstractR2dbcConfiguration {
         String url = chatStoreProperties().getR2dbc().getUrl();
         log.info("ConnectionFactory uses r2dbc url: {}", url);
 //        return ConnectionFactories.get(url);
-        ConnectionFactoryOptions connectionFactoryOptions = ConnectionFactoryOptions.parse(url);
+        ConnectionFactoryOptions cfOptions = parse(url);
         PostgresqlConnectionConfiguration.Builder builder = PostgresqlConnectionConfiguration.builder()
             .codecRegistrar(EnumCodec.builder().withEnum("conversation_data_type", ConversationDataModel.ConversationDataType.class).build());
 
-        if (connectionFactoryOptions.hasOption(ConnectionFactoryOptions.CONNECT_TIMEOUT)) {
-            builder.connectTimeout(connectionFactoryOptions.getRequiredValue(ConnectionFactoryOptions.CONNECT_TIMEOUT));
+        if (cfOptions.hasOption(CONNECT_TIMEOUT)) {
+            builder.connectTimeout((Duration) cfOptions.getRequiredValue(CONNECT_TIMEOUT));
         }
-        if (connectionFactoryOptions.hasOption(ConnectionFactoryOptions.DATABASE)) {
-            builder.database(connectionFactoryOptions.getRequiredValue(ConnectionFactoryOptions.DATABASE));
+        if (cfOptions.hasOption(DATABASE)) {
+            builder.database((String) cfOptions.getRequiredValue(DATABASE));
         }
 //        if (parse.hasOption(ConnectionFactoryOptions.DRIVER)) {
 //            builder.(parse.getValue(ConnectionFactoryOptions.DRIVER));
 //        }
-        if (connectionFactoryOptions.hasOption(ConnectionFactoryOptions.HOST)) {
-            builder.host(connectionFactoryOptions.getRequiredValue(ConnectionFactoryOptions.HOST));
+        if (cfOptions.hasOption(HOST)) {
+            builder.host((String) cfOptions.getRequiredValue(HOST));
         }
-        if (connectionFactoryOptions.hasOption(ConnectionFactoryOptions.PORT)) {
-            builder.port(connectionFactoryOptions.getRequiredValue(ConnectionFactoryOptions.PORT));
+        if (cfOptions.hasOption(PORT)) {
+            builder.port((Integer) cfOptions.getRequiredValue(PORT));
         }
-        if (connectionFactoryOptions.hasOption(ConnectionFactoryOptions.SSL) &&
-            connectionFactoryOptions.getRequiredValue(ConnectionFactoryOptions.SSL)) {
+        if (cfOptions.hasOption(SSL) &&
+            (Boolean) cfOptions.getRequiredValue(SSL)) {
             builder.enableSsl();
         }
-        if (connectionFactoryOptions.hasOption(ConnectionFactoryOptions.USER)) {
-            builder.username(connectionFactoryOptions.getRequiredValue(ConnectionFactoryOptions.USER));
+        if (cfOptions.hasOption(USER)) {
+            builder.username((String) cfOptions.getRequiredValue(USER));
         }
-        if (connectionFactoryOptions.hasOption(ConnectionFactoryOptions.PASSWORD)) {
-            builder.password(connectionFactoryOptions.getRequiredValue(ConnectionFactoryOptions.PASSWORD));
+        if (cfOptions.hasOption(PASSWORD)) {
+            builder.password((CharSequence) cfOptions.getRequiredValue(PASSWORD));
         }
         return new PostgresqlConnectionFactory(builder.build());
     }

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<suppressions xmlns="https://jeremylong.github.io/DependencyCheck/dependency-suppression.1.3.xsd">
+<!--    <suppress>-->
+<!--        <notes><![CDATA[-->
+<!--   file name: guava-24.0-jre.jar-->
+<!--   ]]></notes>-->
+<!--        <packageUrl regex="true">^pkg:maven/com\.google\.guava/guava@.*$</packageUrl>-->
+<!--        <cve>CVE-2018-10237</cve>-->
+<!--    </suppress>-->
+<!--    <suppress>-->
+<!--        <notes><![CDATA[-->
+<!--   file name: logback-jackson-0.1.5.jar-->
+<!--   ]]></notes>-->
+<!--        <packageUrl regex="true">^pkg:maven/ch\.qos\.logback\.contrib/logback\-jackson@.*$</packageUrl>-->
+<!--        <cve>CVE-2017-5929</cve>-->
+<!--    </suppress>-->
+<!--    <suppress>-->
+<!--        <notes><![CDATA[-->
+<!--   file name: logback-json-classic-0.1.5.jar-->
+<!--   ]]></notes>-->
+<!--        <packageUrl regex="true">^pkg:maven/ch\.qos\.logback\.contrib/logback\-json\-classic@.*$</packageUrl>-->
+<!--        <cve>CVE-2017-5929</cve>-->
+<!--    </suppress>-->
+<!--    <suppress>-->
+<!--        <notes><![CDATA[-->
+<!--   file name: logback-json-core-0.1.5.jar-->
+<!--   ]]></notes>-->
+<!--        <packageUrl regex="true">^pkg:maven/ch\.qos\.logback\.contrib/logback\-json\-core@.*$</packageUrl>-->
+<!--        <cve>CVE-2017-5929</cve>-->
+<!--    </suppress>-->
+</suppressions>

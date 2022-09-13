@@ -2,9 +2,11 @@ version: '3'
 services:
   northernlights-chat-db:
     container_name: northernlights-chat-db
-    image: postgres:12.10
-    command: [ "postgres", "-c", "wal_level=logical" ]
+#    image: postgres:12.10
+#    command: [ "postgres", "-c", "wal_level=logical" ]
+    image: debezium/postgres:12-alpine
     restart: always
+    user: postgres
     ports:
       - "5432:5432"
     environment:
@@ -12,12 +14,17 @@ services:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
     volumes:
-      - ./../docker/postgresql/data:/var/lib/postgresql/data
+      - ./docker/postgresql/data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     networks:
       - northernlights-net
 
-  liquibase:
-    container_name: northernlights-chat-liquibase
+  northernlights-chat-db-liquibase:
+    container_name: northernlights-chat-db-liquibase
     image: liquibase/liquibase
     command: "--url='jdbc:postgresql://northernlights-chat-db:5432/northernlights-chat?user=postgres&password=postgres' --changelog-file='db.changelog-master.xml' update"
     volumes:
@@ -25,17 +32,68 @@ services:
     networks:
       - northernlights-net
     depends_on:
-      - northernlights-chat-db
+      northernlights-chat-db:
+        condition: service_healthy
+
+  northernlights-chat-redis:
+    container_name: northernlights-chat-redis
+    image: redislabs/redismod:latest
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - ./docker/redis/data:/data
+    networks:
+      - northernlights-net
+
+  northernlights-chat-debezium:
+    container_name: northernlights-chat-debezium
+    image: io.northern-lights/northernlights-chat-api-event-publisher:0.0.1-SNAPSHOT
+    restart: always
+    environment:
+      - CHAT_DB_HOST=northernlights-chat-db
+      - CHAT_DB_PORT=5432
+      - CHAT_DB_NAME=northernlights-chat
+      - CHAT_DB_USER=postgres
+      - CHAT_DB_PASSWORD=postgres
+      - CHAT_DB_SERVER_NAME=nl_chat_dbz
+      - CHAT_REDIS_HOST=northernlights-chat-redis
+      - CHAT_REDIS_PORT=6379
+      - CHAT_REDIS_WORKSPACE=northernlights
+    networks:
+      - northernlights-net
+    depends_on:
+      northernlights-chat-redis:
+        condition: service_started
+      northernlights-chat-db:
+        condition: service_started
+      northernlights-chat-db-liquibase:
+        condition: service_completed_successfully
 
   chat-api:
     container_name: northernlights-chat-api
-#    build:
-#      context: ./northernlights-chat-api
-#      dockerfile: Dockerfile
-    image: northernlights-chat-api:latest
+    image: io.northern-lights/northernlights-chat-api:0.0.1-SNAPSHOT
     ports:
       - "8080:8080"
+    environment:
+      - CHAT_DB_HOST=northernlights-chat-db
+      - CHAT_DB_PORT=5432
+      - CHAT_DB_NAME=northernlights-chat
+      - CHAT_DB_USER=postgres
+      - CHAT_DB_PASSWORD=postgres
+      - CHAT_REDIS_HOST=northernlights-chat-redis
+      - CHAT_REDIS_PORT=6379
+      #  - CHAT_REDIS_PASSWORD=
+      - CHAT_REDIS_WORKSPACE=northernlights
     networks:
       - northernlights-net
+    depends_on:
+      northernlights-chat-db:
+        condition: service_healthy
+      northernlights-chat-redis:
+        condition: service_started
+      northernlights-chat-debezium:
+        condition: service_started
+
 networks:
   northernlights-net:

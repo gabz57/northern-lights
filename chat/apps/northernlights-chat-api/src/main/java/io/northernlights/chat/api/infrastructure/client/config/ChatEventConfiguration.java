@@ -10,12 +10,12 @@ import io.northernlights.chat.events.redis.RedisChatEventConfiguration;
 import org.springframework.context.annotation.*;
 import org.springframework.data.redis.core.ReactiveRedisTemplate;
 
-@Import(RedisChatEventConfiguration.class)
 @Configuration
 public class ChatEventConfiguration {
 
-    @Configuration
     @Profile("!local")
+    @Configuration
+    @Import(RedisChatEventConfiguration.class)
     public static class ExternalChatEventConfiguration {
 
         @Bean
@@ -25,8 +25,8 @@ public class ChatEventConfiguration {
 
     }
 
-    @Configuration
     @Profile("local")
+    @Configuration
     public static class LocalChatEventConfiguration {
 
         private static final LocalChatEventFlow localChatEventFlow = new LocalChatEventFlow();
@@ -35,6 +35,7 @@ public class ChatEventConfiguration {
         public ChatEventSource chatEventSubscriber() {
             return localChatEventFlow;
         }
+
         @Bean
         public ChatEventPublisher chatEventPublisher() {
             return localChatEventFlow;

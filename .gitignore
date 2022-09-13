@@ -31,5 +31,6 @@ env.sh
 .vscode/
 
 # Docker local volumes
-/chat/docker/postgresql/data/
+/chat/apps/docker/postgresql/data/*
+/chat/apps/docker/redis/data/*
 /chat/apps/northernlights-chat-ui/node_modules_cache/

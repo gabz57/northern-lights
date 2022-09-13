@@ -10,6 +10,7 @@ dependencies {
 
     implementation project(':chat:libs:northernlights-chat-events')
     implementation project(':chat:libs:northernlights-chat-events-redis')
+    runtimeOnly "io.netty:netty-resolver-dns-native-macos:4.1.80.Final:osx-aarch_64"
 
 
     e2eTestRuntimeOnly "io.netty:netty-resolver-dns-native-macos:4.1.80.Final:osx-aarch_64"

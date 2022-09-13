@@ -32,6 +32,7 @@ dependencies {
 
     implementation "org.springframework.data:spring-data-redis"
     implementation project(':chat:libs:northernlights-chat-events-redis')
+    runtimeOnly "io.netty:netty-resolver-dns-native-macos:4.1.80.Final:osx-aarch_64"
 
 
     // Open Api (note: webflux-ui (Swagger) could run on a separate module)
@@ -59,7 +60,9 @@ dependencies {
 //    e2eTestImplementation "org.testcontainers:r2dbc"
 //    e2eTestImplementation "org.testcontainers:junit-jupiter"
 
+    e2eTestRuntimeOnly "io.netty:netty-resolver-dns-native-macos:4.1.80.Final:osx-aarch_64"
     e2eTestImplementation testFixtures(project(':libs:northernlights-store-r2dbc'))
+//    e2eTestImplementation testFixtures(project(':libs:northernlights-store-redis'))
     e2eTestImplementation testFixtures(project(':chat:libs:northernlights-chat-store-r2dbc'))
 
     // spring-jdbc for sql migration
