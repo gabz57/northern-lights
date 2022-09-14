@@ -19,13 +19,13 @@ class ChatApiClient {
 
     async initSse(conversationStatuses: () => Map<ConversationId, ConversationDataId>): Promise<string> {
         this.lastEmittedConversationDataIdPerConversationId.clear();
-        return (await (await ChatApiClient.fetch(this.jwt, "init-sse", {
+        return (await (await ChatApiClient.post(this.jwt, "init-sse", {
             conversationStatuses: conversationStatuses()
         })).json()).sseChatKey
     }
 
     async createConversation(userId: string, name: string, participants: string[], dialogue: boolean): Promise<void> {
-        await ChatApiClient.fetch(this.jwt, "open", {
+        await ChatApiClient.post(this.jwt, "open", {
             name,
             participants,
             dialogue
@@ -33,7 +33,7 @@ class ChatApiClient {
     }
 
     async sendMessage(userId: string, conversationId: string, message: string): Promise<void> {
-        await ChatApiClient.fetch(this.jwt, "message", {
+        await ChatApiClient.post(this.jwt, "message", {
             conversationId,
             message
         })
@@ -44,7 +44,7 @@ class ChatApiClient {
         if (lastEmittedConversationDataId === undefined || lastEmittedConversationDataId < conversationDataId) {
             this.lastEmittedConversationDataIdPerConversationId.set(conversationId, conversationDataId)
         }
-        debounceFetch(() => ChatApiClient.fetch(this.jwt, "mark-as-read", {
+        debounceFetch(() => ChatApiClient.post(this.jwt, "mark-as-read", {
                 conversationId,
                 conversationDataId
             }),
@@ -53,13 +53,13 @@ class ChatApiClient {
     }
 
     async inviteChatter(userId: string, conversationId: string, invitedChatterId: string): Promise<void> {
-        await ChatApiClient.fetch(this.jwt, "invite-chatter", {
+        await ChatApiClient.post(this.jwt, "invite-chatter", {
             conversationId,
             chatterId: invitedChatterId
         })
     }
 
-    private static async fetch(jwt: string, endpoint: string, payload: unknown): Promise<Response> {
+    private static async post(jwt: string, endpoint: string, payload: unknown): Promise<Response> {
         return fetch("http://localhost:8080/v1/chat/api/" + endpoint, {
             method: 'POST',
             body: JSON.stringify(payload), // string or object

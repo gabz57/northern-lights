@@ -17,11 +17,8 @@ import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.web.server.context.ServerSecurityContextRepository;
 import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.reactive.CorsWebFilter;
+import org.springframework.web.cors.reactive.CorsConfigurationSource;
 import org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource;
-import org.springframework.web.server.ServerWebExchange;
-import org.springframework.web.server.WebFilter;
-import org.springframework.web.server.WebFilterChain;
 
 import javax.annotation.PostConstruct;
 import java.time.Clock;
@@ -32,8 +29,6 @@ import java.util.TimeZone;
 
 import static io.northernlights.chat.domain.ApiConstants.*;
 import static io.northernlights.security.NorthernLightsRoles.RoleType.CHATTER;
-import static org.springframework.http.HttpHeaders.ACCESS_CONTROL_ALLOW_HEADERS;
-import static org.springframework.http.HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN;
 import static org.springframework.http.HttpMethod.*;
 
 @EnableWebFluxSecurity
@@ -57,7 +52,9 @@ public class SecurityConfiguration {
     @Bean
     public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http, ServerSecurityContextRepository securityContextRepository) {
 
-        return http.csrf().disable()
+        return http
+            .cors().configurationSource(corsConfigurationSource()).and()
+            .csrf().disable()
             .httpBasic().disable()
             .formLogin().disable()
             .logout().disable()
@@ -103,27 +100,28 @@ public class SecurityConfiguration {
     public ServerSecurityContextRepository securityContextRepository(ReactiveAuthenticationManager reactiveAuthenticationManager) {
         return new NorthernLightsServerSecurityContextRepository(reactiveAuthenticationManager, new NorthernLightsAuthenticationConverter());
     }
+//
+//    @Bean
+//    public WebFilter corsResponseHeadersWebFilter() {
+//        return (ServerWebExchange exchange, WebFilterChain chain) -> {
+//            exchange.getResponse().getHeaders()
+//                .add(ACCESS_CONTROL_ALLOW_HEADERS, "*");
+//            exchange.getResponse().getHeaders()
+//                .add(ACCESS_CONTROL_ALLOW_ORIGIN, "*");
+//            return chain.filter(exchange);
+//        };
+//    }
 
     @Bean
-    public WebFilter corsResponseHeadersWebFilter() {
-        return (ServerWebExchange exchange, WebFilterChain chain) -> {
-            exchange.getResponse().getHeaders()
-                .add(ACCESS_CONTROL_ALLOW_HEADERS, "*");
-            exchange.getResponse().getHeaders()
-                .add(ACCESS_CONTROL_ALLOW_ORIGIN, "*");
-            return chain.filter(exchange);
-        };
-    }
-
-    @Bean
-    public CorsWebFilter corsWebFilter() {
+    public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration corsConfig = new CorsConfiguration();
-//        corsConfig.addAllowedMethod(HttpMethod.GET);
-//        corsConfig.addAllowedMethod(HttpMethod.HEAD.name());
-//        corsConfig.addAllowedMethod(HttpMethod.OPTIONS.name());
-//        corsConfig.addAllowedMethod(HttpMethod.POST.name());
+        corsConfig.addAllowedOrigin("http://localhost:8080");
+        corsConfig.addAllowedOrigin("http://localhost:8081");
+        corsConfig.addAllowedHeader("*");
+        corsConfig.addAllowedMethod("*");
+        corsConfig.applyPermitDefaultValues();
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", corsConfig);
-        return new CorsWebFilter(source);
+        return source;
     }
 }

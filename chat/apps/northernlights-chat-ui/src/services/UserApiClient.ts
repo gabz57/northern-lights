@@ -29,13 +29,14 @@ class UserApiClient {
             })
         })
     }
+
     private static async get(jwt: string, endpoint: string): Promise<Response> {
         return fetch("http://localhost:8080/v1/user/api/" + endpoint, {
             method: 'GET',
             headers: new Headers({
                 "Authorization": 'Bearer ' + jwt,
                 "Accept": "application/json",
-                "Content-Type": "application/json",
+                // "Content-Type": "application/json",
             })
         })
     }
