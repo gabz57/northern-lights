@@ -1,18 +1,41 @@
 version: '3'
+
+volumes:
+  northernlights-chat-ui-node-modules:
+    name: northernlights-chat-ui-node-modules
+
+networks:
+  default:
+    external:
+      name: northernlights-net
+
 services:
+
+  nginx-proxy:
+    image: jwilder/nginx-proxy:alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      DEFAULT_HOST: localhost
+      # northernlights.local doesn't work with Google Authentication in test mode
+      # See https://github.com/nginx-proxy/nginx-proxy#usage for path routing details
+    volumes:
+      - ./docker/nginx-proxy/certs:/etc/nginx/certs
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+    restart: unless-stopped
+
   northernlights-chat-db:
     container_name: northernlights-chat-db
-#    image: postgres:12.10
-#    command: [ "postgres", "-c", "wal_level=logical" ]
     image: debezium/postgres:12-alpine
     restart: always
     user: postgres
     ports:
       - "5432:5432"
     environment:
-      - POSTGRES_DB=northernlights-chat
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
+      POSTGRES_DB: northernlights-chat
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
     volumes:
       - ./docker/postgresql/data:/var/lib/postgresql/data
     healthcheck:
@@ -20,8 +43,6 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-    networks:
-      - northernlights-net
 
   northernlights-chat-db-liquibase:
     container_name: northernlights-chat-db-liquibase
@@ -29,8 +50,6 @@ services:
     command: "--url='jdbc:postgresql://northernlights-chat-db:5432/northernlights-chat?user=postgres&password=postgres' --changelog-file='db.changelog-master.xml' update"
     volumes:
       - ./../libs/northernlights-chat-store-migration/src/main/resources/db/changelog:/liquibase/changelog
-    networks:
-      - northernlights-net
     depends_on:
       northernlights-chat-db:
         condition: service_healthy
@@ -43,25 +62,21 @@ services:
       - "6379:6379"
     volumes:
       - ./docker/redis/data:/data
-    networks:
-      - northernlights-net
 
   northernlights-chat-debezium:
     container_name: northernlights-chat-debezium
     image: io.northern-lights/northernlights-chat-api-event-publisher:0.0.1-SNAPSHOT
     restart: always
     environment:
-      - CHAT_DB_HOST=northernlights-chat-db
-      - CHAT_DB_PORT=5432
-      - CHAT_DB_NAME=northernlights-chat
-      - CHAT_DB_USER=postgres
-      - CHAT_DB_PASSWORD=postgres
-      - CHAT_DB_SERVER_NAME=nl_chat_dbz
-      - CHAT_REDIS_HOST=northernlights-chat-redis
-      - CHAT_REDIS_PORT=6379
-      - CHAT_REDIS_WORKSPACE=northernlights
-    networks:
-      - northernlights-net
+      CHAT_DB_HOST: northernlights-chat-db
+      CHAT_DB_PORT: 5432
+      CHAT_DB_NAME: northernlights-chat
+      CHAT_DB_USER: postgres
+      CHAT_DB_PASSWORD: postgres
+      CHAT_DB_SERVER_NAME: nl_chat_dbz
+      CHAT_REDIS_HOST: northernlights-chat-redis
+      CHAT_REDIS_PORT: 6379
+      CHAT_REDIS_WORKSPACE: northernlights
     depends_on:
       northernlights-chat-redis:
         condition: service_started
@@ -73,27 +88,47 @@ services:
   chat-api:
     container_name: northernlights-chat-api
     image: io.northern-lights/northernlights-chat-api:0.0.1-SNAPSHOT
-    ports:
-      - "8080:8080"
+    expose:
+      - 8080
     environment:
-      - CHAT_DB_HOST=northernlights-chat-db
-      - CHAT_DB_PORT=5432
-      - CHAT_DB_NAME=northernlights-chat
-      - CHAT_DB_USER=postgres
-      - CHAT_DB_PASSWORD=postgres
-      - CHAT_REDIS_HOST=northernlights-chat-redis
-      - CHAT_REDIS_PORT=6379
-      #  - CHAT_REDIS_PASSWORD=
-      - CHAT_REDIS_WORKSPACE=northernlights
-    networks:
-      - northernlights-net
+      VIRTUAL_HOST: localhost
+      VIRTUAL_PORT: 8080
+      VIRTUAL_PATH: /v1
+      # VIRTUAL_DEST: /
+      CHAT_DB_HOST: northernlights-chat-db
+      CHAT_DB_PORT: 5432
+      CHAT_DB_NAME: northernlights-chat
+      CHAT_DB_USER: postgres
+      CHAT_DB_PASSWORD: postgres
+      CHAT_REDIS_HOST: northernlights-chat-redis
+      CHAT_REDIS_PORT: 6379
+      # CHAT_REDIS_PASSWORD=
+      CHAT_REDIS_WORKSPACE: northernlights
     depends_on:
       northernlights-chat-db:
         condition: service_healthy
       northernlights-chat-redis:
         condition: service_started
-      northernlights-chat-debezium:
-        condition: service_started
+#      northernlights-chat-debezium:
+#        condition: service_started
 
-networks:
-  northernlights-net:
+  chat-front:
+    image: node:16.15.1
+    working_dir: /northernlights-chat-ui
+    expose:
+      - 8081
+    environment:
+      VIRTUAL_HOST: localhost
+      VIRTUAL_PORT: 8081
+      VIRTUAL_PATH: /
+      # VIRTUAL_DEST: /
+      NODE_ENV: 'development'
+      HOST: '0.0.0.0'
+      PORT: 8081
+    command: /bin/sh -c "yarn && yarn serve"
+    volumes:
+      - './northernlights-chat-ui:/northernlights-chat-ui:cached'
+      - 'northernlights-chat-ui-node-modules:/northernlights-chat-ui/node_modules'
+    depends_on:
+      nginx-proxy:
+        condition: service_started

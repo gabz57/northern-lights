@@ -19,16 +19,22 @@ import org.springframework.security.web.server.context.ServerSecurityContextRepo
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.reactive.CorsConfigurationSource;
 import org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource;
+import org.springframework.web.server.ServerWebExchange;
+import org.springframework.web.server.WebFilter;
+import org.springframework.web.server.WebFilterChain;
 
 import javax.annotation.PostConstruct;
 import java.time.Clock;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
+import java.util.List;
 import java.util.TimeZone;
 
 import static io.northernlights.chat.domain.ApiConstants.*;
 import static io.northernlights.security.NorthernLightsRoles.RoleType.CHATTER;
+import static org.springframework.http.HttpHeaders.ACCESS_CONTROL_ALLOW_HEADERS;
+import static org.springframework.http.HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN;
 import static org.springframework.http.HttpMethod.*;
 
 @EnableWebFluxSecurity
@@ -100,25 +106,30 @@ public class SecurityConfiguration {
     public ServerSecurityContextRepository securityContextRepository(ReactiveAuthenticationManager reactiveAuthenticationManager) {
         return new NorthernLightsServerSecurityContextRepository(reactiveAuthenticationManager, new NorthernLightsAuthenticationConverter());
     }
-//
-//    @Bean
-//    public WebFilter corsResponseHeadersWebFilter() {
-//        return (ServerWebExchange exchange, WebFilterChain chain) -> {
-//            exchange.getResponse().getHeaders()
-//                .add(ACCESS_CONTROL_ALLOW_HEADERS, "*");
-//            exchange.getResponse().getHeaders()
-//                .add(ACCESS_CONTROL_ALLOW_ORIGIN, "*");
-//            return chain.filter(exchange);
-//        };
-//    }
+
+    @Bean
+    public WebFilter corsResponseHeadersWebFilter() {
+        return (ServerWebExchange exchange, WebFilterChain chain) -> {
+            exchange.getResponse().getHeaders()
+                .add(ACCESS_CONTROL_ALLOW_HEADERS, "*");
+            exchange.getResponse().getHeaders()
+                .add(ACCESS_CONTROL_ALLOW_ORIGIN, "*");
+            return chain.filter(exchange);
+        };
+    }
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration corsConfig = new CorsConfiguration();
-        corsConfig.addAllowedOrigin("http://localhost:8080");
-        corsConfig.addAllowedOrigin("http://localhost:8081");
+        corsConfig.addAllowedOrigin("*");
         corsConfig.addAllowedHeader("*");
         corsConfig.addAllowedMethod("*");
+        corsConfig.setExposedHeaders(List.of("Access-Control-Allow-Origin",
+            "Access-Control-Allow-Methods",
+            "Access-Control-Allow-Headers",
+            "Access-Control-Max-Age",
+            "Access-Control-Request-Headers",
+            "Access-Control-Request-Method"));
         corsConfig.applyPermitDefaultValues();
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", corsConfig);

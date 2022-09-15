@@ -2,6 +2,7 @@ import {Store} from "@/store";
 import {EventSourcePolyfill} from "event-source-polyfill";
 import {ActionTypes} from "@/store/actions";
 import {ChatterId, Conversation, ConversationDataId, ConversationPart, ReadMarkers} from "@/store/state";
+import {config} from "@/services/EnvConfig";
 
 export default class SseChatService {
 
@@ -42,7 +43,7 @@ export default class SseChatService {
         onReconnection: (e: { target: EventSource }) => void,
         onConnectionClosed: (e: { target: EventSource }) => void
     ): EventSource {
-        const eventSource = new EventSourcePolyfill("http://localhost:8080/v1/chat/api/sse", {
+        const eventSource = new EventSourcePolyfill(config.chatApiSseBaseUrl() + "/v1/chat/api/sse", {
             headers: {
                 "sse-chat-key": sseChatKey,
                 "Authorization": "Bearer " + jwt

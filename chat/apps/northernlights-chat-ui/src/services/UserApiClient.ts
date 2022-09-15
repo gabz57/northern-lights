@@ -1,5 +1,7 @@
 /* eslint-disable no-debugger */
 
+import {config} from "@/services/EnvConfig";
+
 class UserApiClient {
 
     private jwt = "";
@@ -19,7 +21,7 @@ class UserApiClient {
     }
 
     private static async post(jwt: string, endpoint: string, payload: unknown): Promise<Response> {
-        return fetch("http://localhost:8080/v1/user/api/" + endpoint, {
+        return fetch(config.chatApiBaseUrl() + "/v1/user/api/" + endpoint, {
             method: 'POST',
             body: JSON.stringify(payload), // string or object
             headers: new Headers({
@@ -31,12 +33,11 @@ class UserApiClient {
     }
 
     private static async get(jwt: string, endpoint: string): Promise<Response> {
-        return fetch("http://localhost:8080/v1/user/api/" + endpoint, {
+        return fetch(config.chatApiBaseUrl() + "/v1/user/api/" + endpoint, {
             method: 'GET',
             headers: new Headers({
                 "Authorization": 'Bearer ' + jwt,
                 "Accept": "application/json",
-                // "Content-Type": "application/json",
             })
         })
     }

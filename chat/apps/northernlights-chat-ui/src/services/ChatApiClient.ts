@@ -1,4 +1,5 @@
 import {ConversationDataId, ConversationId} from "@/store/state";
+import {config} from "@/services/EnvConfig";
 
 const debounceFetch = <Params extends never[]>(func: (...args: Params) => Promise<Response>, timeout = 300): (...args: Params) => void => {
     let timer: ReturnType<typeof setTimeout>;
@@ -60,7 +61,7 @@ class ChatApiClient {
     }
 
     private static async post(jwt: string, endpoint: string, payload: unknown): Promise<Response> {
-        return fetch("http://localhost:8080/v1/chat/api/" + endpoint, {
+        return fetch(config.chatApiBaseUrl() + "/v1/chat/api/" + endpoint, {
             method: 'POST',
             body: JSON.stringify(payload), // string or object
             headers: new Headers({
