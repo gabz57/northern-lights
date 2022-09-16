@@ -11,7 +11,7 @@
 <script lang="ts">
 import {defineComponent, PropType} from "vue";
 import ChatterListElement from "@/components/chat/ChatterListElement.vue";
-import {ChatterId} from "@/store/state";
+import {ChatterId} from "@/domain/model";
 
 export default defineComponent({
   name: "ChatterList",

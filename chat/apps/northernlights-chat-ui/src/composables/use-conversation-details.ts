@@ -1,6 +1,8 @@
 import {computed, reactive, Ref} from 'vue';
-import {ChatterId, Conversation, ConversationDataId, ConversationId,} from "@/store/state";
-import {useStore} from "@/store";
+import {ChatterId, Conversation, ConversationDataId, ConversationId,} from "@/domain/model";
+import {useChattersStore} from "@/stores/chatter";
+import {useUserStore} from "@/stores/user";
+import {useConversationsStore} from "@/stores/conversations";
 
 export type ConversationDetails = {
     id?: ConversationId,
@@ -15,20 +17,22 @@ export type ConversationDetails = {
 export default function useConversationDetails(conversationIdRef: Ref<ConversationId>): {
     details: ConversationDetails;
 } {
-    const store = useStore()
+    const userStore = useUserStore()
+    const chattersStore = useChattersStore()
+    const conversationsStore = useConversationsStore()
 
     const getOtherChatter = (conversation: Conversation) => {
-        const selfChatterId = store.state.chatterId as NonNullable<typeof store.state.chatterId>;
+        const selfChatterId = userStore.chatterId as NonNullable<typeof userStore.chatterId>;
         const otherChatterId = Array.from(conversation.participants.values())
             .find(chatterId => selfChatterId !== chatterId);
         let otherChatter
         if (otherChatterId !== undefined) {
-            otherChatter = store.getters.getChatterById(otherChatterId);
+            otherChatter = chattersStore.getChatterById(otherChatterId);
         }
         return otherChatter;
     }
 
-    const conversationRef = computed<Conversation>(() => store.getters.getConversationById(conversationIdRef.value))
+    const conversationRef = computed<Conversation>(() => conversationsStore.getConversationById(conversationIdRef.value))
 
     function conversationName(conversation: Conversation): string {
         return conversation.dialogue
@@ -43,7 +47,7 @@ export default function useConversationDetails(conversationIdRef: Ref<Conversati
         createdBy: computed(() => conversationRef.value.creator),
         createdAt: computed(() => conversationRef.value.createdAt),
         nbUnreadMessages: computed(() => {
-            const lastConversationDataIdSeenByChatter: ConversationDataId | undefined = conversationRef.value.readMarkers.get(store.state.chatterId || "");
+            const lastConversationDataIdSeenByChatter: ConversationDataId | undefined = conversationRef.value.readMarkers.get(userStore.chatterId || "");
             const msgs = conversationRef.value.data;
             if (lastConversationDataIdSeenByChatter === undefined) {
                 return msgs.length

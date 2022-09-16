@@ -6,10 +6,11 @@ import {
     ConversationDataId,
     ConversationId,
     ReadMarkers,
-} from "@/store/state";
-import {useStore} from "@/store";
-import {ActionTypes} from "@/store/actions";
+} from "@/domain/model";
 import useConversationDetails, {ConversationDetails} from "@/composables/use-conversation-details";
+import {useConversationsStore} from "@/stores/conversations";
+import {useUserStore} from "@/stores/user";
+import {useUiStore} from "@/stores/ui";
 
 type ReadMarkersReversed = Map<ConversationDataId, ChatterId[]>;
 
@@ -39,28 +40,30 @@ export default function useConversation(conversationIdRef: Ref<ConversationId>):
     messages: Ref<ConversationDataWithMarkers[]>;
     readMarkers: Ref<ReadMarkers>;
 } {
-    const store = useStore()
+    const conversationsStore = useConversationsStore()
+    const userStore = useUserStore()
+    const uiStore = useUiStore()
 
     const sendMessage = (message: string) => {
-        store.dispatch(ActionTypes.SendMessage, {
-            chatterId: store.state.chatterId || "",
-            conversationId: conversationIdRef.value,
+        conversationsStore.sendMessage(
+            userStore.chatterId || "",
+            conversationIdRef.value,
             message
-        })
+        )
     }
     const markAsRead = (conversationDataId: ConversationDataId) => {
-        if (store.state.ui.visible) {
-            store.dispatch(ActionTypes.MarkAsRead, {
-                chatterId: store.state.chatterId || "",
-                conversationId: conversationIdRef.value,
+        if (uiStore.visible) {
+            conversationsStore.markAsRead(
+                userStore.chatterId || "",
+                conversationIdRef.value,
                 conversationDataId
-            })
+            )
         }
     }
     const messages = ref<ConversationDataWithMarkers[]>([])
     const readMarkers = ref<ReadMarkers>(new Map<ChatterId, ConversationDataId>())
 
-    const conversationRef = computed<Conversation>(() => store.getters.getConversationById(conversationIdRef.value))
+    const conversationRef = computed<Conversation>(() => conversationsStore.getConversationById(conversationIdRef.value))
     onMounted(() => loadConversationContent(conversationRef.value))
     watch(conversationRef, (conversation) => loadConversationContent(conversation), {deep: true})
     const loadConversationContent = (conversation: Conversation) => {
@@ -70,7 +73,7 @@ export default function useConversation(conversationIdRef: Ref<ConversationId>):
 
     const withReadMarkers = (data: ConversationData[], markers: ReadMarkers): ConversationDataWithMarkers[] => {
         const reversed: ReadMarkersReversed = reverse(markers);
-        const marker: ConversationDataId | undefined = markers.get(store.state.chatterId || "");
+        const marker: ConversationDataId | undefined = markers.get(userStore.chatterId || "");
         let index = 0
         return data.map(conversationData => {
             const watchVisible = !marker || conversationData.id > marker;

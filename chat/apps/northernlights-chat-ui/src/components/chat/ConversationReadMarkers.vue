@@ -20,7 +20,7 @@
 import {defineComponent, PropType, ref, toRefs, watch} from "vue";
 import ConversationReadMarker from "@/components/chat/ConversationReadMarker.vue";
 import {gsap} from "gsap";
-import {ChatterId} from "@/store/state";
+import {ChatterId} from "@/domain/model";
 import {PositionedReadMarker, PositionedReadMarkerWithXPos} from "@/composables/use-conversation-read-markers";
 
 export default defineComponent({

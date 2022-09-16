@@ -1,16 +1,15 @@
 import {computed} from "vue";
-import {ChatterId} from "@/store/state";
-import {useStore} from "@/store";
-import {ActionTypes} from "@/store/actions";
+import {ChatterId} from "@/domain/model";
 import {userApiClient} from "@/services/UserApiClient";
+import {useUserStore} from "@/stores/user";
 
 export default function useSseSubscriber(): {
     subscribe: () => Promise<void>;
 } {
 
-    const store = useStore()
-    const chatterIdRef = computed(() => store.state.chatterId)
-    const setChatterId = (chatterId: ChatterId) => store.dispatch(ActionTypes.SetChatterId, {chatterId})
+    const userStore = useUserStore()
+    const chatterIdRef = computed(() => userStore.chatterId)
+    const setChatterId = (chatterId: ChatterId) => userStore.setChatterId(chatterId)
 
     const subscribe = async () => {
         console.log('use-sse-subscriber> subscribe ?');

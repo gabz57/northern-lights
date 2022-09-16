@@ -16,15 +16,14 @@
 <script lang="ts">
 import googleOneTapSignin from "../composables/googleOneTapSignin"
 import {defineComponent, onMounted, ref, watch} from 'vue'
-import {useStore} from "@/store";
-import {ActionTypes} from "@/store/actions";
+import {useUserStore} from "@/stores/user";
 
 export default defineComponent({
   name: 'GoogleAuthSignIn',
   setup(){
-    const store = useStore()
+    const userStore = useUserStore()
 
-    const setJwt = (jwt: string) => store.dispatch(ActionTypes.SetJwt, {jwt})
+    const setJwt = (jwt: string) => userStore.setJwt(jwt)
 
     const googleUserData = ref({
       name: '',

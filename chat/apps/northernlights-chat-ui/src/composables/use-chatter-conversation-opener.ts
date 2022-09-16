@@ -1,38 +1,41 @@
 import {computed, Ref} from 'vue';
-import {ChatterId,} from "@/store/state";
-import {useStore} from "@/store";
-import {ActionTypes} from "@/store/actions";
+import {ChatterId,} from "@/domain/model";
+import {useUserStore} from "@/stores/user";
+import {useConversationsStore} from "@/stores/conversations";
+import {useUiStore} from "@/stores/ui";
 
 export default function useChatterConversationOpener(chatterIdRef: Ref<ChatterId>): {
     openConversationWith: () => void;
 } {
-    const store = useStore();
+    const userStore = useUserStore()
+    const conversationsStore = useConversationsStore()
+    const uiStore = useUiStore()
     const createDialogueConversation = (chatterId: ChatterId) => {
-        if (chatterId === store.state.chatterId) {
+        if (chatterId === userStore.chatterId) {
             return
         }
-        store.dispatch(ActionTypes.CreateConversation, {
-            chatterId: store.state.chatterId || "",
-            name: "",
-            participants: [chatterId],
-            dialogue: true,
-        })
+        conversationsStore.createConversation(
+             userStore.chatterId || "",
+             "",
+             [chatterId],
+             true,
+        )
     }
 
     const conversationId = computed(() => {
-        return Array.from(store.state.conversations.values()).find(c => {
+        return Array.from(conversationsStore.conversations.values()).find(c => {
             return c.dialogue
-                && store.state.chatterId !== undefined && c.participants.includes(store.state.chatterId)
+                && userStore.chatterId !== undefined && c.participants.includes(userStore.chatterId)
                 && c.participants.includes(chatterIdRef.value)
         })?.id
     })
 
     const openConversationWith = (): void => {
-        if (chatterIdRef.value === store.state.chatterId) {
+        if (chatterIdRef.value === userStore.chatterId) {
             return
         }
         if (conversationId.value !== undefined) {
-            store.dispatch(ActionTypes.SetSelectedConversationId, conversationId.value)
+            uiStore.setSelectedConversationId(conversationId.value)
         } else {
             createDialogueConversation(chatterIdRef.value)
         }

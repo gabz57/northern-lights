@@ -29,11 +29,12 @@
 
 <script lang="ts">
 import {computed, defineComponent, PropType, ref, watch} from "vue";
-import {useStore} from "@/store";
-import {Chatter as ChatterState, ChatterId} from "@/store/state";
-import {ActionTypes} from "@/store/actions";
+import {Chatter as ChatterState, ChatterId} from "@/domain/model";
 import {ConversationDetails} from "@/composables/use-conversation-details";
 import ChatterLabel from "@/components/chat/ChatterLabel.vue";
+import {useUserStore} from "@/stores/user";
+import {useChattersStore} from "@/stores/chatter";
+import {useConversationsStore} from "@/stores/conversations";
 
 export default defineComponent({
   name: "ConversationDetails",
@@ -45,17 +46,19 @@ export default defineComponent({
     },
   },
   setup(props) {
-    const store = useStore();
+    const userStore = useUserStore();
+    const chattersStore = useChattersStore();
+    const conversationsStore = useConversationsStore();
 
     const invitedChatterName = ref<string>("")
     const invitableChatters = ref<ChatterState[]>([])
 
     const inviteChatter = (chatter: ChatterState) => {
-      store.dispatch(ActionTypes.InviteChatter, {
-        chatterId: store.state.chatterId || "",
-        conversationId: props.details.id || "",
-        invitedChatterId: chatter.id
-      })
+      conversationsStore.inviteChatter(
+          userStore.chatterId || "",
+          props.details.id || "",
+          chatter.id
+      )
       invitedChatterName.value = ""
     }
     const invitedChatters = computed(() => props.details.participants)
@@ -68,13 +71,13 @@ export default defineComponent({
         invitableChatters.value = []
       } else {
         // TODO: use chatter search
-        for (const chatter of store.state.chatters.values()) {
+        for (const chatter of chattersStore.chatters.values()) {
           if (chatter.name.includes(chatterName)) {
             nextSelectableChatters.push(chatter)
           }
         }
         invitableChatters.value = nextSelectableChatters
-            .filter(chatter => notCurrentChatter(chatter, store.state.chatterId || ""))
+            .filter(chatter => notCurrentChatter(chatter, userStore.chatterId || ""))
             .filter(chatter => notAlreadyAdded(chatter, props.details.participants))
       }
     }, {

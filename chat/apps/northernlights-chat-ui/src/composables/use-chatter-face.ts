@@ -1,5 +1,5 @@
 import {Ref} from "vue";
-import {ChatterId} from "@/store/state";
+import {ChatterId} from "@/domain/model";
 
 export default function useChatterFace(chatterIdRef: Ref<ChatterId>): {
     face: string;

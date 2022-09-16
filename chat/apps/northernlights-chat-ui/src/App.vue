@@ -8,28 +8,27 @@
 
 <script lang="ts">
 import {defineComponent} from "vue";
-import {useStore} from "@/store";
-import {ActionTypes} from "@/store/actions";
+import {useUiStore} from "@/stores/ui";
 
 export default defineComponent({
   name: 'app',
   setup() {
-    const store = useStore()
+    const uiStore = useUiStore()
     return {
       onVisibilitychange: () => {
-        store.dispatch(ActionTypes.UpdateChatVisibility, document.visibilityState === "visible");
+        uiStore.updateChatVisibility(document.visibilityState === "visible")
       },
       onFocus: () => {
-        store.dispatch(ActionTypes.UpdateChatVisibility, true);
+        uiStore.updateChatVisibility(true);
       },
       onBlur: () => {
-        store.dispatch(ActionTypes.UpdateChatVisibility, false);
+        uiStore.updateChatVisibility(false);
       },
       onOnline: () => {
-        store.dispatch(ActionTypes.UpdateNavigatorOnlineStatus, true);
+        uiStore.updateNavigatorOnlineStatus(true);
       },
       onOffline: () => {
-        store.dispatch(ActionTypes.UpdateNavigatorOnlineStatus, false);
+        uiStore.updateNavigatorOnlineStatus(false);
       }
     }
   },

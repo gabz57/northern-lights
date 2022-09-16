@@ -1,6 +1,7 @@
 import {computed, reactive, Ref} from 'vue';
-import {ChatterId, Conversation, ConversationDataId, ConversationId,} from "@/store/state";
-import {useStore} from "@/store";
+import {ChatterId, Conversation, ConversationDataId, ConversationId,} from "@/domain/model";
+import {useConversationsStore} from "@/stores/conversations";
+import {useUserStore} from "@/stores/user";
 
 export type ChatterConversationDetails = {
     id?: ConversationId,
@@ -14,12 +15,13 @@ export type ChatterConversationDetails = {
 export default function useChatterConversationDetails(chatterIdRef: Ref<ChatterId>): {
     details: ChatterConversationDetails;
 } {
-    const store = useStore()
+    const userStore = useUserStore()
+    const conversationsStore = useConversationsStore()
 
-    const conversationRef = computed(() => store.getters.getConversationWithChatterId(chatterIdRef.value))
+    const conversationRef = computed(() => conversationsStore.getPrivateConversationWithChatterId(chatterIdRef.value))
 
     const nbUnreadMsgs = (conversation: Conversation): number => {
-        const lastConversationDataIdSeenByChatter: ConversationDataId | undefined = conversation.readMarkers.get(store.state.chatterId || "");
+        const lastConversationDataIdSeenByChatter: ConversationDataId | undefined = conversation.readMarkers.get(userStore.chatterId || "");
         const msgs = conversation.data;
         if (lastConversationDataIdSeenByChatter === undefined) {
             return msgs.length

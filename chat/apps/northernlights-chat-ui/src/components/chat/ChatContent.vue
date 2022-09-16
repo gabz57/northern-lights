@@ -10,11 +10,11 @@
 </template>
 
 <script lang="ts">
-import {useStore} from "@/store";
 import {computed, defineComponent} from "vue";
 import ConversationWrapper from "@/components/chat/Conversation.vue";
 import ConversationCreation from "@/components/chat/ConversationCreation.vue";
 import ChatterProfile from "@/components/chat/ChatterProfile.vue";
+import {useUiStore} from "@/stores/ui";
 
 export default defineComponent({
   name: "ChatContent",
@@ -22,12 +22,12 @@ export default defineComponent({
     ChatterProfile, ConversationCreation, ConversationWrapper
   },
   setup() {
-    const store = useStore()
+    const uiStore = useUiStore()
 
     return {
-      selectedConversationId: computed(() => store.state.ui.selectedConversationId),
-      creatingConversation: computed(() => store.state.ui.creatingConversation),
-      editingProfile: computed(() => store.state.ui.editingProfile)
+      selectedConversationId: computed(() => uiStore.selectedConversationId),
+      creatingConversation: computed(() => uiStore.creatingConversation),
+      editingProfile: computed(() => uiStore.editingProfile)
     }
   }
 })

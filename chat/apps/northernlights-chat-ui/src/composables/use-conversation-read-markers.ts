@@ -1,5 +1,5 @@
 import {nextTick, Ref, ref} from 'vue';
-import {ChatterId, ReadMarkers,} from "@/store/state";
+import {ChatterId, ReadMarkers} from "@/domain/model";
 import {ComponentPublicInstance} from "vue";
 import {ConversationDataWithMarkers} from "@/composables/use-conversation";
 

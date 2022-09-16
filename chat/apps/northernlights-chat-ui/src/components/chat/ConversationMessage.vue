@@ -7,7 +7,7 @@
 <script lang="ts">
 import {computed, ComputedRef, defineComponent, PropType, Ref, toRef} from "vue";
 import {ConversationDataWithMarkers, Markers} from "@/composables/use-conversation";
-import {ConversationMessageData} from "@/store/state";
+import {ConversationMessageData} from "@/domain/model";
 
 export default defineComponent({
   name: "ConversationMessage",

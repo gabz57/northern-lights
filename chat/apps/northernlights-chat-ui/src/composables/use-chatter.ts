@@ -1,6 +1,6 @@
 import {computed, onMounted, reactive, ref, Ref, watch} from "vue";
-import {Chatter, ChatterId} from "@/store/state";
-import {useStore} from "@/store";
+import {Chatter, ChatterId} from "@/domain/model";
+import {useChattersStore} from "@/stores/chatter";
 
 export type ChatterDetails = {
     id?: ChatterId,
@@ -10,13 +10,13 @@ export type ChatterDetails = {
 export default function useChatter(chatterIdRef: Ref<ChatterId>): {
     details: ChatterDetails;
 } {
-    const store = useStore()
+    const chattersStore = useChattersStore()
 
     const chatterRef = ref<Chatter>()
 
     const getChatter = () => {
         if (chatterIdRef.value) {
-            const chatter = store.getters.getChatterById(chatterIdRef.value);
+            const chatter = chattersStore.getChatterById(chatterIdRef.value);
             if (chatter !== undefined) {
                 chatterRef.value = chatter
             }

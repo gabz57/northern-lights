@@ -1,5 +1,5 @@
 import {computed, reactive} from "vue";
-import {useStore} from "@/store";
+import {useSseStore} from "@/stores/sse";
 
 export type SseStatus = {
     sseAutoConnect: boolean,
@@ -8,12 +8,12 @@ export type SseStatus = {
 }
 
 export default function useSseStatus() {
-    const store = useStore()
+    const sseStore = useSseStore()
     return {
         sseStatus: reactive({
-            sseAutoConnect: computed(() => store.state.sse.sseAutoConnect),
-            sseWanted: computed(() => store.state.sse.sseWanted),
-            sseOpen: computed(() => store.state.sse.sseOpen),
+            sseAutoConnect: computed(() => sseStore.sseAutoConnect),
+            sseWanted: computed(() => sseStore.sseWanted),
+            sseOpen: computed(() => sseStore.sseOpen),
         }),
     };
 }

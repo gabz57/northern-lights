@@ -1,8 +1,9 @@
-import {Store} from "@/store";
 import {EventSourcePolyfill} from "event-source-polyfill";
-import {ActionTypes} from "@/store/actions";
-import {ChatterId, Conversation, ConversationDataId, ConversationPart, ReadMarkers} from "@/store/state";
+import {ChatterId, Conversation, ConversationDataId, ConversationPart, ReadMarkers} from "@/domain/model";
 import {config} from "@/services/EnvConfig";
+import {ConversationsStore} from "@/stores/conversations";
+import {ChattersStore} from "@/stores/chatter";
+import {UserStore} from "@/stores/user";
 
 export default class SseChatService {
 
@@ -73,55 +74,55 @@ export default class SseChatService {
         return eventSource;
     }
 
-    static bind(eventSource: EventSource, store: Store): void {
+    static bind(eventSource: EventSource, userStore: UserStore, conversationsStore: ConversationsStore, chattersStore: ChattersStore): void {
 
         // eventSource.addEventListener('PROFILE:INSTALL', (e: any) => {
         //     const parse = JSON.parse(e.data);
-        //     store.dispatch(ActionTypes.InstallProfile, parse.profile);
+        //     domain.dispatch(ActionTypes.InstallProfile, parse.profile);
         // }, false);
 
         eventSource.addEventListener('CHATTER:INSTALL', (e: any) => {
             const parse = JSON.parse(e.data);
-            if (parse.chatter?.id == store.state.chatterId) {
-                store.dispatch(ActionTypes.InstallProfile, parse.chatter);
+            if (parse.chatter?.id == userStore.chatterId) {
+                userStore.installProfile(parse.chatter)
             }
-            store.dispatch(ActionTypes.InstallChatter, parse.chatter);
+            chattersStore.installChatter(parse.chatter)
         }, false);
 
         eventSource.addEventListener('CONVERS:INSTALL', (e: any) => {
             const parse = JSON.parse(e.data);
             const conv: Partial<Conversation> = parse.conversation;
-            store.dispatch(ActionTypes.InstallConversation, SseChatService.toConv(conv));
+            conversationsStore.installConversation(SseChatService.toConv(conv));
         }, false);
 
         eventSource.addEventListener('CONVERS:PARTIAL', (e: any) => {
             const parse = JSON.parse(e.data);
             const conv: Partial<Conversation> = parse.conversation;
-            store.dispatch(ActionTypes.InstallConversationPart, SseChatService.toConvPart(conv));
+            conversationsStore.installConversationPart(SseChatService.toConvPart(conv))
         }, false);
 
         eventSource.addEventListener('CONVERS:UPDATE:MESSAGE', (e: any) => {
             const parse = JSON.parse(e.data);
-            store.dispatch(ActionTypes.UpdateConversationAddMessage, {
-                conversationId: parse.conversation.id,
-                conversationMessageData: parse.conversation.data[0]
-            });
+            conversationsStore.updateConversationAddMessage(
+                parse.conversation.id,
+                parse.conversation.data[0]
+            )
         }, false);
 
         eventSource.addEventListener('CONVERS:UPDATE:READ_MARKER', (e: any) => {
             const parse = JSON.parse(e.data);
-            store.dispatch(ActionTypes.UpdateConversationMarkAsRead, {
-                conversationId: parse.conversation.id,
-                readMarkers: SseChatService.toReadMarkers(parse.conversation.readMarkers)
-            });
+            conversationsStore.updateConversationMarkerAsRead(
+                parse.conversation.id,
+                parse.conversation.readMarkers
+            )
         }, false);
 
         eventSource.addEventListener('CONVERS:UPDATE:ADD_CHATTER', (e: any) => {
             const parse = JSON.parse(e.data);
-            store.dispatch(ActionTypes.UpdateConversationAddChatter, {
-                conversationId: parse.conversation.id,
-                conversationChatterData: parse.conversation.data[0]
-            });
+            conversationsStore.updateConversationAddChatter(
+                parse.conversation.id,
+                parse.conversation.data[0]
+            )
         }, false);
 
     }

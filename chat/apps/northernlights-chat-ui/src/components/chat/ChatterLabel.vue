@@ -5,11 +5,11 @@
 </template>
 
 <script lang="ts">
-import {useStore} from "@/store";
 import {computed, defineComponent, toRef} from "vue";
 import useChatter from "@/composables/use-chatter";
 import useChatterConversationOpener from "@/composables/use-chatter-conversation-opener";
 import useChatterFace from "@/composables/use-chatter-face";
+import {useUserStore} from "@/stores/user";
 
 export default defineComponent({
   name: "ChatterLabel",
@@ -25,10 +25,10 @@ export default defineComponent({
     }
   },
   setup(props) {
-    const store = useStore();
+    const userStore = useUserStore();
     const chatterId = toRef(props, 'chatterId')
     return {
-      self: computed(() => chatterId.value === store.state.chatterId),
+      self: computed(() => chatterId.value === userStore.chatterId),
       ...useChatter(chatterId),
       ...useChatterConversationOpener(chatterId),
       ...useChatterFace(chatterId)

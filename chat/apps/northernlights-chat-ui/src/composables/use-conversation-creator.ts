@@ -1,13 +1,10 @@
-import {useStore} from "@/store";
 import {computed} from "vue";
-import {ActionTypes} from "@/store/actions";
+import {useUiStore} from "@/stores/ui";
 
 export default function useConversationCreator() {
-    const store = useStore()
-    const creatingConversation = computed(() => store.state.ui.creatingConversation)
-    const toggleCreatingConversation = () => {
-        store.dispatch(ActionTypes.SetCreatingConversation, !creatingConversation.value)
-    }
+    const uiStore = useUiStore()
+    const creatingConversation = computed(() => uiStore.creatingConversation)
+    const toggleCreatingConversation = () => uiStore.setCreatingConversation(!creatingConversation.value)
     return {
         creatingConversation,
         toggleCreatingConversation

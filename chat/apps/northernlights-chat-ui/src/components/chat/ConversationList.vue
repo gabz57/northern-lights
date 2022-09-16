@@ -9,7 +9,7 @@
 <script lang="ts">
 import {defineComponent, PropType} from "vue";
 import ConversationListElement from "@/components/chat/ConversationListElement.vue";
-import {ConversationId} from "@/store/state";
+import {ConversationId} from "@/domain/model";
 
 export default defineComponent({
   name: "ConversationList",

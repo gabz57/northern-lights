@@ -1,11 +1,14 @@
 import {computed, nextTick, watch} from "vue";
-import {ChatterId, Conversation, ConversationDataId, ConversationId} from "@/store/state";
-import {useStore} from "@/store";
+import {ChatterId, Conversation, ConversationDataId, ConversationId} from "@/domain/model";
 import {chatApiClient} from "@/services/ChatApiClient";
 import SseChatService from "@/services/SseChatService";
-import {ActionTypes} from "@/store/actions";
 import useSseStatus, {SseStatus} from "@/composables/use-sse-status";
 import {userApiClient} from "@/services/UserApiClient";
+import {useSseStore} from "@/stores/sse";
+import {useUserStore} from "@/stores/user";
+import {useUiStore} from "@/stores/ui";
+import {useConversationsStore} from "@/stores/conversations";
+import {useChattersStore} from "@/stores/chatter";
 
 export default function useSse(): {
     disconnect: () => Promise<void>;
@@ -14,24 +17,27 @@ export default function useSse(): {
     state: SseStatus
 } {
     console.log("useSse()")
+    const sseStore = useSseStore()
+    const userStore = useUserStore()
+    const uiStore = useUiStore()
+    const conversationsStore = useConversationsStore()
 
-    const store = useStore()
     const {sseStatus} = useSseStatus()
-    const jwtRef = computed(() => store.state.jwt)
-    const chatterIdRef = computed(() => store.state.chatterId)
-    const enableSseWanted = () => store.dispatch(ActionTypes.EnableSseWanted)
-    const disableSseWanted = () => store.dispatch(ActionTypes.DisableSseWanted)
-    const enableAutoConnect = () => store.dispatch(ActionTypes.EnableSseAutoConnect)
-    const disableAutoConnect = () => store.dispatch(ActionTypes.DisableSseAutoConnect)
-    const storeSseOpenStatus = (isOpen: boolean) => store.dispatch(ActionTypes.StoreSseOpenStatus, isOpen)
-    const storeEventSource = (eventSource: EventSource | undefined) => store.dispatch(ActionTypes.StoreEventSource, eventSource);
-    const setChatterId = (chatterId: ChatterId) => store.dispatch(ActionTypes.SetChatterId, {chatterId})
+    const jwtRef = computed(() => userStore.jwt)
+    const chatterIdRef = computed(() => userStore.chatterId)
+    const enableSseWanted = () => sseStore.enableSseWanted()
+    const disableSseWanted = () => sseStore.disableSseWanted()
+    const enableAutoConnect = () => sseStore.enableSseAutoConnect()
+    const disableAutoConnect = () => sseStore.disableSseAutoConnect()
+    const storeSseOpenStatus = (isOpen: boolean) => sseStore.setSseOpenStatus(isOpen)
+    const storeEventSource = (eventSource: EventSource | undefined) => sseStore.setEventSource(eventSource);
+    const setChatterId = (chatterId: ChatterId) => userStore.setChatterId(chatterId)
     const switchSseChatter = async (chatterId: ChatterId | undefined, prevChatterId: ChatterId | undefined) => {
         console.log("use-sse> switchSseChatter ", prevChatterId, " -> ", chatterId)
         if (prevChatterId !== undefined && prevChatterId !== "0") {
-            store.dispatch(ActionTypes.DeselectConversationId)
+            uiStore.deselectConversationId()
             await nextTick(() => {
-                store.dispatch(ActionTypes.ClearChatterState)
+                sseStore.clearState()
             })
             await nextTick(() => {
                 disconnect();
@@ -46,9 +52,9 @@ export default function useSse(): {
     const onJwtChange = async (jwt: string | undefined, previousJwt: string | undefined) => {
         console.log("use-sse> onJwtChange ", previousJwt, " -> ", jwt)
         if (previousJwt !== undefined && previousJwt !== "0") {
-            store.dispatch(ActionTypes.DeselectConversationId)
+            uiStore.deselectConversationId()
             await nextTick(() => {
-                store.dispatch(ActionTypes.ClearChatterState)
+                sseStore.clearState()
             })
             await nextTick(() => {
                 disconnect();
@@ -62,20 +68,20 @@ export default function useSse(): {
                     await nextTick(() => {
                         setChatterId(chatterId)
                     })
-                        // .then(connect)
+                    // .then(connect)
                 } else {
                     // TODO: no chatterId => ask to register
 
 
                 }
-            } catch (e : any) {
+            } catch (e: any) {
                 console.log(e)
             }
         }
     }
     watch(() => jwtRef.value, onJwtChange)
 
-    const eventSource = computed(() => store.state.sse.eventSource)
+    const eventSource = computed(() => sseStore.eventSource)
 
     const disconnect = async () => {
         console.log('use-sse> disconnect');
@@ -113,7 +119,7 @@ export default function useSse(): {
         }
         const conversationStatuses: () => Map<ConversationId, ConversationDataId> = () => {
             const statuses = new Map<ConversationId, ConversationDataId>()
-            store.state.conversations.forEach((conversation: Conversation, conversationId: ConversationId) => {
+            conversationsStore.conversations.forEach((conversation: Conversation, conversationId: ConversationId) => {
                 if (conversation.data.length > 0) {
                     statuses.set(conversationId, conversation.data[conversation.data.length - 1].id)
                 }
@@ -126,7 +132,7 @@ export default function useSse(): {
         try {
             const sseEventSource = SseChatService.openSse(sseChatKey, jwtRef.value, onOpen, onReconnection, onConnectionClosed);
             storeEventSource(sseEventSource)
-            SseChatService.bind(sseEventSource, store);
+            SseChatService.bind(sseEventSource, userStore, useConversationsStore(), useChattersStore());
         } catch (e: any) {
             //
             console.log("⚠️ SseChatService.openSse failed", e)
@@ -153,11 +159,11 @@ export default function useSse(): {
             }
         }
     })
-    watch(() => store.state.ui.online, (isOnline: boolean, wasOnline: boolean) => {
-        console.log("store.state.ui.online", wasOnline, " -> ", isOnline)
+    watch(() => uiStore.online, (isOnline: boolean, wasOnline: boolean) => {
+        console.log("domain.state.ui.online", wasOnline, " -> ", isOnline)
 
         if (isOnline) {
-            if (store.state.sse.sseAutoConnect) {
+            if (sseStore.sseAutoConnect) {
                 console.log("Device went ONLINE > re-enable SSE")
                 enableSseWanted();
             } else {

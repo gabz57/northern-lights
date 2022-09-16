@@ -51,12 +51,13 @@ import {ConversationDataWithMarkers} from "@/composables/use-conversation";
 import ConversationMessage from "@/components/chat/ConversationMessage.vue";
 import moment from "moment/moment";
 import {DateTime} from "luxon";
-import {ChatterId, ReadMarkers} from "@/store/state";
-import {useStore} from "@/store";
+import {ChatterId, ReadMarkers} from "@/domain/model";
 import ChatterLabel from "@/components/chat/ChatterLabel.vue";
 import ConversationChatter from "@/components/chat/ConversationChatter.vue";
 import ConversationReadMarkers from "@/components/chat/ConversationReadMarkers.vue";
 import useConversationReadMarkers from "@/composables/use-conversation-read-markers";
+import {useUserStore} from "@/stores/user";
+import {useUiStore} from "@/stores/ui";
 
 const groupBy = <K, V>(list: Array<V>, keyGetter: (input: V) => K): Map<K, Array<V>> => {
   const map = new Map();
@@ -130,7 +131,8 @@ export default defineComponent({
   setup(props) {
     const messagesContainer = ref<HTMLElement | null>(null)
 
-    const store = useStore();
+    const userStore = useUserStore();
+    const uiStore = useUiStore();
     const {messages, readMarkers} = toRefs(props)
 
     const dailyMessagePacksPerDay = ref<Array<Array<Array<ConversationDataWithMarkers>>>>([])
@@ -160,13 +162,13 @@ export default defineComponent({
     onMounted(updateReadMarkers)
 
     watch(messages, (newMessages) => {
-      if (shouldStickToBottom.value || newMessages.length > 0 && newMessages[newMessages.length - 1].from === store.state.chatterId) {
+      if (shouldStickToBottom.value || newMessages.length > 0 && newMessages[newMessages.length - 1].from === userStore.chatterId) {
         scrollToBottom()
       }
       computeDailyMessagePacksPerDay()
       updateReadMarkers();
     })
-    watch(() => store.state.ui.visible, (screenVisible) => {
+    watch(() => uiStore.visible, (screenVisible) => {
       // note: one could delay and debounce
       if (screenVisible && shouldStickToBottom.value && messages.value.length > 0) {
         const lastMessage = messages.value[messages.value.length - 1];

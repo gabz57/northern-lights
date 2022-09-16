@@ -8,7 +8,7 @@
 
 <script lang="ts">
 import {defineComponent, PropType} from "vue";
-import {ConversationChatterData} from "@/store/state";
+import {ConversationChatterData} from "@/domain/model";
 import ChatterLabel from "@/components/chat/ChatterLabel.vue";
 
 export default defineComponent({

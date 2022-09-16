@@ -1,4 +1,4 @@
-import {ConversationDataId, ConversationId} from "@/store/state";
+import {ConversationDataId, ConversationId} from "@/domain/model";
 import {config} from "@/services/EnvConfig";
 
 const debounceFetch = <Params extends never[]>(func: (...args: Params) => Promise<Response>, timeout = 300): (...args: Params) => void => {

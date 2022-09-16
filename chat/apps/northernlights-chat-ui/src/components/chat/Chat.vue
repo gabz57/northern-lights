@@ -11,13 +11,14 @@
 
 <script lang="ts">
 import {defineComponent, watch} from "vue";
-import {useStore} from "@/store";
-import {Conversation, ConversationId} from "@/store/state";
-import {ActionTypes} from "@/store/actions";
+import {Conversation, ConversationId} from "@/domain/model";
 import ChatHeader from "@/components/chat/ChatHeader.vue";
 import ChatLeftMenu from "@/components/chat/ChatLeftMenu.vue";
 import ChatContent from "@/components/chat/ChatContent.vue";
 import useSse from "@/composables/use-sse";
+import {useUserStore} from "@/stores/user";
+import {useUiStore} from "@/stores/ui";
+import {useConversationsStore} from "@/stores/conversations";
 
 export default defineComponent({
   name: "ChatApp",
@@ -28,23 +29,23 @@ export default defineComponent({
   },
   setup() {
     useSse()
-    const store = useStore()
+    const userStore = useUserStore()
+    const uiStore = useUiStore()
+    const conversationsStore = useConversationsStore()
 
-    const selectConversation = (conversationId: ConversationId): void => {
-      store.dispatch(ActionTypes.SetSelectedConversationId, conversationId)
-    }
+    const selectConversation = (conversationId: ConversationId): void => uiStore.setSelectedConversationId(conversationId)
 
     const autoSelectCreatedConversation = (newConversations: Conversation[], prevConversations: Conversation[]) => {
       const createdConversation = newConversations.filter(newConv => !prevConversations.some(prevConv => prevConv.id === newConv.id));
       if (createdConversation.length === 1) {
         // if chatter is creator => select created conversation
-        if (createdConversation[0].creator === store.state.chatterId) {
+        if (createdConversation[0].creator === userStore.chatterId) {
           selectConversation(createdConversation[0].id)
         }
       }
     };
 
-    watch(() => Array.from(store.state.conversations.values()), autoSelectCreatedConversation)
+    watch(() => Array.from(conversationsStore.conversations.values()), autoSelectCreatedConversation)
 
     return {}
   }

@@ -1,25 +1,4 @@
 
-export const initialState: State = {
-    ui: {
-        online: true,
-        visible: true,
-        selectedConversationId: undefined,
-        editingProfile: false,
-        creatingConversation: false,
-    },
-    jwt: '',
-    sse: {
-        eventSource: undefined,
-        sseAutoConnect: false,
-        sseWanted: false,
-        sseOpen: false,
-    },
-    chatterId: "0",
-    chatters: new Map<ChatterId, Chatter>(),
-    profile: undefined,
-    conversations: new Map<ConversationId, Conversation>(),
-}
-
 /** UI */
 export type Ui = {
     online: boolean
@@ -93,8 +72,8 @@ export type ConversationPart = {
 
 export type Conversations = Map<ConversationId, Conversation>;
 
-/** State */
-export type State = {
+/** Model */
+export type Model = {
     ui: Ui,
     sse: Sse,
     jwt: string,
