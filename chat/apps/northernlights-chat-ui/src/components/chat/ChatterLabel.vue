@@ -1,41 +1,43 @@
 <template>
-  <span class="chatter"
-        :class="{'chatter--clickable': !self}"
-        @click="openConversationWith">{{ showFace ? face + " " : "" }}{{ details.name }}</span>
+  <span
+    class="chatter"
+    :class="{ 'chatter--clickable': !self }"
+    @click="openConversationWith"
+    >{{ showFace ? face + " " : "" }}{{ details.name }}</span
+  >
 </template>
 
 <script lang="ts">
-import {computed, defineComponent, toRef} from "vue";
+import { computed, defineComponent, toRef } from "vue";
 import useChatter from "@/composables/use-chatter";
 import useChatterConversationOpener from "@/composables/use-chatter-conversation-opener";
 import useChatterFace from "@/composables/use-chatter-face";
-import {useUserStore} from "@/stores/user";
+import { useUserStore } from "@/stores/user";
 
 export default defineComponent({
   name: "ChatterLabel",
   props: {
     chatterId: {
       type: String,
-      required: true
+      required: true,
     },
     showFace: {
       type: Boolean,
       required: false,
-      default: false
-    }
+      default: false,
+    },
   },
   setup(props) {
     const userStore = useUserStore();
-    const chatterId = toRef(props, 'chatterId')
+    const chatterId = toRef(props, "chatterId");
     return {
       self: computed(() => chatterId.value === userStore.chatterId),
       ...useChatter(chatterId),
       ...useChatterConversationOpener(chatterId),
-      ...useChatterFace(chatterId)
-    }
-  }
+      ...useChatterFace(chatterId),
+    };
+  },
 });
-
 </script>
 
 <style scoped lang="scss">

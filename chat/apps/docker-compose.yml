@@ -125,7 +125,7 @@ services:
       NODE_ENV: 'development'
       HOST: '0.0.0.0'
       PORT: 8081
-    command: /bin/sh -c "yarn && yarn serve"
+    command: /bin/sh -c "yarn && yarn dev"
     volumes:
       - './northernlights-chat-ui:/northernlights-chat-ui:cached'
       - 'northernlights-chat-ui-node-modules:/northernlights-chat-ui/node_modules'

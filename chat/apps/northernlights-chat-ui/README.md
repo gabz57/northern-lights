@@ -1,29 +1,43 @@
 # northernlights-chat-ui
 
-## Project setup
-```
-yarn install
+
+## Project Setup
+
+```sh
+yarn
 ```
 
-### Compiles and hot-reloads for development
-```
-yarn serve
+### Compile and Hot-Reload for Development
+
+```sh
+yarn dev
 ```
 
-### Compiles and minifies for production
-```
+### Type-Check, Compile and Minify for Production
+
+```sh
 yarn build
 ```
 
-### Run your unit tests
-```
+### Run Unit Tests with [Vitest](https://vitest.dev/)
+
+```sh
 yarn test:unit
 ```
 
-### Lints and fixes files
+### Run End-to-End Tests with [Cypress](https://www.cypress.io/)
+
+```sh
+yarn build
+yarn test:e2e # or `yarn test:e2e:ci` for headless testing
 ```
+
+### Lint with [ESLint](https://eslint.org/)
+
+```sh
 yarn lint
 ```
 
+
 ### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+See [Vite Configuration Reference](https://vitejs.dev/config/).

@@ -1,15 +1,13 @@
 <template>
-  <ChatApp/>
+  <ChatApp />
 </template>
 
 <script lang="ts">
-import { Options, Vue } from 'vue-class-component';
-import ChatApp from "@/components/chat/Chat.vue"; // @ is an alias to /src
+import ChatApp from "@/components/chat/Chat.vue";
+import { defineComponent } from "vue";
 
-@Options({
-  components: {
-    ChatApp,
-  },
-})
-export default class Home extends Vue {}
+export default defineComponent({
+  name: "Home",
+  components: { ChatApp },
+});
 </script>

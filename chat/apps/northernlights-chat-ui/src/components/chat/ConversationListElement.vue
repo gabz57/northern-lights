@@ -1,14 +1,19 @@
 <template>
-  <div class="conversation-list-element"
-       :class="{'conversation-list-element--with-new-message': details.nbUnreadMessages > 0}"
-       @click="$emit('select-conversation', details.id)">
+  <div
+    class="conversation-list-element"
+    :class="{
+      'conversation-list-element--with-new-message':
+        details.nbUnreadMessages > 0,
+    }"
+    @click="$emit('select-conversation', details.id)"
+  >
     <span>{{ details.name }}</span>
     <span>{{ details.nbUnreadMessages }}</span>
   </div>
 </template>
 
 <script lang="ts">
-import {defineComponent, toRef} from "vue";
+import { defineComponent, toRef } from "vue";
 import useConversationDetails from "@/composables/use-conversation-details";
 
 export default defineComponent({
@@ -16,16 +21,15 @@ export default defineComponent({
   props: {
     conversationId: {
       type: String,
-      required: true
+      required: true,
     },
   },
   setup(props) {
     return {
-      ...useConversationDetails(toRef(props, 'conversationId'))
-    }
-  }
+      ...useConversationDetails(toRef(props, "conversationId")),
+    };
+  },
 });
-
 </script>
 
 <style scoped lang="scss">

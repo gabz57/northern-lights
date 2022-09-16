@@ -1,11 +1,9 @@
 <template>
-  <div>
-    Profile
-  </div>
+  <div>Profile</div>
 </template>
 
 <script lang="ts">
-import {defineComponent} from "vue";
+import { defineComponent } from "vue";
 
 export default defineComponent({
   name: "ChatterProfile",
@@ -17,8 +15,6 @@ export default defineComponent({
   //   },
   // },
 });
-
 </script>
 
-<style scoped lang="scss">
-</style>
+<style scoped lang="scss"></style>

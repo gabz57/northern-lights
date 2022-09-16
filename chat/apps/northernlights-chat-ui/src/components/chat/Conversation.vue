@@ -1,38 +1,46 @@
 <template>
   <div class="conversation">
-    <div class="conversation__separator"/>
+    <div class="conversation__separator" />
     <div class="conversation__messages">
-      <h1 class="conversation__messages-header">{{ details.name || "&nbsp;" }}</h1>
-      <ConversationMessages class="conversation__messages-messages" :messages="messages" :read-markers="readMarkers"/>
-      <ConversationInput class="conversation__messages-input" @sendMessage="sendMessage"/>
+      <h1 class="conversation__messages-header">
+        {{ details.name || "&nbsp;" }}
+      </h1>
+      <ConversationMessages
+        class="conversation__messages-messages"
+        :messages="messages"
+        :read-markers="readMarkers"
+      />
+      <ConversationInput
+        class="conversation__messages-input"
+        @sendMessage="sendMessage"
+      />
     </div>
-    <div class="conversation__separator"/>
-    <ConversationDetails class="conversation__details" :details="details"/>
+    <div class="conversation__separator" />
+    <ConversationDetails class="conversation__details" :details="details" />
   </div>
 </template>
 
 <script lang="ts">
 import useConversation from "@/composables/use-conversation";
-import {defineComponent, toRef} from "vue";
+import { defineComponent, toRef } from "vue";
 import ConversationMessages from "@/components/chat/ConversationMessages.vue";
 import ConversationDetails from "@/components/chat/ConversationDetails.vue";
 import ConversationInput from "@/components/chat/ConversationInput.vue";
 
 export default defineComponent({
   name: "ConversationWrapper",
-  components: {ConversationMessages, ConversationInput, ConversationDetails},
+  components: { ConversationMessages, ConversationInput, ConversationDetails },
   props: {
     conversationId: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   },
   setup(props) {
     return {
-      ...useConversation(toRef(props, 'conversationId'))
-    }
-  }
-
+      ...useConversation(toRef(props, "conversationId")),
+    };
+  },
 });
 </script>
 
@@ -58,8 +66,12 @@ export default defineComponent({
 
     display: flex;
     flex-direction: column;
-    min-height: calc(100vh - #{$header-height} - #{$conversation-input-height} - #{$conversation-messages-header-height});
-    max-height: calc(100vh - #{$header-height} - #{$conversation-input-height} - #{$conversation-messages-header-height});
+    min-height: calc(
+      100vh - #{$header-height} - #{$conversation-input-height} - #{$conversation-messages-header-height}
+    );
+    max-height: calc(
+      100vh - #{$header-height} - #{$conversation-input-height} - #{$conversation-messages-header-height}
+    );
 
     &-header {
       height: $conversation-messages-header-height;

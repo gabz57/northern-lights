@@ -1,43 +1,80 @@
 <template>
   <div class="conversation-messages">
-    <div v-if="!shouldStickToBottom" class="conversation-messages__arrow"
-         :class="{'conversation-messages__arrow--with-new-message': hasNewMessage}">
+    <div
+      v-if="!shouldStickToBottom"
+      class="conversation-messages__arrow"
+      :class="{
+        'conversation-messages__arrow--with-new-message': hasNewMessage,
+      }"
+    >
       <button @click="scrollToBottom">⬇</button>
     </div>
-    <div class="conversation-messages__wrapper" ref="messagesContainer" @scroll.passive="handleScroll">
+    <div
+      class="conversation-messages__wrapper"
+      ref="messagesContainer"
+      @scroll.passive="handleScroll"
+    >
       <ConversationReadMarkers :markers="positionedReadMarkers" />
-      <div class="conversation-messages__per-day"
-           v-for="(dailyMessagePacksOfDay, index) in dailyMessagePacksPerDay"
-           :key="index">
+      <div
+        class="conversation-messages__per-day"
+        v-for="(dailyMessagePacksOfDay, index) in dailyMessagePacksPerDay"
+        :key="index"
+      >
+        <div class="separator">
+          {{ $filters.date(dailyMessagePacksOfDay[0][0].dateTime * 1000) }}
+        </div>
 
-        <div class="separator">{{ $filters.date(dailyMessagePacksOfDay[0][0].dateTime * 1000) }}</div>
-
-        <div class="conversation-messages__per-day-packs"
-             v-for="(dailyMessagePack, index2) in dailyMessagePacksOfDay"
-             :key="index2">
+        <div
+          class="conversation-messages__per-day-packs"
+          v-for="(dailyMessagePack, index2) in dailyMessagePacksOfDay"
+          :key="index2"
+        >
           <div v-if="dailyMessagePack[0].type === 'MESSAGE'">
-            <div class="conversation-messages__per-day-packs-author"
-                 :class="{'conversation-messages__per-day-packs-author--with-new-message': dailyMessagePack[dailyMessagePack.length - 1].watchVisible}">
+            <div
+              class="conversation-messages__per-day-packs-author"
+              :class="{
+                'conversation-messages__per-day-packs-author--with-new-message':
+                  dailyMessagePack[dailyMessagePack.length - 1].watchVisible,
+              }"
+            >
               <strong>
-                <ChatterLabel :chatter-id="dailyMessagePack[0].from"/>
-              </strong> @ {{ $filters.timeToMinutes(dailyMessagePack[0].dateTime * 1000) }}
+                <ChatterLabel :chatter-id="dailyMessagePack[0].from" />
+              </strong>
+              @
+              {{ $filters.timeToMinutes(dailyMessagePack[0].dateTime * 1000) }}
             </div>
             <div class="conversation-messages__per-day-packs-pack">
-              <ConversationMessage v-for="dailyMessage in dailyMessagePack"
-                                   :message-data="dailyMessage"
-                                   :key="dailyMessage.id"
-                                   :ref="el => { if (el) divs[dailyMessage.index] = el }"
-                                   v-observe-visibility="dailyMessage.watchVisible
-                                   ? markViewedMessage(dailyMessage)
-                                   : false"/>
+              <ConversationMessage
+                v-for="dailyMessage in dailyMessagePack"
+                :message-data="dailyMessage"
+                :key="dailyMessage.id"
+                :ref="
+                  (el) => {
+                    if (el) divs[dailyMessage.index] = el;
+                  }
+                "
+                v-observe-visibility="
+                  dailyMessage.watchVisible
+                    ? markViewedMessage(dailyMessage)
+                    : false
+                "
+              />
             </div>
           </div>
           <div v-if="dailyMessagePack[0].type === 'CHATTER'">
-            <ConversationChatter :chatter-data="dailyMessagePack[0]"
-                                 :ref="el => { if (el) divs[dailyMessagePack[0].index] = el }"
-                                 v-observe-visibility="dailyMessagePack[0].watchVisible
-                                   ? markViewedMessage(dailyMessagePack[0])
-                                   : false"/>
+            <ConversationChatter
+              :chatter-data="dailyMessagePack[0]"
+              :ref="
+                (el) => {
+                  if (el) divs[dailyMessagePack[0].index] = el;
+                }
+              "
+              v-observe-visibility="
+                dailyMessagePack[0].watchVisible
+                  ? markViewedMessage(dailyMessagePack[0])
+                  : false
+              "
+            />
           </div>
         </div>
       </div>
@@ -46,20 +83,33 @@
 </template>
 
 <script lang="ts">
-import {computed, defineComponent, nextTick, onBeforeUpdate, onMounted, PropType, ref, toRefs, watch} from "vue";
-import {ConversationDataWithMarkers} from "@/composables/use-conversation";
+import type { PropType } from "vue";
+import {
+  computed,
+  defineComponent,
+  nextTick,
+  onBeforeUpdate,
+  onMounted,
+  ref,
+  toRefs,
+  watch,
+} from "vue";
+import type { ConversationDataWithMarkers } from "@/composables/use-conversation";
 import ConversationMessage from "@/components/chat/ConversationMessage.vue";
 import moment from "moment/moment";
-import {DateTime} from "luxon";
-import {ChatterId, ReadMarkers} from "@/domain/model";
+import { DateTime } from "luxon";
+import type { ChatterId, ReadMarkers } from "@/domain/model";
 import ChatterLabel from "@/components/chat/ChatterLabel.vue";
 import ConversationChatter from "@/components/chat/ConversationChatter.vue";
 import ConversationReadMarkers from "@/components/chat/ConversationReadMarkers.vue";
 import useConversationReadMarkers from "@/composables/use-conversation-read-markers";
-import {useUserStore} from "@/stores/user";
-import {useUiStore} from "@/stores/ui";
+import { useUserStore } from "@/stores/user";
+import { useUiStore } from "@/stores/ui";
 
-const groupBy = <K, V>(list: Array<V>, keyGetter: (input: V) => K): Map<K, Array<V>> => {
+const groupBy = <K, V>(
+  list: Array<V>,
+  keyGetter: (input: V) => K
+): Map<K, Array<V>> => {
   const map = new Map();
   list.forEach((item) => {
     const key = keyGetter(item);
@@ -73,133 +123,176 @@ const groupBy = <K, V>(list: Array<V>, keyGetter: (input: V) => K): Map<K, Array
   return map;
 };
 
-const packSameUserSameBlockOfMessage = (dailyMessages: Array<ConversationDataWithMarkers>): Array<Array<ConversationDataWithMarkers>> => {
-
+const packSameUserSameBlockOfMessage = (
+  dailyMessages: Array<ConversationDataWithMarkers>
+): Array<Array<ConversationDataWithMarkers>> => {
   const packs: ConversationDataWithMarkers[][] = [];
   let pack: ConversationDataWithMarkers[] = [];
 
   const firstDailyMessage = dailyMessages[0];
   let currentChatter: ChatterId = firstDailyMessage.from;
-  let previousMessageDateTime: DateTime = DateTime.fromSeconds(firstDailyMessage.dateTime);
-  let previousType = ''
-  dailyMessages.forEach(dailyMessage => {
-    if (dailyMessage.type === 'CHATTER') {
+  let previousMessageDateTime: DateTime = DateTime.fromSeconds(
+    firstDailyMessage.dateTime
+  );
+  let previousType = "";
+  dailyMessages.forEach((dailyMessage) => {
+    if (dailyMessage.type === "CHATTER") {
       // use next pack
-      if (pack.length > 0) packs.push(pack)
-      pack = [dailyMessage]
-    } else if (dailyMessage.type === 'MESSAGE') {
-      if (previousType !== 'MESSAGE' || dailyMessage.from === currentChatter) {
-
-        const diffInMinutes = DateTime.fromSeconds(dailyMessage.dateTime).diff(previousMessageDateTime, 'minutes');
+      if (pack.length > 0) packs.push(pack);
+      pack = [dailyMessage];
+    } else if (dailyMessage.type === "MESSAGE") {
+      if (previousType !== "MESSAGE" || dailyMessage.from === currentChatter) {
+        const diffInMinutes = DateTime.fromSeconds(dailyMessage.dateTime).diff(
+          previousMessageDateTime,
+          "minutes"
+        );
         if (diffInMinutes.minutes < 3) {
           // complete pack
-          pack.push(dailyMessage)
+          pack.push(dailyMessage);
         } else {
           // use next pack
-          if (pack.length > 0) packs.push(pack)
-          pack = [dailyMessage]
+          if (pack.length > 0) packs.push(pack);
+          pack = [dailyMessage];
         }
       } else {
         // use next pack
-        if (pack.length > 0) packs.push(pack)
-        pack = [dailyMessage]
+        if (pack.length > 0) packs.push(pack);
+        pack = [dailyMessage];
       }
 
-      previousMessageDateTime = DateTime.fromSeconds(dailyMessage.dateTime)
-      currentChatter = dailyMessage.from
-      previousType = dailyMessage.type
+      previousMessageDateTime = DateTime.fromSeconds(dailyMessage.dateTime);
+      currentChatter = dailyMessage.from;
+      previousType = dailyMessage.type;
     }
-  })
-  packs.push(pack)
+  });
+  packs.push(pack);
 
   return packs;
 };
 
 export default defineComponent({
   name: "ConversationMessages",
-  components: {ConversationReadMarkers, ConversationChatter, ChatterLabel, ConversationMessage},
+  components: {
+    ConversationReadMarkers,
+    ConversationChatter,
+    ChatterLabel,
+    ConversationMessage,
+  },
   props: {
     messages: {
       type: Object as PropType<ConversationDataWithMarkers[]>,
-      required: true
+      required: true,
     },
     readMarkers: {
       type: Object as PropType<ReadMarkers>,
-      required: true
-    }
+      required: true,
+    },
   },
   setup(props) {
-    const messagesContainer = ref<HTMLElement | null>(null)
+    const messagesContainer = ref<HTMLElement | null>(null);
 
     const userStore = useUserStore();
     const uiStore = useUiStore();
-    const {messages, readMarkers} = toRefs(props)
+    const { messages, readMarkers } = toRefs(props);
 
-    const dailyMessagePacksPerDay = ref<Array<Array<Array<ConversationDataWithMarkers>>>>([])
+    const dailyMessagePacksPerDay = ref<
+      Array<Array<Array<ConversationDataWithMarkers>>>
+    >([]);
     const computeDailyMessagePacksPerDay = () => {
-      const packsPerDay: Array<Array<Array<ConversationDataWithMarkers>>> = []
-      const messagesByDay: Map<string, Array<ConversationDataWithMarkers>> = groupBy(messages.value, m => "" + moment(m.dateTime * 1000).year() + moment(m.dateTime * 1000).dayOfYear());
+      const packsPerDay: Array<Array<Array<ConversationDataWithMarkers>>> = [];
+      const messagesByDay: Map<
+        string,
+        Array<ConversationDataWithMarkers>
+      > = groupBy(
+        messages.value,
+        (m) =>
+          "" +
+          moment(m.dateTime * 1000).year() +
+          moment(m.dateTime * 1000).dayOfYear()
+      );
       messagesByDay.forEach((dailyMessages) => {
-        packsPerDay.push(packSameUserSameBlockOfMessage(dailyMessages))
-      })
-      dailyMessagePacksPerDay.value = packsPerDay
-    }
+        packsPerDay.push(packSameUserSameBlockOfMessage(dailyMessages));
+      });
+      dailyMessagePacksPerDay.value = packsPerDay;
+    };
 
-    const shouldStickToBottom = ref<boolean>(true)
+    const shouldStickToBottom = ref<boolean>(true);
     const scrollToBottom = () => {
       nextTick(() => {
         // shouldStickToBottom.value = true
         if (messagesContainer.value != null) {
-          messagesContainer.value.scrollTop = messagesContainer.value?.scrollHeight;
+          messagesContainer.value.scrollTop =
+            messagesContainer.value?.scrollHeight;
         }
-      })
+      });
     };
-    onMounted(scrollToBottom)
+    onMounted(scrollToBottom);
 
-
-    const {divs, clearDivs, positionedReadMarkers, updateReadMarkers} = useConversationReadMarkers(readMarkers, messages)
-    onBeforeUpdate(clearDivs)
-    onMounted(updateReadMarkers)
+    const { divs, clearDivs, positionedReadMarkers, updateReadMarkers } =
+      useConversationReadMarkers(readMarkers, messages);
+    onBeforeUpdate(clearDivs);
+    onMounted(updateReadMarkers);
 
     watch(messages, (newMessages) => {
-      if (shouldStickToBottom.value || newMessages.length > 0 && newMessages[newMessages.length - 1].from === userStore.chatterId) {
-        scrollToBottom()
+      if (
+        shouldStickToBottom.value ||
+        (newMessages.length > 0 &&
+          newMessages[newMessages.length - 1].from === userStore.chatterId)
+      ) {
+        scrollToBottom();
       }
-      computeDailyMessagePacksPerDay()
+      computeDailyMessagePacksPerDay();
       updateReadMarkers();
-    })
-    watch(() => uiStore.visible, (screenVisible) => {
-      // note: one could delay and debounce
-      if (screenVisible && shouldStickToBottom.value && messages.value.length > 0) {
-        const lastMessage = messages.value[messages.value.length - 1];
-        if (lastMessage.watchVisible) {
-          lastMessage.onVisible()
+    });
+    watch(
+      () => uiStore.visible,
+      (screenVisible) => {
+        // note: one could delay and debounce
+        if (
+          screenVisible &&
+          shouldStickToBottom.value &&
+          messages.value.length > 0
+        ) {
+          const lastMessage = messages.value[messages.value.length - 1];
+          if (lastMessage.watchVisible) {
+            lastMessage.onVisible();
+          }
         }
       }
-    })
+    );
 
     const markViewedMessage = (dailyMessage: ConversationDataWithMarkers) => {
-      return dailyMessage.watchVisible ? {
-        callback: (isVisible: boolean) => {
-          if (isVisible) {
-            dailyMessage.onVisible()
+      return dailyMessage.watchVisible
+        ? {
+            callback: (isVisible: boolean) => {
+              if (isVisible) {
+                dailyMessage.onVisible();
+              }
+            },
+            // throttle: 1500,
+            // once: true,
           }
-        },
-        // throttle: 1500,
-        // once: true,
-      } : false
-    }
+        : false;
+    };
 
     const hasNewMessage = computed(() => {
-      const dailyMessagePacks = dailyMessagePacksPerDay.value[dailyMessagePacksPerDay.value.length - 1] || [];
-      const dailyMessagePack = dailyMessagePacks[dailyMessagePacks.length - 1] || [];
-      return dailyMessagePack.length > 0 && dailyMessagePack[dailyMessagePack.length - 1].watchVisible
-    })
+      const dailyMessagePacks =
+        dailyMessagePacksPerDay.value[
+          dailyMessagePacksPerDay.value.length - 1
+        ] || [];
+      const dailyMessagePack =
+        dailyMessagePacks[dailyMessagePacks.length - 1] || [];
+      return (
+        dailyMessagePack.length > 0 &&
+        dailyMessagePack[dailyMessagePack.length - 1].watchVisible
+      );
+    });
 
     const handleScroll = (e: any) => {
       // console.log('scrollTop', e.target.scrollTop, 'scrollHeight', e.target.scrollHeight, 'offsetHeight', e.target.offsetHeight)
-      shouldStickToBottom.value = e.target.scrollTop === e.target.scrollHeight - e.target.offsetHeight
-    }
+      shouldStickToBottom.value =
+        e.target.scrollTop === e.target.scrollHeight - e.target.offsetHeight;
+    };
 
     return {
       scrollToBottom,
@@ -211,10 +304,9 @@ export default defineComponent({
       shouldStickToBottom,
       divs,
       positionedReadMarkers,
-    }
-  }
+    };
+  },
 });
-
 </script>
 
 <style scoped lang="scss">
@@ -237,18 +329,19 @@ export default defineComponent({
     align-items: center;
     text-align: center;
 
-    &::before, &::after {
-      content: '';
+    &::before,
+    &::after {
+      content: "";
       flex: 1;
       border-bottom: 1px solid #000;
     }
 
     &:not(:empty)::before {
-      margin-right: .25em;
+      margin-right: 0.25em;
     }
 
     &:not(:empty)::after {
-      margin-left: .25em;
+      margin-left: 0.25em;
     }
   }
 
@@ -287,7 +380,7 @@ export default defineComponent({
     bottom: 20px;
 
     &--with-new-message {
-      box-shadow: 0 0 30px 3px #0080FF;
+      box-shadow: 0 0 30px 3px #0080ff;
     }
   }
 }

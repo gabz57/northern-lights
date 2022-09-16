@@ -1,1 +1,1 @@
-declare module 'event-source-polyfill';
+declare module "event-source-polyfill";

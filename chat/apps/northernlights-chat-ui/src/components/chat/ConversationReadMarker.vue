@@ -6,7 +6,7 @@
 </template>
 
 <script lang="ts">
-import {defineComponent, toRefs} from "vue";
+import { defineComponent, toRefs } from "vue";
 import useChatter from "@/composables/use-chatter";
 import useChatterFace from "@/composables/use-chatter-face";
 
@@ -15,18 +15,17 @@ export default defineComponent({
   props: {
     chatterId: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   },
   setup(props) {
-    const {chatterId} = toRefs(props)
+    const { chatterId } = toRefs(props);
     return {
       ...useChatter(chatterId),
-      ...useChatterFace(chatterId)
-    }
-  }
+      ...useChatterFace(chatterId),
+    };
+  },
 });
-
 </script>
 
 <style scoped lang="scss">
@@ -51,7 +50,6 @@ export default defineComponent({
       visibility: visible;
       opacity: 1;
       transition: opacity 1.3s;
-
     }
   }
 }

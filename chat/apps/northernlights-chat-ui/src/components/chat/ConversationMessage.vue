@@ -5,25 +5,30 @@
 </template>
 
 <script lang="ts">
-import {computed, ComputedRef, defineComponent, PropType, Ref, toRef} from "vue";
-import {ConversationDataWithMarkers, Markers} from "@/composables/use-conversation";
-import {ConversationMessageData} from "@/domain/model";
+import type { ComputedRef, PropType, Ref } from "vue";
+import { computed, defineComponent, toRef } from "vue";
+import type {
+  ConversationDataWithMarkers,
+  Markers,
+} from "@/composables/use-conversation";
+import type { ConversationMessageData } from "@/domain/model";
 
 export default defineComponent({
   name: "ConversationMessage",
   props: {
     messageData: {
       type: Object as PropType<ConversationDataWithMarkers>,
-      required: true
-    }
+      required: true,
+    },
   },
   setup(props) {
     return {
-      data: computed(() => toRef(props, 'messageData')) as ComputedRef<Ref<ConversationMessageData & Markers>>
-    }
-  }
+      data: computed(() => toRef(props, "messageData")) as ComputedRef<
+        Ref<ConversationMessageData & Markers>
+      >,
+    };
+  },
 });
-
 </script>
 
 <style scoped lang="scss">

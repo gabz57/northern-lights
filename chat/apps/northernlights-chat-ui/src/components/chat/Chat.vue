@@ -1,24 +1,24 @@
 <template>
   <div class="chat">
-    <ChatHeader class="chat__header"/>
-    <div class="chat__separator"/>
+    <ChatHeader class="chat__header" />
+    <div class="chat__separator" />
     <div class="chat__body">
-      <ChatLeftMenu class="chat__body-menu"/>
-      <ChatContent class="chat__body-content"/>
+      <ChatLeftMenu class="chat__body-menu" />
+      <ChatContent class="chat__body-content" />
     </div>
   </div>
 </template>
 
 <script lang="ts">
-import {defineComponent, watch} from "vue";
-import {Conversation, ConversationId} from "@/domain/model";
+import { defineComponent, watch } from "vue";
+import type { Conversation, ConversationId } from "@/domain/model";
 import ChatHeader from "@/components/chat/ChatHeader.vue";
 import ChatLeftMenu from "@/components/chat/ChatLeftMenu.vue";
 import ChatContent from "@/components/chat/ChatContent.vue";
 import useSse from "@/composables/use-sse";
-import {useUserStore} from "@/stores/user";
-import {useUiStore} from "@/stores/ui";
-import {useConversationsStore} from "@/stores/conversations";
+import { useUserStore } from "@/stores/user";
+import { useUiStore } from "@/stores/ui";
+import { useConversationsStore } from "@/stores/conversations";
 
 export default defineComponent({
   name: "ChatApp",
@@ -28,32 +28,42 @@ export default defineComponent({
     ChatLeftMenu,
   },
   setup() {
-    useSse()
-    const userStore = useUserStore()
-    const uiStore = useUiStore()
-    const conversationsStore = useConversationsStore()
+    useSse();
+    const userStore = useUserStore();
+    const uiStore = useUiStore();
+    const conversationsStore = useConversationsStore();
 
-    const selectConversation = (conversationId: ConversationId): void => uiStore.setSelectedConversationId(conversationId)
+    const selectConversation = (conversationId: ConversationId): void =>
+      uiStore.setSelectedConversationId(conversationId);
 
-    const autoSelectCreatedConversation = (newConversations: Conversation[], prevConversations: Conversation[]) => {
-      const createdConversation = newConversations.filter(newConv => !prevConversations.some(prevConv => prevConv.id === newConv.id));
+    const autoSelectCreatedConversation = (
+      newConversations: Conversation[],
+      prevConversations: Conversation[]
+    ) => {
+      const createdConversation = newConversations.filter(
+        (newConv) =>
+          !prevConversations.some((prevConv) => prevConv.id === newConv.id)
+      );
       if (createdConversation.length === 1) {
         // if chatter is creator => select created conversation
         if (createdConversation[0].creator === userStore.chatterId) {
-          selectConversation(createdConversation[0].id)
+          selectConversation(createdConversation[0].id);
         }
       }
     };
 
-    watch(() => Array.from(conversationsStore.conversations.values()), autoSelectCreatedConversation)
+    watch(
+      () => Array.from(conversationsStore.conversations.values()),
+      autoSelectCreatedConversation
+    );
 
-    return {}
-  }
-})
+    return {};
+  },
+});
 </script>
 
 <style scoped lang="scss">
-@import "/src/variables.scss";
+@import "@/variables.scss";
 
 .chat {
   display: flex;

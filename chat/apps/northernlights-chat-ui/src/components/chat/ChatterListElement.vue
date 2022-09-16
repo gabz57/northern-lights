@@ -1,8 +1,13 @@
 <template>
-  <div v-if="details" class="chatter-list-element"
-       :class="{'chatter-list-element--with-new-message': details.nbUnreadMessages > 0}"
-       @click="openConversationWith">
-    <ChatterLabel :chatter-id="chatterId" show-face/>
+  <div
+    v-if="details"
+    class="chatter-list-element"
+    :class="{
+      'chatter-list-element--with-new-message': details.nbUnreadMessages > 0,
+    }"
+    @click="openConversationWith"
+  >
+    <ChatterLabel :chatter-id="chatterId" show-face />
     <span>
       {{ details.nbUnreadMessages }}
     </span>
@@ -10,29 +15,28 @@
 </template>
 
 <script lang="ts">
-import {defineComponent, toRef} from "vue";
+import { defineComponent, toRef } from "vue";
 import ChatterLabel from "@/components/chat/ChatterLabel.vue";
 import useChatterConversationDetails from "@/composables/use-chatter-conversation-details";
 import useChatterConversationOpener from "@/composables/use-chatter-conversation-opener";
 
 export default defineComponent({
   name: "ChatterListElement",
-  components: {ChatterLabel},
+  components: { ChatterLabel },
   props: {
     chatterId: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   },
   setup: function (props) {
-    const chatterId = toRef(props, 'chatterId')
+    const chatterId = toRef(props, "chatterId");
     return {
       ...useChatterConversationOpener(chatterId),
-      ...useChatterConversationDetails(chatterId)
-    }
-  }
+      ...useChatterConversationDetails(chatterId),
+    };
+  },
 });
-
 </script>
 
 <style scoped lang="scss">

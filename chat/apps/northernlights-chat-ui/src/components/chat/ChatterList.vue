@@ -1,29 +1,31 @@
 <template>
   <div class="chatter-list">
     <h3>- Connus -</h3>
-    <ChatterListElement v-for="(chatterId) in chatterIds" :key="chatterId" :chatter-id="chatterId"/>
+    <ChatterListElement
+      v-for="chatterId in chatterIds"
+      :key="chatterId"
+      :chatter-id="chatterId"
+    />
     <h3>- Connectés -</h3>
-
-
   </div>
 </template>
 
 <script lang="ts">
-import {defineComponent, PropType} from "vue";
+import type { PropType } from "vue";
+import { defineComponent } from "vue";
 import ChatterListElement from "@/components/chat/ChatterListElement.vue";
-import {ChatterId} from "@/domain/model";
+import type { ChatterId } from "@/domain/model";
 
 export default defineComponent({
   name: "ChatterList",
-  components: {ChatterListElement},
+  components: { ChatterListElement },
   props: {
     chatterIds: {
       type: Object as PropType<ChatterId[]>,
-      required: true
+      required: true,
     },
   },
 });
-
 </script>
 
 <style scoped lang="scss">

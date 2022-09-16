@@ -1,52 +1,53 @@
 <template>
-<!--  <button @click="signIn">login</button>-->
-<!--  <button @click="signOut">log out</button>-->
-<!--  <div>{{ googleUserData }}</div>-->
+  <!--  <button @click="signIn">login</button>-->
+  <!--  <button @click="signOut">log out</button>-->
+  <!--  <div>{{ googleUserData }}</div>-->
   <div>
-<!--    <h3>Google Profile Information</h3>-->
-<!--    <p>This information will populate after the Google One-Tap Signin is completed.</p>-->
-<!--    <img :title="googleUserData.name" :src="googleUserData.picture" alt="User's Profile Picture">-->
-<!--    <p>Name: {{ googleUserData.name}}</p>-->
-<!--    <p>Email: {{ googleUserData.email }}</p>-->
-<!--    <p>Email Verified: {{ googleUserData.email_verified }}</p>-->
-<!--    <p>Sub: {{ googleUserData.sub }}</p>-->
+    <!--    <h3>Google Profile Information</h3>-->
+    <!--    <p>This information will populate after the Google One-Tap Signin is completed.</p>-->
+    <!--    <img :title="googleUserData.name" :src="googleUserData.picture" alt="User's Profile Picture">-->
+    <!--    <p>Name: {{ googleUserData.name}}</p>-->
+    <!--    <p>Email: {{ googleUserData.email }}</p>-->
+    <!--    <p>Email Verified: {{ googleUserData.email_verified }}</p>-->
+    <!--    <p>Sub: {{ googleUserData.sub }}</p>-->
   </div>
 </template>
 
 <script lang="ts">
-import googleOneTapSignin from "../composables/googleOneTapSignin"
-import {defineComponent, onMounted, ref, watch} from 'vue'
-import {useUserStore} from "@/stores/user";
+import googleOneTapSignin from "@/composables/googleOneTapSignin.js";
+import { defineComponent, onMounted, ref, watch } from "vue";
+import { useUserStore } from "@/stores/user";
 
 export default defineComponent({
-  name: 'GoogleAuthSignIn',
-  setup(){
-    const userStore = useUserStore()
+  name: "GoogleAuthSignIn",
+  setup() {
+    const userStore = useUserStore();
 
-    const setJwt = (jwt: string) => userStore.setJwt(jwt)
+    const setJwt = (jwt: string) => userStore.setJwt(jwt);
 
     const googleUserData = ref({
-      name: '',
-      email: '',
-      email_verified: '',
-      picture: '',
-      sub: ''
-    })
+      name: "",
+      email: "",
+      email_verified: "",
+      picture: "",
+      sub: "",
+    });
 
     onMounted(() => {
-      const { googleOptions, oneTapSignin, userData, jwt } = googleOneTapSignin()
-      oneTapSignin(googleOptions)
+      const { googleOptions, oneTapSignin, userData, jwt } =
+        googleOneTapSignin();
+      oneTapSignin(googleOptions);
       watch(jwt, () => {
-        console.log('Google authentication successful (jwt obtained)')
-        setJwt(jwt.value)
-      })
+        console.log("Google authentication successful (jwt obtained)");
+        setJwt(jwt.value);
+      });
       watch(userData, () => {
-        googleUserData.value = userData.value
-      })
-    })
-    return { googleUserData }
-  }
-})
+        googleUserData.value = userData.value;
+      });
+    });
+    return { googleUserData };
+  },
+});
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
