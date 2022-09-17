@@ -35,7 +35,7 @@ public class ConversationDataReadMarkerRepository {
             .sql("CREATE TABLE " + tableConversationMarkers(conversationId) +
                 " (" +
                 "    conversation_data_id varchar(255) not null," +
-                "    chatter_id           uuid         unique not null," +
+                "    chatter_id           uuid         PRIMARY KEY," +
                 "    created_at           timestamp    not null," +
                 "    updated_at           timestamp    not null" +
                 ")")

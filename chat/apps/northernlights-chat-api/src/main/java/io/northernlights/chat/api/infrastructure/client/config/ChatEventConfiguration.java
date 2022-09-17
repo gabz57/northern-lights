@@ -29,7 +29,7 @@ public class ChatEventConfiguration {
     @Configuration
     public static class LocalChatEventConfiguration {
 
-        private static final LocalChatEventFlow localChatEventFlow = new LocalChatEventFlow();
+        private final LocalChatEventFlow localChatEventFlow = new LocalChatEventFlow();
 
         @Bean
         public ChatEventSource chatEventSubscriber() {

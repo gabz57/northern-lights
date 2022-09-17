@@ -23,7 +23,7 @@ public class ConversationCreatedEvent extends AbstractConversationEvent implemen
         @JsonProperty("created_by") String createdBy,
         @JsonProperty("name") String name,
         @JsonProperty("participants") List<String> participants,
-        @JsonProperty("dateTime") OffsetDateTime dateTime,
+        @JsonProperty("datetime") OffsetDateTime dateTime,
         @JsonProperty("is_private") Boolean isPrivate) {
         super(ConversationEventType.CONVERSATION_CREATED, conversationId, conversationDataId, dateTime);
         this.name = name;

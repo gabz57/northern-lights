@@ -27,8 +27,9 @@ public class ChatEventDataDispatcher implements ChatDataProvider {
     private final ChatEventDataAdapter chatDataAdapter;
 
     public ChatEventDataDispatcher(ChatEventSource chatEventSource, ChatEventDataAdapter chatDataAdapter) {
+        log.info("Building ChatEventDataDispatcher");
         this.chatDataAdapter = chatDataAdapter;
-        this.followedConversationsEventFlow = Flux.from(chatEventSource.subscribe())
+        this.followedConversationsEventFlow = chatEventSource.subscribe()
             .doOnNext(this::updateFollowedConversations)
             .filter(this::followedConversationsOrGeneral)
             .share();

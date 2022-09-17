@@ -152,7 +152,7 @@ export default class SseChatService {
         const parse = JSON.parse(e.data);
         conversationsStore.updateConversationMarkerAsRead(
           parse.conversation.id,
-          parse.conversation.readMarkers
+          new Map(Object.entries(parse.conversation.readMarkers))
         );
       },
       false

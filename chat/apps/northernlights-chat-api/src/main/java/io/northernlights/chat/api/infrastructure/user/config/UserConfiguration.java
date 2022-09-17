@@ -5,7 +5,9 @@ import io.northernlights.chat.domain.application.user.UserCommands;
 import io.northernlights.chat.api.infrastructure.user.http.UserApiAdapter;
 import io.northernlights.chat.api.infrastructure.user.http.UserHandler;
 import io.northernlights.chat.domain.store.chatter.ChatterStore;
+import io.northernlights.chat.domain.store.conversation.ConversationStore;
 import io.northernlights.chat.domain.store.user.UserStore;
+import io.northernlights.commons.TimeService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.reactive.function.server.RouterFunction;
@@ -20,9 +22,9 @@ import static org.springframework.web.reactive.function.server.RouterFunctions.r
 public class UserConfiguration {
 
     @Bean
-    public UserCommands userCommands(UserStore userStore,
-                                     ChatterStore chatterStore) {
-        return new UserCommands(userStore, chatterStore);
+    public UserCommands userCommands(TimeService timeService, UserStore userStore,
+                                     ChatterStore chatterStore, ConversationStore conversationStore) {
+        return new UserCommands(timeService, userStore, chatterStore, conversationStore);
     }
 
     @Bean

@@ -67,7 +67,11 @@ services:
     container_name: northernlights-chat-debezium
     image: io.northern-lights/northernlights-chat-api-event-publisher:0.0.1-SNAPSHOT
     restart: always
+    volumes:
+      - ./docker/debezium/data:/data
     environment:
+      CHAT_DEBEZIUM_OFFSET_FILE: /data/offsets.dat
+      CHAT_DEBEZIUM_HISTORY_FILE: /data/dbhistory.dat
       CHAT_DB_HOST: northernlights-chat-db
       CHAT_DB_PORT: 5432
       CHAT_DB_NAME: northernlights-chat
@@ -82,8 +86,8 @@ services:
         condition: service_started
       northernlights-chat-db:
         condition: service_started
-      northernlights-chat-db-liquibase:
-        condition: service_completed_successfully
+#      northernlights-chat-db-liquibase:
+#        condition: service_completed_successfully
 
   chat-api:
     container_name: northernlights-chat-api

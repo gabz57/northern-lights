@@ -20,7 +20,7 @@ database:
 
 
 ## Redis Information (bypassed using "local" spring profile)
-#chat.redis:
+chat.redis:
+  workspace: northernlights
 ##  hostname: northernlights-chat-redis
 ##  port: 6379
-#  workspace: northernlights
