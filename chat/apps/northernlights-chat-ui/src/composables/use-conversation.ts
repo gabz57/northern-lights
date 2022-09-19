@@ -16,14 +16,14 @@ import { useUiStore } from "@/stores/ui";
 
 type ReadMarkersReversed = Map<ConversationDataId, ChatterId[]>;
 
-export type Markers = {
+export type Markable = {
   index: number;
   readBy: ChatterId[];
   onVisible: () => void;
   watchVisible: boolean;
 };
 
-export type ConversationDataWithMarkers = ConversationData & Markers;
+export type MarkableConversationData = ConversationData & Markable;
 
 const reverse = (readMarkers: ReadMarkers): ReadMarkersReversed => {
   const reversed = new Map<ConversationDataId, ChatterId[]>();
@@ -43,7 +43,7 @@ export default function useConversation(
   details: ConversationDetails;
   sendMessage: (message: string) => void;
   markAsRead: (conversationDataId: ConversationDataId) => void;
-  messages: Ref<ConversationDataWithMarkers[]>;
+  content: Ref<MarkableConversationData[]>;
   readMarkers: Ref<ReadMarkers>;
 } {
   const conversationsStore = useConversationsStore();
@@ -66,7 +66,7 @@ export default function useConversation(
       );
     }
   };
-  const messages = ref<ConversationDataWithMarkers[]>([]);
+  const content = ref<MarkableConversationData[]>([]);
   const readMarkers = ref<ReadMarkers>(
     new Map<ChatterId, ConversationDataId>()
   );
@@ -81,7 +81,7 @@ export default function useConversation(
     { deep: true }
   );
   const loadConversationContent = (conversation: Conversation) => {
-    messages.value = withReadMarkers(
+    content.value = withReadMarkers(
       conversation.data,
       conversation.readMarkers
     );
@@ -91,14 +91,15 @@ export default function useConversation(
   const withReadMarkers = (
     data: ConversationData[],
     markers: ReadMarkers
-  ): ConversationDataWithMarkers[] => {
+  ): MarkableConversationData[] => {
     const reversed: ReadMarkersReversed = reverse(markers);
     const marker: ConversationDataId | undefined = markers.get(
       userStore.chatterId || ""
     );
     let index = 0;
     return data.map((conversationData) => {
-      const watchVisible = !marker || conversationData.id > marker;
+      const watchVisible =
+        !marker || Number(conversationData.id) > Number(marker);
       return {
         ...conversationData,
         readBy: reversed.get(conversationData.id) || [],
@@ -115,7 +116,7 @@ export default function useConversation(
     ...useConversationDetails(conversationIdRef),
     sendMessage,
     markAsRead,
-    messages,
+    content,
     readMarkers,
   };
 }

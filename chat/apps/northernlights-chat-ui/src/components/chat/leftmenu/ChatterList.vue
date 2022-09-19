@@ -11,19 +11,17 @@
 </template>
 
 <script lang="ts">
-import type { PropType } from "vue";
 import { defineComponent } from "vue";
-import ChatterListElement from "@/components/chat/ChatterListElement.vue";
-import type { ChatterId } from "@/domain/model";
+import ChatterListElement from "@/components/chat/leftmenu/ChatterListElement.vue";
+import useChatters from "@/composables/use-chatters";
 
 export default defineComponent({
   name: "ChatterList",
   components: { ChatterListElement },
-  props: {
-    chatterIds: {
-      type: Object as PropType<ChatterId[]>,
-      required: true,
-    },
+  setup() {
+    return {
+      ...useChatters(),
+    };
   },
 });
 </script>

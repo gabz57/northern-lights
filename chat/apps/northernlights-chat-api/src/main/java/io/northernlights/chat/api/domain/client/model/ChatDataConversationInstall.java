@@ -1,6 +1,5 @@
 package io.northernlights.chat.api.domain.client.model;
 
-import io.northernlights.chat.domain.model.chatter.Chatter;
 import io.northernlights.chat.domain.model.chatter.ChatterId;
 import io.northernlights.chat.domain.model.conversation.Conversation;
 import io.northernlights.chat.domain.model.conversation.ConversationId;
@@ -25,6 +24,6 @@ public class ChatDataConversationInstall implements ChatData {
     Map<ChatterId, ConversationDataId> readMarkers;
 
     public ChatDataType getChatDataType() {
-        return ChatDataType.INSTALL;
+        return ChatDataType.CONVERSATION_INSTALL;
     }
 }

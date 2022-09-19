@@ -13,18 +13,6 @@ export default function useChatterConversationOpener(
   const userStore = useUserStore();
   const conversationsStore = useConversationsStore();
   const uiStore = useUiStore();
-  const createDialogueConversation = (chatterId: ChatterId) => {
-    if (chatterId === userStore.chatterId) {
-      return;
-    }
-    conversationsStore.createConversation(
-      userStore.chatterId || "",
-      "",
-      [chatterId],
-      true
-    );
-  };
-
   const conversationId = computed(() => {
     return Array.from(conversationsStore.conversations.values()).find((c) => {
       return (
@@ -35,6 +23,18 @@ export default function useChatterConversationOpener(
       );
     })?.id;
   });
+
+  const createDialogueConversation = (chatterId: ChatterId) => {
+    if (chatterId === userStore.chatterId) {
+      return;
+    }
+    conversationsStore.createConversation(
+      userStore.chatterId || "",
+      "",
+      [userStore.chatterId, chatterId],
+      true
+    );
+  };
 
   const openConversationWith = (): void => {
     if (chatterIdRef.value === userStore.chatterId) {

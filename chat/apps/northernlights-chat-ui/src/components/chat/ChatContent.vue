@@ -17,8 +17,8 @@
 
 <script lang="ts">
 import { computed, defineComponent } from "vue";
-import ConversationWrapper from "@/components/chat/Conversation.vue";
-import ConversationCreation from "@/components/chat/ConversationCreation.vue";
+import ConversationWrapper from "@/components/chat/conversation/Conversation.vue";
+import ConversationCreation from "@/components/chat/conversation/ConversationCreation.vue";
 import ChatterProfile from "@/components/chat/ChatterProfile.vue";
 import { useUiStore } from "@/stores/ui";
 

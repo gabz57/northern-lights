@@ -1,9 +1,11 @@
+import type { Ref } from "vue";
 import { computed } from "vue";
 import type { ChatterId } from "@/domain/model";
 import { userApiClient } from "@/services/UserApiClient";
 import { useUserStore } from "@/stores/user";
 
 export default function useSseSubscriber(): {
+  jwt: Ref<string>;
   subscribe: () => Promise<void>;
 } {
   const userStore = useUserStore();
@@ -27,6 +29,7 @@ export default function useSseSubscriber(): {
   };
 
   return {
+    jwt: computed(() => userStore.jwt),
     subscribe,
   };
 }

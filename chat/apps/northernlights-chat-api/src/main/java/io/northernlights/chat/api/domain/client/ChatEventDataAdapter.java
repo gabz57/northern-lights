@@ -1,9 +1,6 @@
 package io.northernlights.chat.api.domain.client;
 
-import io.northernlights.chat.api.domain.client.model.ChatData;
-import io.northernlights.chat.api.domain.client.model.ChatDataConversationInstall;
-import io.northernlights.chat.api.domain.client.model.ChatDataConversationPartial;
-import io.northernlights.chat.api.domain.client.model.ChatDataUpdate;
+import io.northernlights.chat.api.domain.client.model.*;
 import io.northernlights.chat.domain.event.ChatEvent;
 import io.northernlights.chat.domain.event.conversation.ConversationCreatedEvent;
 import io.northernlights.chat.domain.event.conversation.ConversationEvent;
@@ -17,13 +14,11 @@ import io.northernlights.chat.domain.model.conversation.Message;
 import io.northernlights.chat.domain.model.conversation.data.ConversationCreation;
 import io.northernlights.chat.domain.model.conversation.data.ConversationDataId;
 import io.northernlights.chat.domain.model.conversation.readmarker.ConversationReadMarker;
-import io.northernlights.chat.domain.store.chatter.ChatterStore;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
 
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor

@@ -41,6 +41,11 @@ public class InMemoryChatterStore implements ChatterStore {
         createConversation("4", List.of(id2,id4));
     }
 
+    @Override
+    public Mono<List<Chatter>> listChatters() {
+        return Mono.just(new ArrayList<>(chattersByChatterId.values()));
+    }
+
     public Mono<List<Chatter>> listChatters(List<ChatterId> chatterIds) {
         return Mono.just(chatterIds.stream().map(chattersByChatterId::get).filter(Objects::nonNull).collect(Collectors.toList()));
     }

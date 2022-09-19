@@ -23,7 +23,7 @@
           <ChatterLabel :chatter-id="profile?.id" />
         </div>
       </div>
-      <GoogleAuthSignIn />
+      <GoogleAuthSignIn v-if="jwt === ''"/>
     </div>
   </div>
 </template>

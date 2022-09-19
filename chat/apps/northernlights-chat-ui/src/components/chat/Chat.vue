@@ -12,8 +12,8 @@
 <script lang="ts">
 import { defineComponent, watch } from "vue";
 import type { Conversation, ConversationId } from "@/domain/model";
-import ChatHeader from "@/components/chat/ChatHeader.vue";
-import ChatLeftMenu from "@/components/chat/ChatLeftMenu.vue";
+import ChatHeader from "@/components/chat/header/ChatHeader.vue";
+import ChatLeftMenu from "@/components/chat/leftmenu/ChatLeftMenu.vue";
 import ChatContent from "@/components/chat/ChatContent.vue";
 import useSse from "@/composables/use-sse";
 import { useUserStore } from "@/stores/user";

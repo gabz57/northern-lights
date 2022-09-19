@@ -49,7 +49,10 @@ export default defineComponent({
       conversationsStore.createConversation(
         userStore.chatterId || "",
         newConversationName.value,
-        selectedChatters.value.map((chatter) => chatter.id),
+        [
+          userStore.chatterId,
+          ...selectedChatters.value.map((chatter) => chatter.id),
+        ],
         false
       );
     };

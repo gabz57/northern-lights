@@ -10,6 +10,8 @@ public interface JwtToken {
 
     String getUid();
 
+    String getName();
+
     class NorthernLightsJwtToken implements JwtToken {
 
         private final JwtToken delegate;
@@ -24,6 +26,9 @@ public interface JwtToken {
 
         public String getUid() {
             return delegate.getUid();
+        }
+        public String getName() {
+            return delegate.getName();
         }
 
         public <T> T readClaim(String name, Class<T> type, T defaultValue) {

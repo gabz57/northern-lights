@@ -7,7 +7,7 @@
       </h1>
       <ConversationMessages
         class="conversation__messages-messages"
-        :messages="messages"
+        :content="content"
         :read-markers="readMarkers"
       />
       <ConversationInput
@@ -23,9 +23,9 @@
 <script lang="ts">
 import useConversation from "@/composables/use-conversation";
 import { defineComponent, toRef } from "vue";
-import ConversationMessages from "@/components/chat/ConversationMessages.vue";
-import ConversationDetails from "@/components/chat/ConversationDetails.vue";
-import ConversationInput from "@/components/chat/ConversationInput.vue";
+import ConversationMessages from "@/components/chat/conversation/ConversationMessages.vue";
+import ConversationDetails from "@/components/chat/conversation/ConversationDetails.vue";
+import ConversationInput from "@/components/chat/conversation/ConversationInput.vue";
 
 export default defineComponent({
   name: "ConversationWrapper",

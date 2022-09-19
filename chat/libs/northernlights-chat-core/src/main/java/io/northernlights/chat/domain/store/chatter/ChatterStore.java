@@ -8,6 +8,7 @@ import java.util.List;
 
 public interface ChatterStore {
 
+    Mono<List<Chatter>> listChatters();
     Mono<List<Chatter>> listChatters(List<ChatterId> chatterIds);
 
     Mono<Chatter> insertChatter(Chatter chatter);

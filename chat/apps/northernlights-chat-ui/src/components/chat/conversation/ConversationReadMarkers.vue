@@ -32,7 +32,7 @@
 <script lang="ts">
 import type { PropType } from "vue";
 import { defineComponent, ref, toRefs, watch } from "vue";
-import ConversationReadMarker from "@/components/chat/ConversationReadMarker.vue";
+import ConversationReadMarker from "@/components/chat/conversation/ConversationReadMarker.vue";
 import { gsap } from "gsap";
 import type { ChatterId } from "@/domain/model";
 import type {

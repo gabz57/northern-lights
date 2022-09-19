@@ -1,5 +1,6 @@
 package io.northernlights.chat.domain.store.conversation;
 
+import io.northernlights.chat.domain.model.chatter.Chatter;
 import io.northernlights.chat.domain.model.conversation.data.ConversationDataRef;
 import io.northernlights.chat.domain.model.chatter.ChatterId;
 import io.northernlights.chat.domain.model.conversation.Conversation;

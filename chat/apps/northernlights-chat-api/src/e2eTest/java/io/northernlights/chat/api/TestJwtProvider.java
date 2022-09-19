@@ -45,5 +45,10 @@ public class TestJwtProvider implements JwtProvider {
         public String getUid() {
             return jwt.getUid();
         }
+
+        @Override
+        public String getName() {
+            return jwt.getName();
+        }
     }
 }

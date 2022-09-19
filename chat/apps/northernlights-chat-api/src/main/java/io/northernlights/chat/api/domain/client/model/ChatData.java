@@ -6,8 +6,9 @@ public interface ChatData {
 
     enum ChatDataType {
         HELLO,
-        INSTALL,
-        PARTIAL,
+        CHATTERS,
+        CONVERSATION_INSTALL,
+        CONVERSATION_PARTIAL,
         LIVE_UPDATE
     }
 

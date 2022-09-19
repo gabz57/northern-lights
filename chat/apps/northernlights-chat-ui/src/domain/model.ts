@@ -21,6 +21,7 @@ export type ChatterId = string;
 export type Chatter = {
   id: ChatterId;
   name: string;
+  picture: string;
 };
 
 export type Chatters = Map<ChatterId, Chatter>;

@@ -28,8 +28,8 @@ public class ChatClientConfiguration {
     }
 
     @Bean
-    public ChatClientStore chatClientStore(ConversationStore conversationStore, SseKeyStore sseKeyStore, ChatEventDataAdapter chatEventDataAdapter) {
-        return new ChatClientStoreImpl(conversationStore, sseKeyStore, chatEventDataAdapter);
+    public ChatClientStore chatClientStore(ConversationStore conversationStore, ChatterStore chatterStore, SseKeyStore sseKeyStore, ChatEventDataAdapter chatEventDataAdapter) {
+        return new ChatClientStoreImpl(conversationStore, chatterStore, sseKeyStore, chatEventDataAdapter);
     }
 
     @Bean

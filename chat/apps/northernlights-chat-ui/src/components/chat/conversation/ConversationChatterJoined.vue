@@ -14,7 +14,7 @@ import type { ConversationChatterData } from "@/domain/model";
 import ChatterLabel from "@/components/chat/ChatterLabel.vue";
 
 export default defineComponent({
-  name: "ConversationChatter",
+  name: "ConversationChatterJoined",
   components: { ChatterLabel },
   props: {
     chatterData: {

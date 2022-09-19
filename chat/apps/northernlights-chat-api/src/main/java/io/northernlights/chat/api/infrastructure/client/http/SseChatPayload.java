@@ -98,6 +98,7 @@ public class SseChatPayload {
     @AllArgsConstructor
     public static class SseChatChatter {
         private String id;
-//        private String name;
+        private String name;
+        private String picture;
     }
 }

@@ -24,6 +24,10 @@ public class Auth0NorthernLightsJwtToken implements JwtToken {
         return jwt.getClaim("sub").asString();
     }
 
+    public String getName() {
+        return jwt.getClaim("name").asString();
+    }
+
     public <T> T readClaim(String name, Class<T> type, T defaultValue) {
         return Optional.of(jwt.getClaim(name))
             .filter(claim -> !claim.isNull())

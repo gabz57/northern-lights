@@ -62,7 +62,7 @@
             </div>
           </div>
           <div v-if="dailyMessagePack[0].type === 'CHATTER'">
-            <ConversationChatter
+            <ConversationChatterJoined
               :chatter-data="dailyMessagePack[0]"
               :ref="
                 (el) => {
@@ -94,14 +94,13 @@ import {
   toRefs,
   watch,
 } from "vue";
-import type { ConversationDataWithMarkers } from "@/composables/use-conversation";
-import ConversationMessage from "@/components/chat/ConversationMessage.vue";
-import moment from "moment/moment";
+import type { MarkableConversationData } from "@/composables/use-conversation";
+import ConversationMessage from "@/components/chat/conversation/ConversationMessage.vue";
 import { DateTime } from "luxon";
 import type { ChatterId, ReadMarkers } from "@/domain/model";
 import ChatterLabel from "@/components/chat/ChatterLabel.vue";
-import ConversationChatter from "@/components/chat/ConversationChatter.vue";
-import ConversationReadMarkers from "@/components/chat/ConversationReadMarkers.vue";
+import ConversationChatterJoined from "@/components/chat/conversation/ConversationChatterJoined.vue";
+import ConversationReadMarkers from "@/components/chat/conversation/ConversationReadMarkers.vue";
 import useConversationReadMarkers from "@/composables/use-conversation-read-markers";
 import { useUserStore } from "@/stores/user";
 import { useUiStore } from "@/stores/ui";
@@ -124,10 +123,10 @@ const groupBy = <K, V>(
 };
 
 const packSameUserSameBlockOfMessage = (
-  dailyMessages: Array<ConversationDataWithMarkers>
-): Array<Array<ConversationDataWithMarkers>> => {
-  const packs: ConversationDataWithMarkers[][] = [];
-  let pack: ConversationDataWithMarkers[] = [];
+  dailyMessages: Array<MarkableConversationData>
+): Array<Array<MarkableConversationData>> => {
+  const packs: MarkableConversationData[][] = [];
+  let pack: MarkableConversationData[] = [];
 
   const firstDailyMessage = dailyMessages[0];
   let currentChatter: ChatterId = firstDailyMessage.from;
@@ -174,13 +173,13 @@ export default defineComponent({
   name: "ConversationMessages",
   components: {
     ConversationReadMarkers,
-    ConversationChatter,
+    ConversationChatterJoined,
     ChatterLabel,
     ConversationMessage,
   },
   props: {
-    messages: {
-      type: Object as PropType<ConversationDataWithMarkers[]>,
+    content: {
+      type: Object as PropType<MarkableConversationData[]>,
       required: true,
     },
     readMarkers: {
@@ -193,22 +192,18 @@ export default defineComponent({
 
     const userStore = useUserStore();
     const uiStore = useUiStore();
-    const { messages, readMarkers } = toRefs(props);
+    const { content, readMarkers } = toRefs(props);
 
     const dailyMessagePacksPerDay = ref<
-      Array<Array<Array<ConversationDataWithMarkers>>>
+      Array<Array<Array<MarkableConversationData>>>
     >([]);
     const computeDailyMessagePacksPerDay = () => {
-      const packsPerDay: Array<Array<Array<ConversationDataWithMarkers>>> = [];
+      const packsPerDay: Array<Array<Array<MarkableConversationData>>> = [];
       const messagesByDay: Map<
         string,
-        Array<ConversationDataWithMarkers>
-      > = groupBy(
-        messages.value,
-        (m) =>
-          "" +
-          moment(m.dateTime * 1000).year() +
-          moment(m.dateTime * 1000).dayOfYear()
+        Array<MarkableConversationData>
+      > = groupBy(content.value, (m) =>
+        DateTime.fromSeconds(m.dateTime).toISODate()
       );
       messagesByDay.forEach((dailyMessages) => {
         packsPerDay.push(packSameUserSameBlockOfMessage(dailyMessages));
@@ -229,11 +224,11 @@ export default defineComponent({
     onMounted(scrollToBottom);
 
     const { divs, clearDivs, positionedReadMarkers, updateReadMarkers } =
-      useConversationReadMarkers(readMarkers, messages);
+      useConversationReadMarkers(readMarkers, content);
     onBeforeUpdate(clearDivs);
     onMounted(updateReadMarkers);
 
-    watch(messages, (newMessages) => {
+    watch(content, (newMessages) => {
       if (
         shouldStickToBottom.value ||
         (newMessages.length > 0 &&
@@ -251,9 +246,9 @@ export default defineComponent({
         if (
           screenVisible &&
           shouldStickToBottom.value &&
-          messages.value.length > 0
+          content.value.length > 0
         ) {
-          const lastMessage = messages.value[messages.value.length - 1];
+          const lastMessage = content.value[content.value.length - 1];
           if (lastMessage.watchVisible) {
             lastMessage.onVisible();
           }
@@ -261,7 +256,7 @@ export default defineComponent({
       }
     );
 
-    const markViewedMessage = (dailyMessage: ConversationDataWithMarkers) => {
+    const markViewedMessage = (dailyMessage: MarkableConversationData) => {
       return dailyMessage.watchVisible
         ? {
             callback: (isVisible: boolean) => {

@@ -1,5 +1,3 @@
-/* eslint-disable no-debugger */
-
 import { config } from "@/services/EnvConfig";
 
 class UserApiClient {

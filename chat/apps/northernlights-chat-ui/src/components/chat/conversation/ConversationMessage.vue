@@ -8,8 +8,8 @@
 import type { ComputedRef, PropType, Ref } from "vue";
 import { computed, defineComponent, toRef } from "vue";
 import type {
-  ConversationDataWithMarkers,
-  Markers,
+  MarkableConversationData,
+  Markable,
 } from "@/composables/use-conversation";
 import type { ConversationMessageData } from "@/domain/model";
 
@@ -17,14 +17,14 @@ export default defineComponent({
   name: "ConversationMessage",
   props: {
     messageData: {
-      type: Object as PropType<ConversationDataWithMarkers>,
+      type: Object as PropType<MarkableConversationData>,
       required: true,
     },
   },
   setup(props) {
     return {
       data: computed(() => toRef(props, "messageData")) as ComputedRef<
-        Ref<ConversationMessageData & Markers>
+        Ref<ConversationMessageData & Markable>
       >,
     };
   },

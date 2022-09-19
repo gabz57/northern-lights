@@ -4,25 +4,23 @@
       v-for="conversationId in conversationIds"
       :key="conversationId"
       :conversation-id="conversationId"
-      @click="$emit('selectConversation', conversationId)"
+      @click="selectConversation(conversationId)"
     />
   </div>
 </template>
 
 <script lang="ts">
-import type { PropType } from "vue";
 import { defineComponent } from "vue";
-import ConversationListElement from "@/components/chat/ConversationListElement.vue";
-import type { ConversationId } from "@/domain/model";
+import ConversationListElement from "@/components/chat/leftmenu/ConversationListElement.vue";
+import useConversations from "@/composables/use-conversations";
 
 export default defineComponent({
   name: "ConversationList",
   components: { ConversationListElement },
-  props: {
-    conversationIds: {
-      type: Object as PropType<ConversationId[]>,
-      required: true,
-    },
+  setup() {
+    return {
+      ...useConversations(false),
+    };
   },
 });
 </script>

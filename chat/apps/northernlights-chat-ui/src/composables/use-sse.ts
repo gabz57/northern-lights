@@ -15,6 +15,8 @@ import { useUserStore } from "@/stores/user";
 import { useUiStore } from "@/stores/ui";
 import { useConversationsStore } from "@/stores/conversations";
 import { useChattersStore } from "@/stores/chatter";
+import {useJwt} from "@vueuse/integrations/useJwt";
+import {DateTime} from "luxon";
 
 export default function useSse(): {
   disconnect: () => Promise<void>;
@@ -76,6 +78,14 @@ export default function useSse(): {
       });
     }
     if (jwt !== undefined && jwt !== "" && jwt !== "0") {
+      const decodedJwt = useJwt(jwt);
+      if (decodedJwt.payload.value?.exp !== undefined) {
+        const exp = DateTime.fromSeconds(decodedJwt.payload.value?.exp);
+        if (exp < DateTime.now()) {
+          userStore.setJwt("");
+          return;
+        }
+      }
       try {
         console.log("userinfo !");
         const chatterId = await userApiClient.userInfo();
@@ -92,7 +102,9 @@ export default function useSse(): {
       }
     }
   };
-  watch(() => jwtRef.value, onJwtChange);
+  watch(() => jwtRef.value, onJwtChange, {
+    immediate: true
+  });
 
   const eventSource = computed(() => sseStore.eventSource);
 

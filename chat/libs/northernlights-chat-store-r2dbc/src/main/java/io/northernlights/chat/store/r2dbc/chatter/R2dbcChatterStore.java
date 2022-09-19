@@ -20,6 +20,12 @@ public class R2dbcChatterStore implements ChatterStore {
     private final ChattersRepository chattersRepository;
 
     @Transactional(readOnly = true)
+    public Mono<List<Chatter>> listChatters() {
+        return chattersRepository.findAll()
+            .map(ChatterModel::toChatter)
+            .collectList();
+    }
+    @Transactional(readOnly = true)
     public Mono<List<Chatter>> listChatters(List<ChatterId> chatterIds) {
         return chattersRepository.findAllById(chatterIds.stream().map(ChatterId::getId).collect(toList()))
             .map(ChatterModel::toChatter)

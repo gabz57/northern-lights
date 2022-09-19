@@ -16,7 +16,7 @@ public class UserApiAdapter {
         return SubscribeUserCommandInput.builder()
             .origin(authentication.getPrincipal().getExternalOrigin())
             .uid(authentication.getPrincipal().getExternalUid())
-            .name(authentication.getPrincipal().getName())
+            .name(authentication.getPrincipal().getUsername())
             .picture(authentication.getPrincipal().getPicture())
             .build();
     }

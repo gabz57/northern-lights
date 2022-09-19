@@ -49,7 +49,7 @@ export default function useConversationDetails(
 
   function conversationName(conversation: Conversation): string {
     return conversation.dialogue
-      ? getOtherChatter(conversation)?.name || ""
+      ? getOtherChatter(conversation)?.name || "WALL"
       : conversation.name;
   }
 

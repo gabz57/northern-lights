@@ -32,17 +32,21 @@ public class SseChatDataAdapter {
                     .event("Hello " + chatDataHello.getSseChatKey())
                     .build());
             }
-            case INSTALL -> {
+            case CHATTERS -> {
+                ChatDataChatters chatDataChatters = (ChatDataChatters) chatData;
+                yield installChatters(chatDataChatters.getChatters());
+            }
+            case CONVERSATION_INSTALL -> {
                 ChatDataConversationInstall chatDataConversationInstall = (ChatDataConversationInstall) chatData;
                 yield Flux.concat(
-                    installChatters(chatDataConversationInstall.getChatters()),
+//                    installChatters(chatDataConversationInstall.getChatters()),
                     installConversation(chatDataConversationInstall)
                 );
             }
-            case PARTIAL -> {
+            case CONVERSATION_PARTIAL -> {
                 ChatDataConversationPartial chatDataConversationPartial = (ChatDataConversationPartial) chatData;
                 yield Flux.concat(
-                    installChatters(chatDataConversationPartial.getChatters()),
+//                    installChatters(chatDataConversationPartial.getChatters()),
                     partialConversation(chatDataConversationPartial)
                 );
             }
@@ -162,15 +166,16 @@ public class SseChatDataAdapter {
             .build());
     }
 
-    private Flux<SseChatData> installChatters(List<ChatterId> chatters) {
+    private Flux<SseChatData> installChatters(List<Chatter> chatters) {
         return Flux.fromIterable(chatters)
-            .map(chatterId -> SseChatData.builder()
+            .map(chatter -> SseChatData.builder()
                 // .id()
                 .event(CHATTER_INSTALL)
                 .payload(SseChatPayload.builder()
                     .chatter(SseChatPayload.SseChatChatter.builder()
-                        .id(chatterId.getId().toString())
-//                        .name(chatter.getName())
+                        .id(chatter.getChatterId().getId().toString())
+                        .name(chatter.getName())
+                        .picture(chatter.getPicture())
                         .build())
                     .build())
                 .build());

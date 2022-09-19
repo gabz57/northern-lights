@@ -14,13 +14,15 @@
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore"
   },
   "dependencies": {
+    "@vueuse/core": "^9.2.0",
+    "@vueuse/integrations": "^9.2.0",
     "core-js": "^3.25.1",
     "event-source-polyfill": "^1.0.31",
     "gsap": "^3.11.1",
     "intersection-observer": "^0.12.2",
     "jose": "^4.9.3",
+    "jwt-decode": "^3.1.2",
     "luxon": "^3.0.1",
-    "moment": "^2.29.4",
     "pinia": "^2.0.22",
     "register-service-worker": "^1.7.2",
     "vue": "^3.2.39",

@@ -1,6 +1,5 @@
 package io.northernlights.chat.api.domain.client.model;
 
-import io.northernlights.chat.domain.model.chatter.Chatter;
 import io.northernlights.chat.domain.model.chatter.ChatterId;
 import io.northernlights.chat.domain.model.conversation.Conversation;
 import io.northernlights.chat.domain.model.conversation.ConversationId;
@@ -20,6 +19,6 @@ public class ChatDataConversationPartial implements ChatData {
     Map<ChatterId, ConversationDataId> readMarkers;
 
     public ChatDataType getChatDataType() {
-        return ChatDataType.PARTIAL;
+        return ChatDataType.CONVERSATION_PARTIAL;
     }
 }

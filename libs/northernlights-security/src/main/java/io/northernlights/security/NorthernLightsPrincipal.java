@@ -14,6 +14,7 @@ import java.util.List;
 @Value
 public class NorthernLightsPrincipal implements Principal, Serializable {
     String uid;
+    String name;
     List<String> scopes;
     ChatterId chatterId;
     NorthernLightsRoles roles;
@@ -23,6 +24,10 @@ public class NorthernLightsPrincipal implements Principal, Serializable {
 
     public String getName() {
         return uid;
+    }
+
+    public String getUsername() {
+        return name;
     }
 //
 //    private static Mono<AuthorizationDecision> getAuthorizationDecision(Mono<Authentication> authentication, Function<NorthernLightsPrincipal, Boolean> decisionCriteria) {

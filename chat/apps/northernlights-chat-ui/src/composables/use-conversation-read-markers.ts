@@ -2,7 +2,7 @@ import type { Ref } from "vue";
 import { nextTick, ref } from "vue";
 import type { ChatterId, ReadMarkers } from "@/domain/model";
 import type { ComponentPublicInstance } from "vue";
-import type { ConversationDataWithMarkers } from "@/composables/use-conversation";
+import type { MarkableConversationData } from "@/composables/use-conversation";
 
 export type PositionedReadMarker = {
   chatterId: ChatterId;
@@ -15,7 +15,7 @@ export type PositionedReadMarkerWithXPos = PositionedReadMarker & {
 
 export default function useConversationReadMarkers(
   readMarkers: Ref<ReadMarkers>,
-  messages: Ref<ConversationDataWithMarkers[]>
+  messages: Ref<MarkableConversationData[]>
 ): {
   divs: Ref<Element[]>;
   clearDivs: () => void;

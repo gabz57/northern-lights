@@ -4,7 +4,7 @@ import { createPinia } from "pinia";
 import "./registerServiceWorker";
 import router from "./router";
 import VueObserveVisibility from "vue-observe-visibility";
-import moment from "moment/moment";
+import {DateTime} from "luxon";
 
 const app = createApp(App);
 app.use(VueObserveVisibility);
@@ -14,19 +14,19 @@ app.use(router);
 app.config.globalProperties.$filters = {
   dateTime(value: number | undefined) {
     if (value === undefined) return undefined;
-    return moment(value).format("DD/MM/YYYY, HH:mm:ss");
+    return DateTime.fromMillis(value).toLocaleString(DateTime.DATETIME_SHORT);
   },
   date(value: number | undefined) {
     if (value === undefined) return undefined;
-    return moment(value).format("DD/MM/YYYY");
+    return DateTime.fromMillis(value).toLocaleString(DateTime.DATE_SHORT);
   },
   time(value: number | undefined) {
     if (value === undefined) return undefined;
-    return moment(value).format("HH:mm:ss");
+    return DateTime.fromMillis(value).toLocaleString(DateTime.TIME_24_WITH_SECONDS);
   },
   timeToMinutes(value: number | undefined) {
     if (value === undefined) return undefined;
-    return moment(value).format("HH:mm");
+    return DateTime.fromMillis(value).toLocaleString(DateTime.TIME_24_SIMPLE);
   },
 };
 app.mount("#app");
