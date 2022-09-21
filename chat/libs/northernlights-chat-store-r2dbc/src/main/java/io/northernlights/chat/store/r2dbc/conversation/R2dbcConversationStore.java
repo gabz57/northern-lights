@@ -5,7 +5,6 @@ import io.northernlights.chat.domain.event.conversation.ConversationJoinedEvent;
 import io.northernlights.chat.domain.event.conversation.ConversationMarkedAsReadEvent;
 import io.northernlights.chat.domain.event.conversation.ConversationMessageSentEvent;
 import io.northernlights.chat.domain.event.store.ChatEventStore;
-import io.northernlights.chat.domain.model.chatter.Chatter;
 import io.northernlights.chat.domain.model.chatter.ChatterId;
 import io.northernlights.chat.domain.model.conversation.Conversation;
 import io.northernlights.chat.domain.model.conversation.ConversationId;

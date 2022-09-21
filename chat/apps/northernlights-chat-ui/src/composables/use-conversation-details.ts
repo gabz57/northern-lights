@@ -20,6 +20,30 @@ export type ConversationDetails = {
   participants: ChatterId[];
 };
 
+export const nbUnreadMsgs = (
+  conversation: Conversation,
+  chatterId: ChatterId
+): number => {
+  const lastConversationDataIdSeenByChatter: ConversationDataId | undefined =
+    conversation.readMarkers[chatterId];
+  const msgs = conversation.data;
+  if (lastConversationDataIdSeenByChatter === undefined) {
+    return msgs.length - (msgs[0]?.type === "CREATION" ? 1 : 0);
+  }
+
+  let unreadCount = 0;
+  let i = msgs.length - 1;
+  for (; i >= 0; i--) {
+    if (msgs[i].id === lastConversationDataIdSeenByChatter) {
+      break;
+    }
+    if (msgs[i].type !== "CREATION") {
+      unreadCount++;
+    }
+  }
+  return unreadCount;
+};
+
 export default function useConversationDetails(
   conversationIdRef: Ref<ConversationId>
 ): {
@@ -47,43 +71,23 @@ export default function useConversationDetails(
     conversationsStore.getConversationById(conversationIdRef.value)
   );
 
-  function conversationName(conversation: Conversation): string {
+  const conversationName = (conversation: Conversation): string => {
     return conversation.dialogue
-      ? getOtherChatter(conversation)?.name || "WALL"
+      ? "1-1 with " + getOtherChatter(conversation)?.name || "WALL"
       : conversation.name;
-  }
-
-  const details: ConversationDetails = reactive({
-    id: computed(() => conversationRef.value.id),
-    name: computed(() => conversationName(conversationRef.value)),
-    dialogue: computed(() => conversationRef.value.dialogue),
-    createdBy: computed(() => conversationRef.value.creator),
-    createdAt: computed(() => conversationRef.value.createdAt),
-    nbUnreadMessages: computed(() => {
-      const lastConversationDataIdSeenByChatter:
-        | ConversationDataId
-        | undefined = conversationRef.value.readMarkers.get(
-        userStore.chatterId || ""
-      );
-      const msgs = conversationRef.value.data;
-      if (lastConversationDataIdSeenByChatter === undefined) {
-        return msgs.length;
-      }
-
-      let unreadCount = 0;
-      let i = msgs.length - 1;
-      for (; i >= 0; i--) {
-        if (msgs[i].id === lastConversationDataIdSeenByChatter) {
-          break;
-        }
-        unreadCount++;
-      }
-      return unreadCount;
-    }),
-    participants: computed(() => conversationRef.value?.participants || []),
-  });
+  };
 
   return {
-    details,
+    details: reactive({
+      id: computed(() => conversationRef.value.id),
+      name: computed(() => conversationName(conversationRef.value)),
+      dialogue: computed(() => conversationRef.value.dialogue),
+      createdBy: computed(() => conversationRef.value.creator),
+      createdAt: computed(() => conversationRef.value.createdAt),
+      nbUnreadMessages: computed(() =>
+        nbUnreadMsgs(conversationRef.value, userStore.chatterId)
+      ),
+      participants: computed(() => conversationRef.value?.participants || []),
+    }),
   };
 }

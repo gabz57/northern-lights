@@ -1,12 +1,28 @@
 import { defineStore } from "pinia";
-import { computed, ref } from "vue";
+import { computed } from "vue";
 import type { Chatter, ChatterId, Chatters } from "@/domain/model";
+import { useLocalStorage } from "@vueuse/core";
 
 export type ChattersStore = ReturnType<typeof useChattersStore>;
 
 export const useChattersStore = defineStore("chatters", () => {
   // state
-  const chatters = ref<Chatters>(new Map<ChatterId, Chatter>());
+  const chatters = useLocalStorage<Chatters>(
+    "chatters",
+    new Map<ChatterId, Chatter>(),
+    {
+      serializer: {
+        read: (v: string): Chatters => {
+          return v
+            ? new Map<ChatterId, Chatter>(JSON.parse(v))
+            : new Map<ChatterId, Chatter>();
+        },
+        write: (v: Chatters): string => {
+          return JSON.stringify(Array.from(v.entries()));
+        },
+      },
+    }
+  );
 
   // getters
   const getChatterById = computed(() => (chatterId: ChatterId) => {

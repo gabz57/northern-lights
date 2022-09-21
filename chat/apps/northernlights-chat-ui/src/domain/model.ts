@@ -52,7 +52,7 @@ export type ConversationChatterData = ConversationDataValue & {
   chatterId: ChatterId;
 };
 
-export type ReadMarkers = Map<ChatterId, ConversationDataId>;
+export type ReadMarkers = { [k: ChatterId]: ConversationDataId };
 
 export type Conversation = {
   id: ConversationId;

@@ -16,11 +16,22 @@
     >
       <ConversationReadMarkers :markers="positionedReadMarkers" />
       <div
+        v-if="
+          !!dailyMessagePacksPerDay &&
+          !!dailyMessagePacksPerDay[0] &&
+          dailyMessagePacksPerDay[0][0][0].type === 'CREATION'
+        "
+      >
+        <span style="color: #8599ad">
+          This is the beginning of the conversation
+        </span>
+      </div>
+      <div
         class="conversation-messages__per-day"
         v-for="(dailyMessagePacksOfDay, index) in dailyMessagePacksPerDay"
         :key="index"
       >
-        <div class="separator">
+        <div class="separator" v-if="dailyMessagePacksOfDay[0][0].type !== 'CREATION'">
           {{ $filters.date(dailyMessagePacksOfDay[0][0].dateTime * 1000) }}
         </div>
 
@@ -61,7 +72,7 @@
               />
             </div>
           </div>
-          <div v-if="dailyMessagePack[0].type === 'CHATTER'">
+          <div v-if="dailyMessagePack[0].type === 'CHATTER_JOINED'">
             <ConversationChatterJoined
               :chatter-data="dailyMessagePack[0]"
               :ref="
@@ -135,7 +146,11 @@ const packSameUserSameBlockOfMessage = (
   );
   let previousType = "";
   dailyMessages.forEach((dailyMessage) => {
-    if (dailyMessage.type === "CHATTER") {
+    if (dailyMessage.type === "CREATION") {
+      // use next pack
+      if (pack.length > 0) packs.push(pack);
+      pack = [dailyMessage];
+    } else if (dailyMessage.type === "CHATTER_JOINED") {
       // use next pack
       if (pack.length > 0) packs.push(pack);
       pack = [dailyMessage];

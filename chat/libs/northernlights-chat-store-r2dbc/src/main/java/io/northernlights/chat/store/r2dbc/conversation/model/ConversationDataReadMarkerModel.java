@@ -18,7 +18,7 @@ import java.util.UUID;
 //@Table("conversation_data_read_marker")
 public class ConversationDataReadMarkerModel {
     @Column("conversation_data_id")
-    private String conversationDataId;
+    private Long conversationDataId;
     @Column("chatter_id")
     private UUID chatterId;
     @CreatedDate

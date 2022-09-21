@@ -4,6 +4,7 @@ import lombok.Value;
 
 @Value
 public class ConversationDataId implements Comparable<ConversationDataId> {
+    // Fixme: use Long id;
     String id;
 
     public static ConversationDataId of(Long id) {

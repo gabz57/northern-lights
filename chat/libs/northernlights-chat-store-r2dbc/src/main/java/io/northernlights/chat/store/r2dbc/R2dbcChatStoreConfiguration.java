@@ -3,6 +3,8 @@ package io.northernlights.chat.store.r2dbc;
 import io.northernlights.chat.store.r2dbc.conversation.model.ConversationDataModel;
 import io.northernlights.chat.store.r2dbc.conversation.model.ConversationDataTypeConverter;
 import io.northernlights.store.r2dbc.converter.ClobToStringConverter;
+import io.r2dbc.pool.ConnectionPool;
+import io.r2dbc.pool.ConnectionPoolConfiguration;
 import io.r2dbc.postgresql.PostgresqlConnectionConfiguration;
 import io.r2dbc.postgresql.PostgresqlConnectionFactory;
 import io.r2dbc.postgresql.codec.EnumCodec;
@@ -10,6 +12,7 @@ import io.r2dbc.spi.ConnectionFactory;
 import io.r2dbc.spi.ConnectionFactoryOptions;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.boot.autoconfigure.r2dbc.R2dbcProperties;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -70,8 +73,7 @@ public class R2dbcChatStoreConfiguration extends AbstractR2dbcConfiguration {
     @Bean
     public ConnectionFactory connectionFactory() {
         String url = chatStoreProperties().getR2dbc().getUrl();
-        log.info("ConnectionFactory uses r2dbc url: {}", url);
-//        return ConnectionFactories.get(url);
+//        log.info("ConnectionFactory uses r2dbc url: {}", url);
         ConnectionFactoryOptions cfOptions = parse(url);
         PostgresqlConnectionConfiguration.Builder builder = PostgresqlConnectionConfiguration.builder()
             .codecRegistrar(EnumCodec.builder().withEnum("conversation_data_type", ConversationDataModel.ConversationDataType.class).build());
@@ -82,7 +84,7 @@ public class R2dbcChatStoreConfiguration extends AbstractR2dbcConfiguration {
         if (cfOptions.hasOption(DATABASE)) {
             builder.database((String) cfOptions.getRequiredValue(DATABASE));
         }
-//        if (parse.hasOption(ConnectionFactoryOptions.DRIVER)) {
+//        if (cfOptions.hasOption(ConnectionFactoryOptions.DRIVER)) {
 //            builder.(parse.getValue(ConnectionFactoryOptions.DRIVER));
 //        }
         if (cfOptions.hasOption(HOST)) {
@@ -101,7 +103,14 @@ public class R2dbcChatStoreConfiguration extends AbstractR2dbcConfiguration {
         if (cfOptions.hasOption(PASSWORD)) {
             builder.password((CharSequence) cfOptions.getRequiredValue(PASSWORD));
         }
-        return new PostgresqlConnectionFactory(builder.build());
+
+        R2dbcProperties.Pool poolProperties = chatStoreProperties().getR2dbc().getPool();
+        ConnectionPoolConfiguration poolConfiguration = ConnectionPoolConfiguration.builder(new PostgresqlConnectionFactory(builder.build()))
+            .initialSize(poolProperties.getInitialSize())
+            .maxSize(poolProperties.getMaxSize())
+            .maxIdleTime(poolProperties.getMaxIdleTime())
+            .build();
+        return new ConnectionPool(poolConfiguration);
     }
 
     @Bean

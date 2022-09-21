@@ -6,6 +6,7 @@ import io.northernlights.chat.api.domain.client.model.ChatDataUpdate.ChatterAddV
 import io.northernlights.chat.domain.model.conversation.ConversationId;
 import io.northernlights.chat.domain.model.ssekey.SseChatKey;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.transaction.annotation.Transactional;
 import reactor.core.Disposable;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Sinks;
@@ -28,6 +29,7 @@ public class ChatClient {
         this.chatClientStore = chatClientStore;
     }
 
+    @Transactional(readOnly = true)
     public Flux<ChatData> connect(SseChatKey sseChatKey) {
         log.info("ChatClient::connect using sseChatKey " + sseChatKey + " for clientID: " + this.chatClientId);
         return chatClientStore.loadConversationIds(this.chatClientId)
@@ -63,6 +65,7 @@ public class ChatClient {
     private Flux<ChatData> liveData() {
         return chatterDataSink.asFlux()
             .doOnSubscribe(s -> log.info("ChatterDataSink subscribed"))
+            .doOnNext(n -> log.info("LIVE :> {}", n.getChatDataType()))
             .doOnError(e -> log.error("ChatterDataSink error", e))
             .doOnComplete(() -> log.info("ChatterDataSink terminated"));
     }
@@ -72,7 +75,6 @@ public class ChatClient {
         disposableChatDataFlow = chatDataProvider.chatterFlow(this.chatClientId, this.conversationIds)
             .doOnSubscribe(s -> log.info("Subscribed to chatterEventProvider.chatterFlow for " + this.chatClientId))
             .doOnTerminate(() -> log.warn("Subscription to chatterEventProvider.chatterFlow for " + this.chatClientId + " TERMINATED"))
-            .doOnNext(n -> log.info("LIVE user DATA :> {}", n.getChatDataType()))
             .subscribe(t -> {
                 // OMG, called on each data...
                 //

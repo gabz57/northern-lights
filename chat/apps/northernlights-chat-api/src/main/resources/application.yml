@@ -1,5 +1,8 @@
 server.error.whitelabel.enabled: false
-
+logging:
+  level:
+    org.springframework.data.r2dbc: INFO
+    io.r2dbc.pool: INFO
 springdoc:
   api-docs:
     # /api-docs endpoint custom path
@@ -17,11 +20,11 @@ chat:
   store:
     r2dbc:
       # url: r2dbc:postgresql://postgres:postgres@localhost:5432/northernlights-chat
-      url: r2dbc:postgresql://${CHAT_DB_USER}:${CHAT_DB_PASSWORD}@${CHAT_DB_HOST}:${CHAT_DB_PORT}/${CHAT_DB_NAME}
+      url: r2dbc:pool:postgresql://${CHAT_DB_USER}:${CHAT_DB_PASSWORD}@${CHAT_DB_HOST}:${CHAT_DB_PORT}/${CHAT_DB_NAME}
       pool:
-        name: chat-api-pool
+#        name: chat-api-pool
         initial-size: 10
-        max-size: 10
+        max-size: 100
         max-idle-time: 30m
   redis:
     hostname: ${CHAT_REDIS_HOST}

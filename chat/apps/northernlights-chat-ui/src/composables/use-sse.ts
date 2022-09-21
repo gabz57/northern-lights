@@ -15,8 +15,8 @@ import { useUserStore } from "@/stores/user";
 import { useUiStore } from "@/stores/ui";
 import { useConversationsStore } from "@/stores/conversations";
 import { useChattersStore } from "@/stores/chatter";
-import {useJwt} from "@vueuse/integrations/useJwt";
-import {DateTime} from "luxon";
+import { useJwt } from "@vueuse/integrations/useJwt";
+import { DateTime } from "luxon";
 
 export default function useSse(): {
   disconnect: () => Promise<void>;
@@ -68,7 +68,8 @@ export default function useSse(): {
     previousJwt: string | undefined
   ) => {
     console.log("use-sse> onJwtChange ", previousJwt, " -> ", jwt);
-    if (previousJwt !== undefined && previousJwt !== "0") {
+    // clear all when token expire
+    if (!!previousJwt && !jwt) {
       uiStore.deselectConversationId();
       await nextTick(() => {
         sseStore.clearState();
@@ -77,7 +78,8 @@ export default function useSse(): {
         disconnect();
       });
     }
-    if (jwt !== undefined && jwt !== "" && jwt !== "0") {
+
+    if (jwt) {
       const decodedJwt = useJwt(jwt);
       if (decodedJwt.payload.value?.exp !== undefined) {
         const exp = DateTime.fromSeconds(decodedJwt.payload.value?.exp);
@@ -87,7 +89,6 @@ export default function useSse(): {
         }
       }
       try {
-        console.log("userinfo !");
         const chatterId = await userApiClient.userInfo();
         if (chatterId && chatterId !== "") {
           await nextTick(() => {
@@ -103,7 +104,7 @@ export default function useSse(): {
     }
   };
   watch(() => jwtRef.value, onJwtChange, {
-    immediate: true
+    immediate: true,
   });
 
   const eventSource = computed(() => sseStore.eventSource);
@@ -159,8 +160,7 @@ export default function useSse(): {
       );
       return statuses;
     };
-
-    const sseChatKey = await chatApiClient.initSse(conversationStatuses);
+    const sseChatKey = await chatApiClient.initSse(conversationStatuses());
 
     try {
       const sseEventSource = SseChatService.openSse(

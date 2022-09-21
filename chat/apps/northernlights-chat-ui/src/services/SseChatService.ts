@@ -1,8 +1,6 @@
 import { EventSourcePolyfill } from "event-source-polyfill";
 import type {
-  ChatterId,
   Conversation,
-  ConversationDataId,
   ConversationPart,
   ReadMarkers,
 } from "@/domain/model";
@@ -13,17 +11,9 @@ import type { UserStore } from "@/stores/user";
 
 export default class SseChatService {
   private static toReadMarkers = (
-    markedAsRead: ReadMarkers | undefined
-  ): Map<ChatterId, ConversationDataId> => {
-    const readMarkers = new Map<ChatterId, ConversationDataId>();
-    if (markedAsRead) {
-      for (const [chatterId, conversationDataId] of Object.entries(
-        markedAsRead
-      )) {
-        readMarkers.set(chatterId, conversationDataId);
-      }
-    }
-    return readMarkers;
+    markedAsRead: ReadMarkers | undefined = {}
+  ): ReadMarkers => {
+    return markedAsRead;
   };
 
   private static toConv = (conv: Partial<Conversation>): Conversation => {
@@ -152,7 +142,7 @@ export default class SseChatService {
         const parse = JSON.parse(e.data);
         conversationsStore.updateConversationMarkerAsRead(
           parse.conversation.id,
-          new Map(Object.entries(parse.conversation.readMarkers))
+          parse.conversation.readMarkers
         );
       },
       false

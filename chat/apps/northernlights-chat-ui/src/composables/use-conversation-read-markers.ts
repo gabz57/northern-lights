@@ -27,7 +27,9 @@ export default function useConversationReadMarkers(
     await nextTick(() => {
       const arr: PositionedReadMarker[] = [];
       if (readMarkers.value) {
-        readMarkers.value.forEach((conversationDataId, chatterId) => {
+        for (const [chatterId, conversationDataId] of Object.entries(
+          readMarkers.value
+        )) {
           const indexedMessage = messages.value.find(
             (m) => m.id === conversationDataId
           );
@@ -42,7 +44,7 @@ export default function useConversationReadMarkers(
               });
             }
           }
-        });
+        }
         positionedReadMarkers.value = arr;
       }
     });

@@ -5,6 +5,7 @@ import io.northernlights.chat.api.infrastructure.client.http.SseChatPayload.SseC
 import io.northernlights.chat.domain.model.chatter.Chatter;
 import io.northernlights.chat.domain.model.chatter.ChatterId;
 import io.northernlights.chat.domain.model.conversation.data.ConversationChatter;
+import io.northernlights.chat.domain.model.conversation.data.ConversationCreation;
 import io.northernlights.chat.domain.model.conversation.data.ConversationData;
 import io.northernlights.chat.domain.model.conversation.data.ConversationMessage;
 import reactor.core.publisher.Flux;
@@ -109,7 +110,7 @@ public class SseChatDataAdapter {
 //                    .participants(List.of(chatterAddValue.getChatterId().getId()))
                     // TO DO: ⬆ or ⬇ or both ??
                     .data(SseChatPayload.SseChatConversationDataList.of(
-                        SseChatPayload.SseChatConversationChatterData.builder()
+                        SseChatPayload.SseChatConversationChatterJoinedData.builder()
                             .id(chatDataUpdate.getChatterAdd().getConversationDataId().getId())
                             .dateTime(chatDataUpdate.getChatterAdd().getDateTime().toEpochSecond())
                             .from(chatDataUpdate.getChatterAdd().getFrom().getId().toString())
@@ -186,7 +187,12 @@ public class SseChatDataAdapter {
         return switch (conversationData.getConversationDataType()) {
 //            case CREATION, READ_MARKER:
             case CREATION:
-                yield null;
+                ConversationCreation conversationCreation = (ConversationCreation) conversationData;
+                yield SseChatPayload.SseChatConversationCreationData.builder()
+                    .id(conversationCreation.getConversationDataId().getId())
+                    .dateTime(conversationCreation.getDateTime().toEpochSecond())
+                    .createdBy(conversationCreation.getChatterId().getId().toString())
+                    .build();
             case MESSAGE:
                 ConversationMessage conversationMessage = (ConversationMessage) conversationData;
                 yield SseChatPayload.SseChatConversationMessageData.builder()
@@ -197,7 +203,7 @@ public class SseChatDataAdapter {
                     .build();
             case CHATTER_ADD:
                 ConversationChatter conversationChatter = (ConversationChatter) conversationData;
-                yield SseChatPayload.SseChatConversationChatterData.builder()
+                yield SseChatPayload.SseChatConversationChatterJoinedData.builder()
                     .id(conversationChatter.getConversationDataId().getId())
                     .dateTime(conversationChatter.getDateTime().toEpochSecond())
                     .from(conversationChatter.getChatterId().getId().toString())

@@ -34,10 +34,10 @@ public class ConversationDataReadMarkerRepository {
         return r2dbcEntityTemplate.getDatabaseClient()
             .sql("CREATE TABLE " + tableConversationMarkers(conversationId) +
                 " (" +
-                "    conversation_data_id varchar(255) not null," +
-                "    chatter_id           uuid         PRIMARY KEY," +
-                "    created_at           timestamp    not null," +
-                "    updated_at           timestamp    not null" +
+                "    conversation_data_id integer   not null," +
+                "    chatter_id           uuid      PRIMARY KEY," +
+                "    created_at           timestamp not null," +
+                "    updated_at           timestamp not null" +
                 ")")
             .then();
     }
@@ -53,20 +53,26 @@ public class ConversationDataReadMarkerRepository {
     public Mono<ConversationDataRef> markAsRead(OffsetDateTime dateTime, ChatterId author, ConversationId conversationId, ConversationDataId conversationDataId) {
         return r2dbcEntityTemplate.update(ConversationDataReadMarkerModel.class)
             .inTable(tableConversationMarkers(conversationId))
-            .matching(query(where("chatter_id").is(author.getId())))
-            .apply(update("conversation_data_id", conversationDataId.getId()))
+            .matching(query(where("chatter_id").is(author.getId())
+                .and(where("conversation_data_id").lessThan(Long.valueOf(conversationDataId.getId())))))
+            .apply(update("conversation_data_id", Long.valueOf(conversationDataId.getId())))
             .flatMap(updateCount -> {
                 if (updateCount > 0) {
                     return Mono.just(ConversationDataRef.of(conversationId, conversationDataId));
                 } else {
-                    return r2dbcEntityTemplate.insert(ConversationDataReadMarkerModel.class)
-                        .into(tableConversationMarkers(conversationId))
-                        .using(ConversationDataReadMarkerModel.builder()
-                            .conversationDataId(conversationDataId.getId())
-                            .chatterId(author.getId())
+                    return r2dbcEntityTemplate.select(ConversationDataReadMarkerModel.class)
+                        .from(tableConversationMarkers(conversationId))
+                        .matching(query(where("chatter_id").is(author.getId()))).one()
+                        .map(model -> ConversationDataRef.of(conversationId, conversationDataId))
+
+                        .switchIfEmpty(r2dbcEntityTemplate.insert(ConversationDataReadMarkerModel.class)
+                            .into(tableConversationMarkers(conversationId))
+                            .using(ConversationDataReadMarkerModel.builder()
+                                .conversationDataId(Long.valueOf(conversationDataId.getId()))
+                                .chatterId(author.getId())
 //                            .createdAt(dateTime.toLocalDateTime())
-                            .build())
-                        .thenReturn(ConversationDataRef.of(conversationId, conversationDataId));
+                                .build())
+                            .thenReturn(ConversationDataRef.of(conversationId, conversationDataId)));
                 }
             });
     }

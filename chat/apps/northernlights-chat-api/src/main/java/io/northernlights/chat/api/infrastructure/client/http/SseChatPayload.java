@@ -59,13 +59,26 @@ public class SseChatPayload {
         // include = JsonTypeInfo.As.PROPERTY,
         property = "type")
     @JsonSubTypes({
+        @JsonSubTypes.Type(value = SseChatConversationCreationData.class, name = "CREATION"),
         @JsonSubTypes.Type(value = SseChatConversationMessageData.class, name = "MESSAGE"),
 //        @JsonSubTypes.Type(value = SseChatConversationMessageData.class, name = "MESSAGE_UPDATE"),
-        @JsonSubTypes.Type(value = SseChatConversationChatterData.class, name = "CHATTER") // TODO: rename CHATTER_JOINED
+        @JsonSubTypes.Type(value = SseChatConversationChatterJoinedData.class, name = "CHATTER_JOINED"),
+        @JsonSubTypes.Type(value = SseChatConversationChatterLeftData.class, name = "CHATTER_LEFT")
     })
     public interface SseChatConversationData {
     }
 
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class SseChatConversationCreationData implements SseChatConversationData {
+        @Builder.Default
+        private String type = "CREATION";
+        private String id;
+        private Long dateTime;
+        private String createdBy;
+    }
     @Data
     @Builder
     @NoArgsConstructor
@@ -83,9 +96,22 @@ public class SseChatPayload {
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class SseChatConversationChatterData implements SseChatConversationData {
+    public static class SseChatConversationChatterJoinedData implements SseChatConversationData {
         @Builder.Default
-        private String type = "CHATTER";
+        private String type = "CHATTER_JOINED";
+        private String id;
+        private Long dateTime;
+        private String from;
+        private String chatterId;
+    }
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class SseChatConversationChatterLeftData implements SseChatConversationData {
+        @Builder.Default
+        private String type = "CHATTER_LEFT";
         private String id;
         private Long dateTime;
         private String from;

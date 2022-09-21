@@ -12,12 +12,12 @@ export const useUserStore = defineStore("user", () => {
   // const jwt = ref<string>("");
   // const chatterId = ref<ChatterId>("0");
   const jwt = useSessionStorage("user.jwt", "");
-  const chatterId = ref<ChatterId>("0");
   if (jwt.value !== "") {
     // TODO: use injection
     userApiClient.setJwt(jwt.value);
     chatApiClient.setJwt(jwt.value);
   }
+  const chatterId = ref<ChatterId>("0");
   const profile = ref<Profile>();
 
   function setChatterId(id: ChatterId) {

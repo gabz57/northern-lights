@@ -27,13 +27,11 @@ export type MarkableConversationData = ConversationData & Markable;
 
 const reverse = (readMarkers: ReadMarkers): ReadMarkersReversed => {
   const reversed = new Map<ConversationDataId, ChatterId[]>();
-  readMarkers.forEach(
-    (conversationDataId: ConversationDataId, chatterId: ChatterId) => {
-      const chatterIds = reversed.get(conversationDataId) || [];
-      chatterIds.push(chatterId);
-      reversed.set(conversationDataId, chatterIds);
-    }
-  );
+  for (const [chatterId, conversationDataId] of Object.entries(readMarkers)) {
+    const chatterIds = reversed.get(conversationDataId) || [];
+    chatterIds.push(chatterId);
+    reversed.set(conversationDataId, chatterIds);
+  }
   return reversed;
 };
 
@@ -67,9 +65,7 @@ export default function useConversation(
     }
   };
   const content = ref<MarkableConversationData[]>([]);
-  const readMarkers = ref<ReadMarkers>(
-    new Map<ChatterId, ConversationDataId>()
-  );
+  const readMarkers = ref<ReadMarkers>({});
 
   const conversationRef = computed<Conversation>(() =>
     conversationsStore.getConversationById(conversationIdRef.value)
@@ -93,9 +89,8 @@ export default function useConversation(
     markers: ReadMarkers
   ): MarkableConversationData[] => {
     const reversed: ReadMarkersReversed = reverse(markers);
-    const marker: ConversationDataId | undefined = markers.get(
-      userStore.chatterId || ""
-    );
+    const marker: ConversationDataId | undefined =
+      markers[userStore.chatterId];
     let index = 0;
     return data.map((conversationData) => {
       const watchVisible =

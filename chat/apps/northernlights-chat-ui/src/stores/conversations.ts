@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import { computed, ref } from "vue";
+import { computed } from "vue";
 import type {
   ChatterId,
   Conversation,
@@ -14,15 +14,45 @@ import type {
 } from "@/domain/model";
 import { useUserStore } from "@/stores/user";
 import { chatApiClient } from "@/services/ChatApiClient";
+import { useLocalStorage, useSessionStorage } from "@vueuse/core";
+
 export type ConversationsStore = ReturnType<typeof useConversationsStore>;
 
 export const useConversationsStore = defineStore("conversations", () => {
   const userStore = useUserStore();
 
   // state
-  const conversations = ref<Conversations>(
-    new Map<ConversationId, Conversation>()
+  const conversations = useLocalStorage<Conversations>(
+    "conversations",
+    new Map<ConversationId, Conversation>(),
+    {
+      serializer: {
+        read: (v: string): Conversations => {
+          return v
+            ? new Map<ConversationId, Conversation>(JSON.parse(v))
+            : new Map<ConversationId, Conversation>();
+        },
+        write: (v: Conversations): string => {
+          return JSON.stringify(Array.from(v.entries()));
+        },
+      },
+    }
   );
+
+  const lastReadMarkerEmitted = useSessionStorage<
+    Map<ConversationId, ConversationDataId>
+  >("emittedReadMarkers", new Map<ConversationId, ConversationDataId>(), {
+    serializer: {
+      read: (v: string): Map<ConversationId, ConversationDataId> => {
+        return v
+          ? new Map<ConversationId, ConversationDataId>(JSON.parse(v))
+          : new Map<ConversationId, ConversationDataId>();
+      },
+      write: (v: Map<ConversationId, ConversationDataId>): string => {
+        return JSON.stringify(Array.from(v.entries()));
+      },
+    },
+  });
 
   // getters
   const getConversationById = computed(() => (id: ConversationId) => {
@@ -55,10 +85,11 @@ export const useConversationsStore = defineStore("conversations", () => {
     conversationPart.data.forEach((conversationData: ConversationData) =>
       conversation.data.push(conversationData)
     );
-    conversationPart.readMarkers.forEach(
-      (conversationId: ConversationId, chatterId: ChatterId) =>
-        conversation.readMarkers.set(chatterId, conversationId)
-    );
+
+    conversation.readMarkers = {
+      ...conversation.readMarkers,
+      ...conversationPart.readMarkers,
+    };
   }
 
   function updateConversationAddMessage(
@@ -82,11 +113,13 @@ export const useConversationsStore = defineStore("conversations", () => {
     conversationId: ConversationId,
     readMarkers: ReadMarkers
   ) {
-    readMarkers.forEach((conversationDataId, chatterId) =>
-      conversations.value
-        .get(conversationId)
-        ?.readMarkers.set(chatterId, conversationDataId)
-    );
+    const conversation = conversations.value.get(conversationId);
+    if (conversation === undefined) return;
+
+    conversation.readMarkers = {
+      ...conversation.readMarkers,
+      ...readMarkers,
+    };
   }
 
   async function sendMessage(
@@ -102,11 +135,18 @@ export const useConversationsStore = defineStore("conversations", () => {
     conversationId: ConversationId,
     conversationDataId: ConversationDataId
   ) {
-    await chatApiClient.markAsRead(
-      chatterId,
-      conversationId,
-      conversationDataId
-    );
+    if (
+      lastReadMarkerEmitted.value.get(conversationId) === undefined ||
+      Number(lastReadMarkerEmitted.value.get(conversationId)) <
+        Number(conversationDataId)
+    ) {
+      lastReadMarkerEmitted.value.set(conversationId, conversationDataId);
+      await chatApiClient.markAsRead(
+        chatterId,
+        conversationId,
+        conversationDataId
+      );
+    }
   }
 
   async function createConversation(
@@ -139,6 +179,7 @@ export const useConversationsStore = defineStore("conversations", () => {
     conversations,
     getConversationById,
     getPrivateConversationWithChatterId,
+    lastReadMarkerEmitted,
     installConversation,
     installConversationPart,
     updateConversationAddMessage,

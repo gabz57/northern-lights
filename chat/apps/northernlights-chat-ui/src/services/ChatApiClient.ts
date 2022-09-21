@@ -1,17 +1,44 @@
 import type { ConversationDataId, ConversationId } from "@/domain/model";
 import { config } from "@/services/EnvConfig";
 
-const debounceFetch = <Params extends never[]>(
-  func: (...args: Params) => Promise<Response>,
+const debounceFetch = <
+  Params extends [string, ConversationId, ConversationDataId]
+>(
+  func: (...args: Params) => Promise<unknown>,
   timeout = 300
 ): ((...args: Params) => void) => {
   let timer: ReturnType<typeof setTimeout>;
+  const prevDataIdByConvId: { [k: ConversationId]: ConversationDataId } = {};
   return (...args: Params) => {
-    clearTimeout(timer);
-    timer = setTimeout(() => func(...args), timeout);
+    const later = () => {
+      clearTimeout(timeout);
+      return func(...args);
+    };
+
+    if (
+      prevDataIdByConvId[args[1]] === undefined ||
+      Number(args[2]) > Number(prevDataIdByConvId[args[1]])
+    ) {
+      clearTimeout(timer);
+      prevDataIdByConvId[args[1]] = args[2];
+      timer = setTimeout(later, timeout);
+    }
   };
 };
 
+const debouncedMarkedAsRead = debounceFetch(
+  (
+    jwt: string,
+    cId: ConversationId,
+    cDataId: ConversationDataId
+  ): Promise<Response> => {
+    return ChatApiClient.post(jwt, "mark-as-read", {
+      conversationId: cId,
+      conversationDataId: cDataId,
+    });
+  },
+  200
+);
 class ChatApiClient {
   private lastEmittedConversationDataIdPerConversationId = new Map<
     string,
@@ -24,13 +51,13 @@ class ChatApiClient {
   }
 
   async initSse(
-    conversationStatuses: () => Map<ConversationId, ConversationDataId>
+    conversationStatuses: Map<ConversationId, ConversationDataId>
   ): Promise<string> {
     this.lastEmittedConversationDataIdPerConversationId.clear();
     return (
       await (
         await ChatApiClient.post(this.jwt, "init-sse", {
-          conversationStatuses: conversationStatuses(),
+          conversationStatuses: Object.fromEntries(conversationStatuses),
         })
       ).json()
     ).sseChatKey;
@@ -76,14 +103,7 @@ class ChatApiClient {
         conversationDataId
       );
     }
-    debounceFetch(
-      () =>
-        ChatApiClient.post(this.jwt, "mark-as-read", {
-          conversationId,
-          conversationDataId,
-        }),
-      1500
-    )();
+    debouncedMarkedAsRead(this.jwt, conversationId, conversationDataId);
   }
 
   async inviteChatter(
@@ -97,7 +117,7 @@ class ChatApiClient {
     });
   }
 
-  private static async post(
+  static async post(
     jwt: string,
     endpoint: string,
     payload: unknown

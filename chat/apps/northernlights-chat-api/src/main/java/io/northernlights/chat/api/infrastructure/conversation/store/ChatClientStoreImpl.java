@@ -5,7 +5,6 @@ import io.northernlights.chat.api.domain.client.ChatEventDataAdapter;
 import io.northernlights.chat.api.domain.client.model.ChatClientID;
 import io.northernlights.chat.api.domain.client.model.ChatData;
 import io.northernlights.chat.api.domain.client.model.ChatDataChatters;
-import io.northernlights.chat.domain.model.chatter.Chatter;
 import io.northernlights.chat.domain.model.chatter.ChatterId;
 import io.northernlights.chat.domain.model.conversation.ConversationId;
 import io.northernlights.chat.domain.model.conversation.data.ConversationDataId;
@@ -15,12 +14,12 @@ import io.northernlights.chat.domain.store.conversation.ConversationStore;
 import io.northernlights.chat.domain.store.ssekey.SseKeyStore;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Stream;
 
 import static java.util.Optional.ofNullable;
 
@@ -32,6 +31,7 @@ public class ChatClientStoreImpl implements ChatClientStore {
     private final SseKeyStore sseKeyStore;
     private final ChatEventDataAdapter chatEventDataAdapter;
 
+    @Transactional
     public Flux<ChatData> loadPreviousData(ChatClientID chatClientId, SseChatKey sseChatKey) {
         return sseKeyStore.useConversationStatusesBySseChatKey(sseChatKey)
             // when empty, let Mono.empty() to skip previous data
@@ -40,12 +40,12 @@ public class ChatClientStoreImpl implements ChatClientStore {
     }
 
     private Flux<ChatData> loadConversationsUsingMarkers(List<ConversationId> conversationIds, Map<ConversationId, ConversationDataId> conversationStatuses) {
-        log.info("Loading install data for conversations : {}", conversationIds);
         return Flux.concat(
-            installChatters(),
-            conversationStatuses.isEmpty()
-                ? installWorkspace(conversationIds) // new client
-                : updateWorkspace(conversationIds, conversationStatuses)); // client with data
+                installChatters(),
+                conversationStatuses.isEmpty()
+                    ? installWorkspace(conversationIds) // new client
+                    : updateWorkspace(conversationIds, conversationStatuses))
+            .doFirst(() -> log.info("Loading install data for conversations : {}", conversationIds)); // client with data
     }
 
     private Flux<ChatData> installChatters() {
@@ -56,11 +56,12 @@ public class ChatClientStoreImpl implements ChatClientStore {
     }
 
     private Flux<ChatData> installWorkspace(List<ConversationId> conversationIds) {
-        return Flux.fromStream(conversationIds.stream()).flatMap(this::installConversation);
+        return Flux.fromStream(conversationIds.stream())
+            .flatMap(this::installConversation);
     }
 
+    @Transactional(readOnly = true)
     public Mono<ChatData> installConversation(ConversationId conversationId) {
-        log.info("Loading full data for conversation : {}", conversationId.getId());
         return conversationStore.participants(conversationId)
             .flatMap(chatterIds -> Mono
                     .zip(
@@ -74,7 +75,7 @@ public class ChatClientStoreImpl implements ChatClientStore {
                         conversationId, tuple.getT1(), tuple.getT2(), tuple.getT3(), tuple.getT4()))
                     .onErrorContinue((e, o) -> log.error("Failed to load chat install data content with object : "
                         + ofNullable(o).map(Object::toString).orElse(""), e))
-            );
+            ).doFirst(() -> log.info("Loading full data for conversation : {}", conversationId.getId()));
     }
 
     private Flux<ChatData> updateWorkspace(List<ConversationId> conversationIds, Map<ConversationId, ConversationDataId> conversationStatuses) {
@@ -83,7 +84,6 @@ public class ChatClientStoreImpl implements ChatClientStore {
     }
 
     private Mono<ChatData> completeConversation(ConversationId conversationId, Map<ConversationId, ConversationDataId> conversationStatuses) {
-        log.info("Loading partial data");
         return conversationStore.participants(conversationId)
             .flatMap(chatterIds -> Mono
                 .zip(
@@ -94,19 +94,22 @@ public class ChatClientStoreImpl implements ChatClientStore {
                     conversationId, tuple.getT1(), tuple.getT2(), tuple.getT3()))
                 .onErrorContinue((e, o) -> log.error("Failed to load chat install data content with object : "
                     + ofNullable(o).map(Object::toString).orElse(""), e))
-            );
+            ).doFirst(() -> log.info("Loading partial data"));
     }
 
+    @Transactional(readOnly = true)
     public Mono<List<ConversationId>> loadConversationIds(ChatClientID chatClientId) {
         return conversationStore.listConversationIds(chatClientId.getChatterId());
     }
 
+    @Transactional(readOnly = true)
     public Mono<ChatterId> authenticate(SseChatKey sseChatKey) {
         return sseKeyStore.findChatterIdBySseChatKey(sseChatKey);
     }
 
+    @Transactional
     public void revoke(SseChatKey sseChatKey) {
-        log.info("Revoking sseChatKey {}", sseChatKey);
-        sseKeyStore.revoke(sseChatKey).subscribe();
+        sseKeyStore.revoke(sseChatKey)
+            .doFirst(() -> log.info("Revoking sseChatKey {}", sseChatKey)).subscribe();
     }
 }
