@@ -90,7 +90,16 @@ public class ChatEventDataAdapter {
             .conversationId(ConversationId.of(chatEvent.getConversationId()))
             .isPrivate(chatEvent.getIsPrivate())
             .chatters(chatEvent.getParticipants().stream().map(ChatterId::of).toList())
-            .conversationData(new Conversation())
+            .conversationData(new Conversation(List.of(
+                 ConversationCreation.builder()
+                     .conversationDataId(ConversationDataId.of(chatEvent.getConversationDataId()))
+                     .chatterId(ChatterId.of(chatEvent.getCreatedBy()))
+                     .name(chatEvent.getName())
+                     .participants(chatEvent.getParticipants().stream().map(ChatterId::of).toList())
+                     .dateTime(chatEvent.getTimestamp())
+                     .dialogue(chatEvent.getIsPrivate())
+                     .build()
+            )))
             .readMarkers(new HashMap<>())
             .build());
     }
@@ -129,53 +138,4 @@ public class ChatEventDataAdapter {
                 .build())
             .build());
     }
-//
-//    private Mono<ChatData> adaptLiveData(ConversationCreatedEvent conversationEvent) {
-//        return chatterStore.listChatters(conversationEvent.getParticipants())
-//            .map(chatters -> ChatDataConversationInstall.builder()
-//                .name(conversationEvent.getName())
-//                .createdBy(conversationEvent.getCreatedBy())
-//                .createdAt(conversationEvent.getDateTime())
-//                .conversationId(conversationEvent.getConversationId())
-//                .isPrivate(conversationEvent.getDialogue())
-//                .chatters(chatters)
-//                .conversationData(new Conversation())
-//                .readMarkers(new HashMap<>())
-//                .build());
-//    }
-//
-//    private Mono<ChatData> adaptLiveData(ConversationMessageSentEvent conversationEvent) {
-//        return Mono.just(ChatDataUpdate.builder()
-//            .conversationId(conversationEvent.getConversationId())
-//            .message(ChatDataUpdate.MessageValue.builder()
-//                .conversationDataId(conversationEvent.getConversationDataId())
-//                .from(conversationEvent.getAuthor())
-//                .dateTime(conversationEvent.getDateTime())
-//                .message(conversationEvent.getMessage())
-//                .build())
-//            .build());
-//    }
-//
-//    private Mono<ChatData> adaptLiveData(ConversationMarkedAsReadEvent conversationEvent) {
-//        return Mono.just(ChatDataUpdate.builder()
-//            .conversationId(conversationEvent.getConversationId())
-//            .markedAsRead(ChatDataUpdate.MarkedAsReadValue.builder()
-//                .conversationDataId(conversationEvent.getConversationDataId())
-//                .by(conversationEvent.getMarkedBy())
-////                .at(conversationEvent.getMarkedConversationDataId())
-//                .build())
-//            .build());
-//    }
-//
-//    private Mono<ChatData> adaptLiveData(ChatterJoinedEvent conversationEvent) {
-//        return Mono.just(ChatDataUpdate.builder()
-//            .conversationId(conversationEvent.getConversationId())
-//            .chatterAdd(ChatDataUpdate.ChatterAddValue.builder()
-//                .conversationDataId(conversationEvent.getConversationDataId())
-//                .from(conversationEvent.getInvitedBy())
-//                .chatterId(conversationEvent.getInvited())
-//                .dateTime(conversationEvent.getDateTime())
-//                .build())
-//            .build());
-//    }
 }

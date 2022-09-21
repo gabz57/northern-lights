@@ -27,16 +27,22 @@ Then rename :
 
 Current
 
-| Nom              | Repo (dossier)                                         | V-Path | Port                           |
-|------------------|--------------------------------------------------------|--------|--------------------------------|
-| **Front Chat**   | [northernlights-chat-ui](northernlights-chat-ui)       | /      | [:8081](http://localhost:8081) |
-| **API Chat**     | [northernlights-chat-api](northernlights-chat-api)     | /api   | [:3000](http://localhost:8080) |
+| Nom              | V-Path    | Repo (dossier)                                         | Port                           |
+|------------------|-----------|--------------------------------------------------------|--------------------------------|
+| **Front Chat**   | [:80]() / | [northernlights-chat-ui](northernlights-chat-ui)       | [:8081](http://localhost:8081) |
+| **API Chat**     | [:80]() /api      | [northernlights-chat-api](northernlights-chat-api)     | [:3000](http://localhost:8080) |
 
 Target
 
-| Nom              | Repo (dossier)                                         | V-Path        | Port                           |
-|------------------|--------------------------------------------------------|---------------|--------------------------------|
-| **Front Home**   | [northernlights-ui](northernlights-ui)                 | /             | [:8080](http://localhost:8080) |
-| **Front Chat**   | [northernlights-chat-ui](northernlights-chat-ui)       | /chat/www     | [:8081](http://localhost:8081) |
-| **API Chat**     | [northernlights-chat-api](northernlights-chat-api)     | /chat/api     | [:3000](http://localhost:3001) |
-| **API Chat SSE** | [northernlights-chat-sse](northernlights-chat-api-sse) | /chat/api/sse | [:3001](http://localhost:3002) |
+| Nom              | V-Path                | Repo (dossier)                                         | Port                           |
+|------------------|-----------------------|--------------------------------------------------------|--------------------------------|
+| **Front Home**   | [:80]() /             | [northernlights-ui](northernlights-ui)                 | [:8080](http://localhost:8080) |
+| **Front Chat**   | [:80]() /chat/www     | [northernlights-chat-ui](northernlights-chat-ui)       | [:8081](http://localhost:8081) |
+| **API Chat**     | [:80]() /chat/api     | [northernlights-chat-api](northernlights-chat-api)     | [:3000](http://localhost:3001) |
+| **API Chat SSE** | [:80]() /chat/api/sse | [northernlights-chat-sse](northernlights-chat-api-sse) | [:3001](http://localhost:3002) |
+
+See [docker-compose.yml](/docker-compose.yml) and [Makefile](/../../Makefile) at the root to ease build and run, basically :
+- Have Docker and Docker-compose on the target machine:
+- Allow the certificate on the target machine
+- Run 'make' to build java images, and starting containers
+- Go on https://localhost

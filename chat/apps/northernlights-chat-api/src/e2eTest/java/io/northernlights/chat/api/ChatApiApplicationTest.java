@@ -141,8 +141,12 @@ class ChatApiApplicationTest extends E2ETestBase {
                 .value(r -> assertThat(r.getConversationId()).isNotNull())
                 .value(response -> firstConversationId.set(response.getConversationId()))
             )
-            .consumeNextWith(n -> assertThat(n).hasEvent("CHATTER:INSTALL").hasData().withChatterData().hasId(chatterId.get()))
+            .consumeNextWith(n -> assertThat(n).hasEvent("CHATTER:INSTALL").hasData().withChatterData().hasId(DUMMY_CHATTERS.get("Alpha").getChatterId()))
             .consumeNextWith(n -> assertThat(n).hasEvent("CHATTER:INSTALL").hasData().withChatterData().hasId(DUMMY_CHATTERS.get("Beta").getChatterId()))
+            .consumeNextWith(n -> assertThat(n).hasEvent("CHATTER:INSTALL").hasData().withChatterData().hasId(DUMMY_CHATTERS.get("Gamma").getChatterId()))
+            .consumeNextWith(n -> assertThat(n).hasEvent("CHATTER:INSTALL").hasData().withChatterData().hasId(DUMMY_CHATTERS.get("Delta").getChatterId()))
+            .consumeNextWith(n -> assertThat(n).hasEvent("CHATTER:INSTALL").hasData().withChatterData().hasId(chatterId.get()))
+            .consumeNextWith(n -> assertThat(n).hasEvent("CONVERS:INSTALL").hasData().withConversationData().hasName("SELF").isPrivate(true))
             .consumeNextWith(n -> assertThat(n).hasEvent("CONVERS:INSTALL").hasData().withConversationData().hasName("SSE TEST !!").isPrivate(true))
 
             .then(() -> sendMessage(token, firstConversationId.get(), "Hello SSE world !!")

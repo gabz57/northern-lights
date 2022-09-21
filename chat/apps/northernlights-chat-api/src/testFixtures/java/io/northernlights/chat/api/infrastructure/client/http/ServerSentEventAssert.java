@@ -11,7 +11,7 @@ import java.util.Objects;
 public class ServerSentEventAssert extends AbstractAssert<ServerSentEventAssert, ServerSentEvent<SseChatPayload>> {
 
     public static ServerSentEventAssert assertThat(ServerSentEvent<SseChatPayload> actual) {
-        log.info("{}", actual);
+//        log.info("{}", actual);
         return new ServerSentEventAssert(actual);
     }
 

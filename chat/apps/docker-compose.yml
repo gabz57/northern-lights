@@ -85,9 +85,7 @@ services:
       northernlights-chat-redis:
         condition: service_started
       northernlights-chat-db:
-        condition: service_started
-#      northernlights-chat-db-liquibase:
-#        condition: service_completed_successfully
+        condition: service_healthy
 
   chat-api:
     container_name: northernlights-chat-api
@@ -114,8 +112,10 @@ services:
         condition: service_healthy
       northernlights-chat-redis:
         condition: service_started
-#      northernlights-chat-debezium:
-#        condition: service_started
+      northernlights-chat-debezium:
+        condition: service_started
+      northernlights-chat-db-liquibase:
+        condition: service_completed_successfully
 
   chat-front:
     image: node:16.15.1
@@ -136,4 +136,6 @@ services:
       - 'northernlights-chat-ui-node-modules:/northernlights-chat-ui/node_modules'
     depends_on:
       nginx-proxy:
+        condition: service_started
+      chat-api:
         condition: service_started
