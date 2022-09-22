@@ -86,7 +86,6 @@ public class R2dbcConversationStore implements ConversationStore {
 
     @Transactional
     public Mono<ConversationDataRef> create(OffsetDateTime dateTime, ChatterId author, String conversationName, List<ChatterId> participants, Boolean isPrivate) {
-//        Set<ChatterId> allParticipants = uniqueChatterIdsWithAuthor(author, participants);
         ConversationId conversationId = conversationIdGenerator.generate();
         ConversationCreation conversationData = new ConversationCreation(null, author, conversationName, participants, dateTime, isPrivate);
 
@@ -101,11 +100,10 @@ public class R2dbcConversationStore implements ConversationStore {
                     author.getId().toString(),
                     conversationName,
                     participants.stream().map(ChatterId::getId)
-                        .map(UUID::toString).toList(), // expected to contain creator most of the time
+                        .map(UUID::toString).toList(), // expected to contain creator
                     dateTime,
                     isPrivate
                 ))
-//                .then(markEventAsRead(conversationId, dateTime, author, conversationDataId))
                 .thenReturn(ConversationDataRef.of(conversationId, conversationDataId)));
     }
 
@@ -123,12 +121,6 @@ public class R2dbcConversationStore implements ConversationStore {
             .isNew(true)
             .build());
     }
-
-//    private Set<ChatterId> uniqueChatterIdsWithAuthor(ChatterId author, List<ChatterId> participants) {
-//        Set<ChatterId> allParticipants = new HashSet<>(participants.stream().distinct().toList());
-//        allParticipants.add(author);
-//        return allParticipants;
-//    }
 
     private Mono<Void> bindConversationToChatters(Collection<ChatterId> chatterIds, ConversationId conversationId, OffsetDateTime dateTime) {
         return Flux.fromIterable(chatterIds)
@@ -159,8 +151,7 @@ public class R2dbcConversationStore implements ConversationStore {
     @Transactional
     public Mono<ConversationDataRef> addChatter(ConversationId conversationId, OffsetDateTime dateTime, ChatterId invitedByChatterId, ChatterId invitedChatterId) {
         ConversationChatter conversationChatter = new ConversationChatter(null, invitedByChatterId, dateTime, invitedChatterId);
-
-        return conversationDataRepository.writeConversationData(conversationId, dateTime, invitedByChatterId,  /*conversationDataId,*/ conversationChatter, ConversationDataType.CHATTER_ADD)
+        return conversationDataRepository.writeConversationData(conversationId, dateTime, invitedByChatterId, conversationChatter, ConversationDataType.CHATTER_ADD)
             .flatMap(conversationDataModel -> bindConversationToChatter(invitedChatterId, conversationId, dateTime)
                 .then(chatEventStore.publish(new ConversationJoinedEvent(
                     conversationId.getId().toString(),
@@ -180,8 +171,6 @@ public class R2dbcConversationStore implements ConversationStore {
                     markedBy.getId().toString(),
                     dateTime))
                 .thenReturn(ref));
-        //            .doOnNext(conversationUpdatedEvent -> conversationStore.participants(input.conversationID)
-        //                    .map(participants -> chatterStore.writeConversationUpdate(conversationUpdatedEvent, participants)))
     }
 
     @Transactional(readOnly = true)
@@ -190,8 +179,6 @@ public class R2dbcConversationStore implements ConversationStore {
             .map(ChatterConversationModel::getConversationId)
             .map(ConversationId::of)
             .collectList();
-
         // TODO: complete ids with PUBLIC conversations
     }
-
 }

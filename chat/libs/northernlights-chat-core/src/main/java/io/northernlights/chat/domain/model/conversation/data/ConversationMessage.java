@@ -18,12 +18,11 @@ public class ConversationMessage extends ConversationData.AbstractConversationDa
 
     @Builder
     public ConversationMessage(
-//        ConversationId conversationId,
         ConversationDataId conversationDataId,
         ChatterId chatterId,
         OffsetDateTime dateTime,
         @NonNull Message message) {
-        super(MESSAGE, /*conversationId,*/ conversationDataId, chatterId, dateTime);
+        super(MESSAGE, conversationDataId, chatterId, dateTime);
         this.message = message;
     }
 

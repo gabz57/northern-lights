@@ -9,11 +9,11 @@ import { ref } from "vue";
 
 export default {
   name: "ConversationInput",
-  emits: ["sendMessage"],
+  emits: ["submit"],
   setup(props: any, { emit }: any) {
     const messageToSend = ref("");
     const sendMessage = () => {
-      emit("sendMessage", messageToSend.value);
+      emit("submit", messageToSend.value);
       messageToSend.value = "";
     };
     return {

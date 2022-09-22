@@ -12,7 +12,7 @@
       />
       <ConversationInput
         class="conversation__messages-input"
-        @sendMessage="sendMessage"
+        @submit="sendMessage"
       />
     </div>
     <div class="conversation__separator" />
